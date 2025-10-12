@@ -30,7 +30,9 @@ class Login:
         self.input_password = tk.Entry(self.left_frame, width=40, show='*', bd=1)
         self.input_password.pack(pady=10)
 
-        self.ventana_login.mainloop()
+        self.boton_login = tk.Button(self.left_frame, text="Iniciar sesión", font=("Arial", 16), bg="black", fg="white")
+        self.boton_login.pack(pady=20)
 
+        self.ventana_login.mainloop()
 
 Login()
