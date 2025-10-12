@@ -10,24 +10,24 @@ class Login:
 
         fondo = 'white'
 
-        self.frame_superior = tk.Frame(self.ventana_login)
-        self.frame_superior.configure(bg=fondo)
-        self.frame_superior.pack(expand=True, fill="both")
+        self.left_frame = tk.Frame(self.ventana_login)
+        self.left_frame.configure(bg=fondo)
+        self.left_frame.pack(expand=True, fill="both", side='left')
 
-        self.frame_inferior = tk.Frame(self.ventana_login)
-        self.frame_inferior.configure(bg=fondo)
-        self.frame_inferior.pack(expand=True, fill="both")
+        self.right_frame = tk.Frame(self.ventana_login)
+        self.right_frame.configure(bg='black')
+        self.right_frame.pack(expand=True, fill="both", side='right')
 
-        self.label_usr = tk.Label(self.frame_superior, text="Usuario", font=("Arial", 20), fg="black", bg=fondo)
+        self.label_usr = tk.Label(self.left_frame, text="Usuario", font=("Arial", 20), fg="black", bg=fondo)
         self.label_usr.pack(pady=10)
 
-        self.input_user = tk.Entry(self.frame_superior, width=40, bd=1)
+        self.input_user = tk.Entry(self.left_frame, width=40, bd=1)
         self.input_user.pack(pady=10)
 
-        self.label_password = tk.Label(self.frame_superior, text="Contraseña", font=("Arial", 20), fg="black", bg=fondo)
+        self.label_password = tk.Label(self.left_frame, text="Contraseña", font=("Arial", 20), fg="black", bg=fondo)
         self.label_password.pack(pady=10)
 
-        self.input_password = tk.Entry(self.frame_superior, width=40, show='*', bd=1)
+        self.input_password = tk.Entry(self.left_frame, width=40, show='*', bd=1)
         self.input_password.pack(pady=10)
 
         self.ventana_login.mainloop()
