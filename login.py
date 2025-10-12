@@ -23,7 +23,7 @@ class Login:
         self.left_frame.grid_columnconfigure(0, weight=1)  # centrar horizontal
 
         content = tk.Frame(self.left_frame, bg=fondo)
-        content.grid(row=1, column=0)  # queda al centro vertical y horizontal
+        content.grid(row=1, column=0)
 
         tk.Label(content, text="Usuario", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
         tk.Entry(content, width=40, bd=1).pack(pady=10)
