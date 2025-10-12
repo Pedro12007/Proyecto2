@@ -7,7 +7,6 @@ class Login:
         self.ventana_login.title("Login")
         self.ventana_login.geometry("900x800")
 
-        self.imagen = Image.open("fondo.jpg")
 
         fondo = 'white'
 
