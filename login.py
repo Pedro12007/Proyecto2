@@ -18,20 +18,20 @@ class Login:
         self.right_frame.configure(bg='black')
         self.right_frame.pack(expand=True, fill="both", side='right')
 
-        self.label_usr = tk.Label(self.left_frame, text="Usuario", font=("Arial", 20), fg="black", bg=fondo)
-        self.label_usr.pack(pady=10)
+        self.left_frame.grid_rowconfigure(0, weight=1)  # espacio arriba
+        self.left_frame.grid_rowconfigure(2, weight=1)  # espacio abajo
+        self.left_frame.grid_columnconfigure(0, weight=1)  # centrar horizontal
 
-        self.input_user = tk.Entry(self.left_frame, width=40, bd=1)
-        self.input_user.pack(pady=10)
+        content = tk.Frame(self.left_frame, bg=fondo)
+        content.grid(row=1, column=0)  # queda al centro vertical y horizontal
 
-        self.label_password = tk.Label(self.left_frame, text="Contraseña", font=("Arial", 20), fg="black", bg=fondo)
-        self.label_password.pack(pady=10)
+        tk.Label(content, text="Usuario", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
+        tk.Entry(content, width=40, bd=1).pack(pady=10)
 
-        self.input_password = tk.Entry(self.left_frame, width=40, show='*', bd=1)
-        self.input_password.pack(pady=10)
+        tk.Label(content, text="Contraseña", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
+        tk.Entry(content, width=40, show='*', bd=1).pack(pady=10)
 
-        self.boton_login = tk.Button(self.left_frame, text="Iniciar sesión", font=("Arial", 16), bg="black", fg="white")
-        self.boton_login.pack(pady=20)
+        tk.Button(content, text="Iniciar sesión", font=("Arial", 16), bg="black", fg="white").pack(pady=20)
 
         self.ventana_login.mainloop()
 
