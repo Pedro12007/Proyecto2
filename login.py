@@ -7,16 +7,11 @@ class Login:
         self.ventana_login.title("Login")
         self.ventana_login.state("zoomed")
 
-
         fondo = 'white'
 
         self.left_frame = tk.Frame(self.ventana_login)
         self.left_frame.configure(bg=fondo)
         self.left_frame.pack(expand=True, fill="both", side='left')
-
-        self.right_frame = tk.Frame(self.ventana_login)
-        self.right_frame.configure(bg='black')
-        self.right_frame.pack(expand=True, fill="both", side='right')
 
         self.left_frame.grid_rowconfigure(0, weight=1)
         self.left_frame.grid_rowconfigure(2, weight=1)
@@ -33,6 +28,38 @@ class Login:
 
         tk.Button(content, text="Iniciar sesión", font=("Arial", 16), bg="white", fg="black").pack(pady=20)
 
+        self.right_frame = tk.Frame(self.ventana_login, bg= 'black')
+        self.right_frame.pack(expand=True, fill="both", side='right')
+
+        self.imagen_original = Image.open("21design2.png")
+        self.label_img = tk.Label(self.right_frame, bg="black")
+        self.label_img.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.right_frame.bind("<Configure>", self._ajustar_imagen)
+
         self.ventana_login.mainloop()
+
+    def _ajustar_imagen(self, event):
+        if event.width <= 1 or event.height <= 1:
+            return
+
+        img_w, img_h = self.imagen_original.size
+        frame_w, frame_h = event.width, event.height
+
+        ratio_img = img_w / img_h
+        ratio_frame = frame_w / frame_h
+
+        if ratio_frame > ratio_img:
+            new_h = frame_h
+            new_w = int(new_h * ratio_img)
+        else:
+            new_w = frame_w
+            new_h = int(new_w / ratio_img)
+
+        img_resized = self.imagen_original.resize((new_w, new_h), Image.Resampling.LANCZOS)
+        self.img_tk = ImageTk.PhotoImage(img_resized)
+
+        self.label_img.config(image=self.img_tk)
+        self.label_img.image = self.img_tk
 
 Login()
