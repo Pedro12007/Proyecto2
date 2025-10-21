@@ -25,18 +25,26 @@ class Login:
         content.grid(row=1, column=0)
 
         tk.Label(content, text="Usuario", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
-        self.usuario = tk.Entry(content, width=40, bd=1).pack(pady=10)
+        self.usuario = tk.Entry(content, width=40, bd=1)
+        self.usuario.pack(pady=10)
 
         tk.Label(content, text="Contraseña", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
-        self.contrasena = tk.Entry(content, width=40, show='*', bd=1).pack(pady=10)
+        self.contrasena = tk.Entry(content, width=40, show='*', bd=1)
+        self.contrasena.pack(pady=10)
 
         def acceder():
             self.user = self.usuario.get()
             self.password = self.contrasena.get()
 
+
             if self.user and self.password:
-                if self.user == 'admin' and self.password == '1234':
-                    admin.Admin()
+                if self.user == 'admin':
+                    if self.password == '1234':
+                        admin.Admin()
+                    else:
+                        messagebox.showerror('Error', 'Contraseña incorrecta.')
+                else:
+                    pass
             else:
                 messagebox.showerror("Error", "Ingrese su usuario y contraseña.")
 
