@@ -46,15 +46,15 @@ class Login:
         img_w, img_h = self.imagen_original.size
         frame_w, frame_h = event.width, event.height
 
-        ratio_img = img_w / img_h
-        ratio_frame = frame_w / frame_h
+        prop_img = img_w / img_h
+        prop_frame = frame_w / frame_h
 
-        if ratio_frame > ratio_img:
+        if prop_frame > prop_img:
             new_h = frame_h
-            new_w = int(new_h * ratio_img)
+            new_w = int(new_h * prop_img)
         else:
             new_w = frame_w
-            new_h = int(new_w / ratio_img)
+            new_h = int(new_w / prop_img)
 
         img_resized = self.imagen_original.resize((new_w, new_h), Image.Resampling.LANCZOS)
         self.img_tk = ImageTk.PhotoImage(img_resized)
