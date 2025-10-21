@@ -6,6 +6,7 @@ class Login:
         self.ventana_login = tk.Tk()
         self.ventana_login.title("Login")
         self.ventana_login.state("zoomed")
+        self.ventana_login.geometry('900x800')
 
         fondo = 'white'
 
