@@ -6,14 +6,15 @@ import admin
 
 class Login:
     def __init__(self):
-        self.ventana_login = tk.Tk()
-        self.ventana_login.title("Login")
-        self.ventana_login.state("zoomed")
-        self.ventana_login.geometry('900x800')
+        global ventana_login
+        ventana_login = tk.Tk()
+        ventana_login.title("Login")
+        ventana_login.state("zoomed")
+        ventana_login.geometry('900x800')
 
         fondo = 'white'
 
-        self.left_frame = tk.Frame(self.ventana_login)
+        self.left_frame = tk.Frame(ventana_login)
         self.left_frame.configure(bg=fondo)
         self.left_frame.pack(expand=True, fill="both", side='left')
 
@@ -50,7 +51,7 @@ class Login:
 
         tk.Button(content, text="Iniciar sesión", font=("Arial", 16), bg="white", fg="black", command=acceder).pack(pady=20)
 
-        self.right_frame = tk.Frame(self.ventana_login, bg= 'black')
+        self.right_frame = tk.Frame(ventana_login, bg= 'black')
         self.right_frame.pack(expand=True, fill="both", side='right')
 
         self.imagen_original = Image.open("21design2.png")
@@ -59,7 +60,7 @@ class Login:
 
         self.right_frame.bind("<Configure>", self._ajustar_imagen)
 
-        self.ventana_login.mainloop()
+        ventana_login.mainloop()
 
     def _ajustar_imagen(self, event):
         if event.width <= 1 or event.height <= 1:
@@ -83,5 +84,3 @@ class Login:
 
         self.label_img.config(image=self.img_tk)
         self.label_img.image = self.img_tk
-
-Login()
