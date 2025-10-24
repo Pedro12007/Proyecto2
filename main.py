@@ -100,10 +100,53 @@ class Admin:
             ventana_login.deiconify()
             ventana_login.state("zoomed")
 
-        tk.Label(ventana_admin, text='Menú de administrador', font=("Arial", 16, 'bold')).pack(pady=20)
+        def generar_usuario():
+            pass
 
-        tk.Button(ventana_admin, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black").pack(pady=20)
-        tk.Button(ventana_admin, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black").pack(pady=20)
-        tk.Button(ventana_admin, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
+        ventana_admin.protocol('WM_DELETE_WINDOW', cerrar_sesion)
+
+        frame_principal = tk.Frame(ventana_admin, bg='white')
+        frame_principal.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        frame_add_usuario = tk.Frame(ventana_admin, bg='white')
+        frame_add_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        # Contenido Frame principal
+        tk.Label(frame_principal, text='Menú de administrador', font=("Arial", 16, 'bold')).pack(pady=20)
+        tk.Button(frame_principal, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_add_usuario.tkraise()).pack(pady=20)
+        tk.Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black").pack(pady=20)
+        tk.Button(frame_principal, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
+
+        # Contenido Frame - agregar usuario
+        tk.Button(frame_add_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
+        tk.Label(frame_add_usuario, text='Agregar usuario', font=("Arial", 16, 'bold')).pack(pady=20)
+        tk.Label(frame_add_usuario, text='Nombre:', font=("Arial", 14), ).pack(anchor='center',pady=20)
+        self.nombres = tk.Entry(frame_add_usuario, width=40, bd=1)
+        self.nombres.pack(anchor='center', pady=10)
+
+        tk.Label(frame_add_usuario, text='Apellido:', font=("Arial", 14)).pack(anchor='center',pady=20)
+        self.apellidos = tk.Entry(frame_add_usuario, width=40, bd=1)
+        self.apellidos.pack(anchor='center', pady=10)
+
+        fila_usuario = tk.Frame(frame_add_usuario, width=100)
+        fila_usuario.pack(pady=20)
+        tk.Label(fila_usuario, text='Usuario:', font=("Arial", 14)).pack(side='left', padx=10)
+        tk.Button(fila_usuario, text='Generar usuario', font=('Arial', 16), bg="white", fg="black", command=generar_usuario).pack(side='right', padx=10)
+        self.usuario = tk.Entry(frame_add_usuario, width=40, bd=1, state='readonly')
+        self.usuario.pack(anchor='center', pady=10)
+
+        tk.Label(frame_add_usuario, text='Contraseña:', font=("Arial", 14)).pack(anchor='center',pady=20)
+        self.contrasena = tk.Entry(frame_add_usuario, width=40, bd=1)
+        self.contrasena.pack(anchor='center', pady=10)
+
+        tk.Label(frame_add_usuario, text='Confirmar contraseña:', font=("Arial", 14)).pack(anchor='center',pady=20)
+        self.contrasena_conf = tk.Entry(frame_add_usuario, width=40, bd=1)
+        self.contrasena_conf.pack(anchor='center', pady=10)
+
+        tk.Button(frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
+
+
+
+        frame_principal.tkraise()
 
 login = Login()
