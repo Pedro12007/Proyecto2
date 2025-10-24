@@ -38,7 +38,6 @@ class Login:
             self.user = self.usuario.get()
             self.password = self.contrasena.get()
 
-
             if self.user and self.password:
                 if self.user == 'admin':
                     if self.password == '1234':
@@ -87,20 +86,19 @@ class Login:
         self.label_img.config(image=self.img_tk)
         self.label_img.image = self.img_tk
 
-    def mostrar_ventana(self):
-        ventana_login.deiconify()
-
 
 class Admin:
     def __init__(self):
         global ventana_admin
-        ventana_admin = tk.Tk()
+        ventana_admin = tk.Toplevel(ventana_login)
         ventana_admin.title("Menú de administrador")
         ventana_admin.state("zoomed")
         ventana_admin.geometry('900x800')
 
         def cerrar_sesion():
             ventana_admin.destroy()
+            ventana_login.deiconify()
+            ventana_login.state("zoomed")
 
         tk.Label(ventana_admin, text='Menú de administrador', font=("Arial", 16, 'bold')).pack(pady=20)
 
