@@ -111,10 +111,13 @@ class Admin:
         frame_add_usuario = tk.Frame(ventana_admin, bg='white')
         frame_add_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+        frame_modificar_usuario = tk.Frame(ventana_admin, bg='white')
+        frame_modificar_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
+
         # Contenido Frame principal
         tk.Label(frame_principal, text='Menú de administrador', font=("Arial", 16, 'bold')).pack(pady=20)
         tk.Button(frame_principal, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_add_usuario.tkraise()).pack(pady=20)
-        tk.Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black").pack(pady=20)
+        tk.Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_modificar_usuario.tkraise()).pack(pady=20)
         tk.Button(frame_principal, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
 
         # Contenido Frame - agregar usuario
@@ -144,6 +147,9 @@ class Admin:
         self.contrasena_conf.pack(anchor='center', pady=10)
 
         tk.Button(frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
+
+        # Contenido Frame - modificar usuario
+        tk.Button(frame_modificar_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
 
 
 
