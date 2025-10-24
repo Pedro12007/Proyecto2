@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import *
+from tkinter import ttk
 
 from PIL import ImageTk, Image
-import admin
+import sqlite3
 
 class Login:
     def __init__(self):
@@ -106,8 +108,5 @@ class Admin:
         tk.Button(ventana_admin, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black").pack(pady=20)
         tk.Button(ventana_admin, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black").pack(pady=20)
         tk.Button(ventana_admin, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
-
-
-
 
 login = Login()
