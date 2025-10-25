@@ -142,14 +142,19 @@ class Admin:
         frame_add_usuario = tk.Frame(ventana_admin, bg='white')
         frame_add_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+        frame_mostrar_usuarios = tk.Frame(ventana_admin, bg='white')
+        frame_mostrar_usuarios.place(relx=0, rely=0, relwidth=1, relheight=1)
+
         frame_modificar_usuario = tk.Frame(ventana_admin, bg='white')
         frame_modificar_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
+
 
         # Contenido Frame principal
         tk.Label(frame_principal, text='Menú de administrador', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
         tk.Button(frame_principal, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_add_usuario.tkraise()).pack(pady=20)
-        tk.Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_modificar_usuario.tkraise()).pack(pady=20)
+        tk.Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(pady=20)
         tk.Button(frame_principal, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
+
 
         # Contenido Frame - agregar usuario
         tk.Button(frame_add_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
@@ -179,10 +184,35 @@ class Admin:
 
         tk.Button(frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
 
+        # Contenido Frame - mostrar usuarios
+        tk.Button(frame_mostrar_usuarios, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
+        tk.Label(frame_mostrar_usuarios, text='Mostrar usuarios', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        tk.Button(frame_mostrar_usuarios, text='Seleccionar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_modificar_usuario.tkraise()).pack(side='right', pady=20)
+
+
         # Contenido Frame - modificar usuario
-        tk.Button(frame_modificar_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
+        tk.Button(frame_modificar_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(side='left', anchor='n', pady=20)
+        tk.Label(frame_modificar_usuario, text='Modificar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
 
+        tk.Label(frame_modificar_usuario, text=f'Usuario: pendiente', font=('Arial', 14), bg=fondo).pack(anchor='center',pady=20)
 
+        tk.Label(frame_modificar_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.nombres_m = tk.Entry(frame_modificar_usuario, width=40, bd=1)
+        self.nombres_m.pack(anchor='center', pady=10)
+
+        tk.Label(frame_modificar_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.apellidos_m = tk.Entry(frame_modificar_usuario, width=40, bd=1)
+        self.apellidos_m.pack(anchor='center', pady=10)
+
+        tk.Label(frame_modificar_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.contrasena_m = tk.Entry(frame_modificar_usuario, width=40, bd=1)
+        self.contrasena_m.pack(anchor='center', pady=10)
+
+        tk.Label(frame_modificar_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.contrasena_conf_m = tk.Entry(frame_modificar_usuario, width=40, bd=1)
+        self.contrasena_conf_m.pack(anchor='center', pady=10)
+
+        tk.Button(frame_modificar_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
 
         frame_principal.tkraise()
 
