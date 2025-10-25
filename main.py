@@ -216,4 +216,18 @@ class Admin:
 
         frame_principal.tkraise()
 
+class MenuPrincipal:
+    def __init__(self):
+        ventana_menu_principal = tk.Toplevel(ventana_login)
+        ventana_menu_principal.title('Menu principal')
+        ventana_menu_principal.state('zoomed')
+        ventana_menu_principal.geometry('900x800')
+
+
+
+
+        ventana_menu_principal.mainloop()
+
+
+
 login = Login()
