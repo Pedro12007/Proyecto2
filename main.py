@@ -1,9 +1,8 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import *
 from tkinter import ttk
-
+from tkinter import *
 from PIL import ImageTk, Image
+from manejo_db import *
 
 class Login:
     def __init__(self):
@@ -154,5 +153,28 @@ class Admin:
 
 
         frame_principal.tkraise()
+
+class Materiales:
+
+    @staticmethod
+    def conexionBBDD():
+        Gestor.conexionBBDD()
+
+    @staticmethod
+    def limpiar_campos():
+        miID = set("")
+        miDescripcion = set("")
+        miUnidad = set("")
+        miPrec_unitario = set("")
+
+    @staticmethod
+    def mostrar(tree):
+        Gestor.mostrar(tree)
+
+    @staticmethod
+    def salirAplicacion(root):
+        valor = messagebox.askquestion("SALIR", "¿Está seguro que desea salir del programa?")
+        if valor == "yes":
+            root.destruy()
 
 login = Login()
