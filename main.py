@@ -219,7 +219,7 @@ class Materiales:
     def __init__(self):
         self.root = Tk()
         self.root.title("21° Design")
-        self.root.configure(background='lightblue')
+        self.root.configure(background='white')
         self.root.geometry("650x400")
 
         self.miID = StringVar()
@@ -280,10 +280,10 @@ class Materiales:
 
         Label(self.root, text="Q.", background='lightblue').place(x=490, y=70)
 
-        Button(self.root, text="", image=self.imagen_buscar, bg="orange", compound="left", command=self.buscar).place(x=520, y=10)
-        Button(self.root, text="", image=self.imagen_crear, bg="green", compound="left", command=self.crear).place(x=50, y=110)
-        Button(self.root, text="", image=self.imagen_actualizar, bg="orange", compound="left", command=self.actualizar).place(x=180, y=110)
-        Button(self.root, text="", image=self.imagen_mostrar, bg="orange", compound="left", command=self.mostrar).place(x=320, y=110)
+        Button(self.root, text="", image=self.imagen_buscar, bg="black", compound="left", command=self.buscar).place(x=520, y=10)
+        Button(self.root, text="", image=self.imagen_crear, bg="black", compound="left", command=self.crear).place(x=50, y=110)
+        Button(self.root, text="", image=self.imagen_actualizar, bg="black", compound="left", command=self.actualizar).place(x=180, y=110)
+        Button(self.root, text="", image=self.imagen_mostrar, bg="black", compound="left", command=self.mostrar).place(x=320, y=110)
         Button(self.root, text="", image=self.imagen_eliminar, bg="red", compound="left", command=self.borrar).place(x=460, y=110)
 
         self.mostrar()
