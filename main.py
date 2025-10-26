@@ -155,26 +155,160 @@ class Admin:
         frame_principal.tkraise()
 
 class Materiales:
+    def __init__(self):
+        self.root = Tk()
+        self.root.title("21° Design")
+        self.root.configure(background='lightblue')
+        self.root.geometry("650x400")
 
-    @staticmethod
-    def conexionBBDD():
+        self.miID = StringVar()
+        self.miDescripcion = StringVar()
+        self.miUnidad = StringVar()
+        self.miPrec_unitario = StringVar()
+
+        self.imagen_buscar = PhotoImage(file="imagenes/buscar.png")
+        self.imagen_crear = PhotoImage(file="imagenes/crear.png")
+        self.imagen_mostrar = PhotoImage(file="imagenes/mostrar.png")
+        self.imagen_actualizar = PhotoImage(file="imagenes/actualizar.png")
+        self.imagen_eliminar = PhotoImage(file="imagenes/eliminar.png")
+
+        self.cabecera = ["ID", "Descripción", "Unidad", "Precio Unitario"]
+
+        self.tree = ttk.Treeview(self.root, height=10, columns=("#1", "#2", "#3"))
+        self.tree.place(x=0, y=150)
+
+        self.tree.column("#0", width=100)
+        self.tree.heading("#0", text=self.cabecera[0], anchor=CENTER)
+        self.tree.column("#1", width=250)
+        self.tree.heading("#1", text=self.cabecera[1], anchor=CENTER)
+        self.tree.column("#2", width=150)
+        self.tree.heading("#2", text=self.cabecera[2], anchor=CENTER)
+        self.tree.column("#3", width=120)
+        self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
+        self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+
+        self.menubar = Menu(self.root)
+
+        self.menubasedat = Menu(self.menubar, tearoff=0)
+        self.menubasedat.add_command(label="Crear/Conectar Base de Datos", command=self.conexionBBDD)
+        self.menubasedat.add_command(label="Eliminar Base de Datos", command=self.eliminarBBDD)
+        self.menubasedat.add_command(label="Salir", command=self.salirAplicacion)
+        self.menubar.add_cascade(label="Inicio", menu=self.menubasedat)
+
+        self.ayudamenu = Menu(self.menubar, tearoff=0)
+        self.ayudamenu.add_command(label="Resetear Campos", command=self.limpiarCampos)
+        self.ayudamenu.add_command(label="Acerca", command=Gestor.mensaje)
+        self.menubar.add_cascade(label="Ayuda", menu=self.ayudamenu)
+
+        self.root.config(menu=self.menubar)
+
+        Label(self.root, text="ID", background='lightblue').place(x=50, y=10)
+        self.e1 = Entry(self.root, textvariable=self.miID, state="readonly")
+        self.e1.place(x=120, y=10)
+
+        Label(self.root, text="Descripción", background='lightblue').place(x=50, y=40)
+        self.e2 = Entry(self.root, textvariable=self.miDescripcion, width=50)
+        self.e2.place(x=150, y=40)
+
+        Label(self.root, text="Unidad", background='lightblue').place(x=50, y=70)
+        self.e3 = Entry(self.root, textvariable=self.miUnidad)
+        self.e3.place(x=150, y=70)
+
+        Label(self.root, text="Precio Unitario", background='lightblue').place(x=300, y=70)
+        self.e4 = Entry(self.root, textvariable=self.miPrec_unitario, width=10)
+        self.e4.place(x=420, y=70)
+
+        Label(self.root, text="Q.", background='lightblue').place(x=490, y=70)
+
+        Button(self.root, text="", image=self.imagen_buscar, bg="orange", compound="left", command=self.buscar).place(x=520, y=10)
+        Button(self.root, text="", image=self.imagen_crear, bg="green", compound="left", command=self.crear).place(x=50, y=110)
+        Button(self.root, text="", image=self.imagen_actualizar, bg="orange", compound="left", command=self.actualizar).place(x=180, y=110)
+        Button(self.root, text="", image=self.imagen_mostrar, bg="orange", compound="left", command=self.mostrar).place(x=320, y=110)
+        Button(self.root, text="", image=self.imagen_eliminar, bg="red", compound="left", command=self.borrar).place(x=460, y=110)
+
+        self.mostrar()
+        self.root.mainloop()
+
+    def conexionBBDD(self):
         Gestor.conexionBBDD()
 
-    @staticmethod
-    def limpiar_campos():
-        miID = set("")
-        miDescripcion = set("")
-        miUnidad = set("")
-        miPrec_unitario = set("")
+    def eliminarBBDD(self):
+        Gestor.eliminarBBDD()
+        self.limpiarMostrar()
 
-    @staticmethod
-    def mostrar(tree):
-        Gestor.mostrar(tree)
+    def limpiarMostrar(self):
+        self.limpiarCampos()
+        self.mostrar()
 
-    @staticmethod
-    def salirAplicacion(root):
-        valor = messagebox.askquestion("SALIR", "¿Está seguro que desea salir del programa?")
+    def limpiarCampos(self):
+        self.e1.config(state="normal")
+        self.miID.set("")
+        self.e1.config(state="readonly")
+        self.miDescripcion.set("")
+        self.miUnidad.set("")
+        self.miPrec_unitario.set("")
+
+    def mostrar(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        Gestor.mostrar(self.tree)
+
+    def salirAplicacion(self):
+        valor = messagebox.askquestion("Salir", "¿Está seguro que desea salir del programa?")
         if valor == "yes":
-            root.destruy()
+            self.root.destroy()
 
+    def crear(self):
+        Gestor.crear(
+            self.miDescripcion.get(),
+            self.miUnidad.get(),
+            self.miPrec_unitario.get()
+        )
+        self.limpiarMostrar()
+
+    def actualizar(self):
+        Gestor.actualizar(
+            self.miDescripcion.get(),
+            self.miUnidad.get(),
+            self.miPrec_unitario.get(),
+            self.miID.get()
+        )
+        self.limpiarMostrar()
+
+    def borrar(self):
+        if not self.miID.get():
+            messagebox.showerror("Error", "Seleccione un material primero.")
+            return
+
+        confirmar = messagebox.askyesno("Confirmar eliminación",f"¿Seguro que desea eliminar el material con ID {self.miID.get()}?")
+
+        if not confirmar:
+            return
+
+        Gestor.borrar(self.miID.get())
+        self.limpiarMostrar()
+
+    def buscar(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        Gestor.buscar(self.tree, self.miDescripcion.get())
+
+    def seleccionarUsandoClick(self, event):
+        item_id = self.tree.identify('item', event.x, event.y)
+        if not item_id:
+            return
+        datos_item = self.tree.item(item_id, "values")
+        id_texto = self.tree.item(item_id, "text")
+        self.e1.config(state="normal")
+        self.miID.set(id_texto)
+        self.e1.config(state="readonly")
+        if len(datos_item) >= 1:
+            self.miDescripcion.set(datos_item[0])
+        if len(datos_item) >= 2:
+            self.miUnidad.set(datos_item[1])
+        if len(datos_item) >= 3:
+            self.miPrec_unitario.set(datos_item[2])
+
+if __name__ == "__main__":
+    app = Materiales()
 login = Login()

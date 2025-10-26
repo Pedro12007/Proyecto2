@@ -25,9 +25,9 @@ class Consulta:
     '''
     INSERT = "INSERT INTO materiales VALUES (NULL,?,?,?)"
     SELECT = "SELECT * FROM materiales"
-    UPDATE = "UPDATE materiales SET DESCRIPCION=?, UNIDAD=?, COSTO_UNITARIO=? WHERE ID="
-    DELETE = "DELETE FROM materiales WHERE ID="
-    BUSCAR = "SELECT * FROM materiales WHERE DESCRIPCIÓN LIKE '%' || ? || '%'"
+    UPDATE = "UPDATE materiales SET descripcion=?, unidad=?, costo_unitario=? WHERE id_material=?"
+    DELETE = "DELETE FROM materiales WHERE id_material="
+    BUSCAR = "SELECT * FROM materiales WHERE descripcion LIKE '%' || ? || '%'"
 
 class Servicio:
     @staticmethod
@@ -70,11 +70,12 @@ class Servicio:
         miConexion.close()
 
     @staticmethod
-    def borrar(ide):
-        miConexion, miCursor = Servicio.conectar()
-        miCursor.execute(Consulta.DELETE, (ide,))
-        miConexion.commit()
-        miConexion.close()
+    def borrar(id_material):
+        conexion = sqlite3.connect("21design.db")
+        cursor = conexion.cursor()
+        cursor.execute("DELETE FROM materiales WHERE id_material = ?", (id_material,))
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def buscar(descripcion):
