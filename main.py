@@ -1,4 +1,3 @@
-import tkinter as tk
 from tkinter import ttk
 from tkinter import *
 from PIL import ImageTk, Image
@@ -10,14 +9,14 @@ def validar_campo_lleno(entrada):
 class Login:
     def __init__(self):
         global ventana_login
-        ventana_login = tk.Tk()
+        ventana_login = Tk()
         ventana_login.title("Login")
         ventana_login.state("zoomed")
         ventana_login.geometry('900x800')
 
         fondo = 'white'
 
-        self.left_frame = tk.Frame(ventana_login)
+        self.left_frame = Frame(ventana_login)
         self.left_frame.configure(bg=fondo)
         self.left_frame.pack(expand=True, fill="both", side='left')
 
@@ -25,15 +24,15 @@ class Login:
         self.left_frame.grid_rowconfigure(2, weight=1)
         self.left_frame.grid_columnconfigure(0, weight=1)
 
-        content = tk.Frame(self.left_frame, bg=fondo)
+        content = Frame(self.left_frame, bg=fondo)
         content.grid(row=1, column=0)
 
-        tk.Label(content, text="Usuario", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
-        self.usuario = tk.Entry(content, width=40, bd=1)
+        Label(content, text="Usuario", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
+        self.usuario = Entry(content, width=40, bd=1)
         self.usuario.pack(pady=10)
 
-        tk.Label(content, text="Contraseña", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
-        self.contrasena = tk.Entry(content, width=40, show='*', bd=1)
+        Label(content, text="Contraseña", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
+        self.contrasena = Entry(content, width=40, show='*', bd=1)
         self.contrasena.pack(pady=10)
 
         def acceder():
@@ -43,7 +42,7 @@ class Login:
             if self.user and self.password:
                 if self.user == 'admin':
                     if self.password == '1234':
-                        admin = Admin()
+                        Admin()
                         ventana_login.withdraw()
                     else:
                         messagebox.showerror('Error', 'Contraseña incorrecta.')
@@ -52,13 +51,13 @@ class Login:
             else:
                 messagebox.showerror("Error", "Ingrese su usuario y contraseña.")
 
-        tk.Button(content, text="Iniciar sesión", font=("Arial", 16), bg="white", fg="black", command=acceder).pack(pady=20)
+        Button(content, text="Iniciar sesión", font=("Arial", 16), bg="white", fg="black", command=acceder).pack(pady=20)
 
-        self.right_frame = tk.Frame(ventana_login, bg= 'black')
+        self.right_frame = Frame(ventana_login, bg= 'black')
         self.right_frame.pack(expand=True, fill="both", side='right')
 
         self.imagen_original = Image.open("21design2.png")
-        self.label_img = tk.Label(self.right_frame, bg="black")
+        self.label_img = Label(self.right_frame, bg="black")
         self.label_img.place(relx=0.5, rely=0.5, anchor="center")
 
         self.right_frame.bind("<Configure>", self._ajustar_imagen)
@@ -88,11 +87,10 @@ class Login:
         self.label_img.config(image=self.img_tk)
         self.label_img.image = self.img_tk
 
-
 class Admin:
     def __init__(self):
         global ventana_admin
-        ventana_admin = tk.Toplevel(ventana_login)
+        ventana_admin = Toplevel(ventana_login)
         ventana_admin.title("Menú de administrador")
         ventana_admin.state("zoomed")
         ventana_admin.geometry('900x800')
@@ -121,7 +119,7 @@ class Admin:
                         usuario_generado += i[0].lower()
 
                 self.usuario.config(state='normal')
-                self.usuario.delete(0, tk.END)
+                self.usuario.delete(0, END)
                 self.usuario.insert(0, usuario_generado)
                 self.usuario.config(state='readonly')
 
@@ -135,92 +133,93 @@ class Admin:
 
         ventana_admin.protocol('WM_DELETE_WINDOW', cerrar_sesion)
 
-        frame_principal = tk.Frame(ventana_admin, bg='white')
+        frame_principal = Frame(ventana_admin, bg='white')
         frame_principal.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        frame_add_usuario = tk.Frame(ventana_admin, bg='white')
+        frame_add_usuario = Frame(ventana_admin, bg='white')
         frame_add_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        frame_mostrar_usuarios = tk.Frame(ventana_admin, bg='white')
+        frame_mostrar_usuarios = Frame(ventana_admin, bg='white')
         frame_mostrar_usuarios.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        frame_modificar_usuario = tk.Frame(ventana_admin, bg='white')
+        frame_modificar_usuario = Frame(ventana_admin, bg='white')
         frame_modificar_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
 
 
         # Contenido Frame principal
-        tk.Label(frame_principal, text='Menú de administrador', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
-        tk.Button(frame_principal, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_add_usuario.tkraise()).pack(pady=20)
-        tk.Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(pady=20)
-        tk.Button(frame_principal, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
+        Label(frame_principal, text='Menú de administrador', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        Button(frame_principal, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_add_usuario.tkraise()).pack(pady=20)
+        Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(pady=20)
+        Button(frame_principal, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
 
 
         # Contenido Frame - agregar usuario
-        tk.Button(frame_add_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
-        tk.Label(frame_add_usuario, text='Agregar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
-        tk.Label(frame_add_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
-        self.nombres = tk.Entry(frame_add_usuario, width=40, bd=1)
+        Button(frame_add_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
+        Label(frame_add_usuario, text='Agregar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        Label(frame_add_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
+        self.nombres = Entry(frame_add_usuario, width=40, bd=1)
         self.nombres.pack(anchor='center', pady=10)
 
-        tk.Label(frame_add_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
-        self.apellidos = tk.Entry(frame_add_usuario, width=40, bd=1)
+        Label(frame_add_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
+        self.apellidos = Entry(frame_add_usuario, width=40, bd=1)
         self.apellidos.pack(anchor='center', pady=10)
 
-        fila_usuario = tk.Frame(frame_add_usuario, width=100, bg=fondo)
+        fila_usuario = Frame(frame_add_usuario, width=100, bg=fondo)
         fila_usuario.pack(pady=20)
-        tk.Label(fila_usuario, text='Usuario:', font=("Arial", 14), bg=fondo).pack(side='left', padx=10)
-        tk.Button(fila_usuario, text='Generar usuario', font=('Arial', 12), bg="white", fg="black", command=generar_usuario).pack(side='right', padx=10)
-        self.usuario = tk.Entry(frame_add_usuario, width=40, bd=1, state='readonly')
+        Label(fila_usuario, text='Usuario:', font=("Arial", 14), bg=fondo).pack(side='left', padx=10)
+        Button(fila_usuario, text='Generar usuario', font=('Arial', 12), bg="white", fg="black", command=generar_usuario).pack(side='right', padx=10)
+        self.usuario = Entry(frame_add_usuario, width=40, bd=1, state='readonly')
         self.usuario.pack(anchor='center', pady=10)
 
-        tk.Label(frame_add_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
-        self.contrasena = tk.Entry(frame_add_usuario, width=40, bd=1)
+        Label(frame_add_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
+        self.contrasena = Entry(frame_add_usuario, width=40, bd=1)
         self.contrasena.pack(anchor='center', pady=10)
 
-        tk.Label(frame_add_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
-        self.contrasena_conf = tk.Entry(frame_add_usuario, width=40, bd=1)
+        Label(frame_add_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
+        self.contrasena_conf = Entry(frame_add_usuario, width=40, bd=1)
         self.contrasena_conf.pack(anchor='center', pady=10)
 
-        tk.Button(frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
+        Button(frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
 
         # Contenido Frame - mostrar usuarios
-        tk.Button(frame_mostrar_usuarios, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
-        tk.Label(frame_mostrar_usuarios, text='Mostrar usuarios', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
-        tk.Button(frame_mostrar_usuarios, text='Seleccionar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_modificar_usuario.tkraise()).pack(side='right', pady=20)
+        Button(frame_mostrar_usuarios, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
+        Label(frame_mostrar_usuarios, text='Mostrar usuarios', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        Button(frame_mostrar_usuarios, text='Seleccionar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_modificar_usuario.tkraise()).pack(side='right', pady=20)
 
 
         # Contenido Frame - modificar usuario
-        tk.Button(frame_modificar_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(side='left', anchor='n', pady=20)
-        tk.Label(frame_modificar_usuario, text='Modificar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        Button(frame_modificar_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(side='left', anchor='n', pady=20)
+        Label(frame_modificar_usuario, text='Modificar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
 
-        tk.Label(frame_modificar_usuario, text=f'Usuario: pendiente', font=('Arial', 14), bg=fondo).pack(anchor='center',pady=20)
+        Label(frame_modificar_usuario, text=f'Usuario: pendiente', font=('Arial', 14), bg=fondo).pack(anchor='center',pady=20)
 
-        tk.Label(frame_modificar_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
-        self.nombres_m = tk.Entry(frame_modificar_usuario, width=40, bd=1)
+        Label(frame_modificar_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.nombres_m = Entry(frame_modificar_usuario, width=40, bd=1)
         self.nombres_m.pack(anchor='center', pady=10)
 
-        tk.Label(frame_modificar_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
-        self.apellidos_m = tk.Entry(frame_modificar_usuario, width=40, bd=1)
+        Label(frame_modificar_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.apellidos_m = Entry(frame_modificar_usuario, width=40, bd=1)
         self.apellidos_m.pack(anchor='center', pady=10)
 
-        tk.Label(frame_modificar_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
-        self.contrasena_m = tk.Entry(frame_modificar_usuario, width=40, bd=1)
+        Label(frame_modificar_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.contrasena_m = Entry(frame_modificar_usuario, width=40, bd=1)
         self.contrasena_m.pack(anchor='center', pady=10)
 
-        tk.Label(frame_modificar_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
-        self.contrasena_conf_m = tk.Entry(frame_modificar_usuario, width=40, bd=1)
+        Label(frame_modificar_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.contrasena_conf_m = Entry(frame_modificar_usuario, width=40, bd=1)
         self.contrasena_conf_m.pack(anchor='center', pady=10)
 
-        tk.Button(frame_modificar_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
+        Button(frame_modificar_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
 
         frame_principal.tkraise()
 
 class Materiales:
     def __init__(self):
-        self.root = Tk()
-        self.root.title("21° Design")
-        self.root.configure(background='white')
-        self.root.geometry("650x400")
+        global ventana_materiales
+        ventana_materiales = Toplevel(ventana_login)
+        ventana_materiales.title("21° Design")
+        ventana_materiales.configure(background='white')
+        ventana_materiales.geometry("650x400")
 
         self.miID = StringVar()
         self.miDescripcion = StringVar()
@@ -235,7 +234,7 @@ class Materiales:
 
         self.cabecera = ["ID", "Descripción", "Unidad", "Precio Unitario"]
 
-        self.tree = ttk.Treeview(self.root, height=10, columns=("#1", "#2", "#3"))
+        self.tree = ttk.Treeview(ventana_materiales, height=10, columns=("#1", "#2", "#3"))
         self.tree.place(x=0, y=150)
 
         self.tree.column("#0", width=100)
@@ -248,7 +247,7 @@ class Materiales:
         self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
         self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
 
-        self.menubar = Menu(self.root)
+        self.menubar = Menu(ventana_materiales)
 
         self.menubasedat = Menu(self.menubar, tearoff=0)
         self.menubasedat.add_command(label="Crear/Conectar Base de Datos", command=self.conexionBBDD)
@@ -260,34 +259,34 @@ class Materiales:
         self.ayudamenu.add_command(label="Acerca", command=Gestor.mensaje)
         self.menubar.add_cascade(label="Ayuda", menu=self.ayudamenu)
 
-        self.root.config(menu=self.menubar)
+        ventana_materiales.config(menu=self.menubar)
 
-        Label(self.root, text="ID", background='lightblue').place(x=50, y=10)
-        self.e1 = Entry(self.root, textvariable=self.miID, state="readonly")
+        Label(ventana_materiales, text="ID", background='lightblue').place(x=50, y=10)
+        self.e1 = Entry(ventana_materiales, textvariable=self.miID, state="readonly")
         self.e1.place(x=120, y=10)
 
-        Label(self.root, text="Descripción", background='lightblue').place(x=50, y=40)
-        self.e2 = Entry(self.root, textvariable=self.miDescripcion, width=50)
+        Label(ventana_materiales, text="Descripción", background='lightblue').place(x=50, y=40)
+        self.e2 = Entry(ventana_materiales, textvariable=self.miDescripcion, width=50)
         self.e2.place(x=150, y=40)
 
-        Label(self.root, text="Unidad", background='lightblue').place(x=50, y=70)
-        self.e3 = Entry(self.root, textvariable=self.miUnidad)
+        Label(ventana_materiales, text="Unidad", background='lightblue').place(x=50, y=70)
+        self.e3 = Entry(ventana_materiales, textvariable=self.miUnidad)
         self.e3.place(x=150, y=70)
 
-        Label(self.root, text="Precio Unitario", background='lightblue').place(x=300, y=70)
-        self.e4 = Entry(self.root, textvariable=self.miPrec_unitario, width=10)
+        Label(ventana_materiales, text="Precio Unitario", background='lightblue').place(x=300, y=70)
+        self.e4 = Entry(ventana_materiales, textvariable=self.miPrec_unitario, width=10)
         self.e4.place(x=420, y=70)
 
-        Label(self.root, text="Q.", background='lightblue').place(x=490, y=70)
+        Label(ventana_materiales, text="Q.", background='lightblue').place(x=490, y=70)
 
-        Button(self.root, text="", image=self.imagen_buscar, bg="black", compound="left", command=self.buscar).place(x=520, y=10)
-        Button(self.root, text="", image=self.imagen_crear, bg="black", compound="left", command=self.crear).place(x=50, y=110)
-        Button(self.root, text="", image=self.imagen_actualizar, bg="black", compound="left", command=self.actualizar).place(x=180, y=110)
-        Button(self.root, text="", image=self.imagen_mostrar, bg="black", compound="left", command=self.mostrar).place(x=320, y=110)
-        Button(self.root, text="", image=self.imagen_eliminar, bg="red", compound="left", command=self.borrar).place(x=460, y=110)
+        Button(ventana_materiales, text="", image=self.imagen_buscar, bg="black", compound="left", command=self.buscar).place(x=520, y=10)
+        Button(ventana_materiales, text="", image=self.imagen_crear, bg="black", compound="left", command=self.crear).place(x=50, y=110)
+        Button(ventana_materiales, text="", image=self.imagen_actualizar, bg="black", compound="left", command=self.actualizar).place(x=180, y=110)
+        Button(ventana_materiales, text="", image=self.imagen_mostrar, bg="black", compound="left", command=self.mostrar).place(x=320, y=110)
+        Button(ventana_materiales, text="", image=self.imagen_eliminar, bg="red", compound="left", command=self.borrar).place(x=460, y=110)
 
         self.mostrar()
-        self.root.mainloop()
+        ventana_materiales.mainloop()
 
     def conexionBBDD(self):
         Gestor.conexionBBDD()
@@ -316,7 +315,7 @@ class Materiales:
     def salirAplicacion(self):
         valor = messagebox.askquestion("Salir", "¿Está seguro que desea salir del programa?")
         if valor == "yes":
-            self.root.destroy()
+            ventana_materiales.destroy()
 
     def crear(self):
         Gestor.crear(
@@ -369,7 +368,5 @@ class Materiales:
         if len(datos_item) >= 3:
             self.miPrec_unitario.set(datos_item[2])
 
-if __name__ == "__main__":
-    app = Materiales()
 
 login = Login()
