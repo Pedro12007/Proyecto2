@@ -252,7 +252,6 @@ class Materiales:
 
         self.menubasedat = Menu(self.menubar, tearoff=0)
         self.menubasedat.add_command(label="Crear/Conectar Base de Datos", command=self.conexionBBDD)
-        self.menubasedat.add_command(label="Eliminar Base de Datos", command=self.eliminarBBDD)
         self.menubasedat.add_command(label="Salir", command=self.salirAplicacion)
         self.menubar.add_cascade(label="Inicio", menu=self.menubasedat)
 
@@ -317,21 +316,6 @@ class Materiales:
     def salirAplicacion(self):
         valor = messagebox.askquestion("Salir", "¿Está seguro que desea salir del programa?")
         if valor == "yes":
-            root.destroy()
-
-class MenuPrincipal:
-    def __init__(self):
-        ventana_menu_principal = tk.Toplevel(ventana_login)
-        ventana_menu_principal.title('Menu principal')
-        ventana_menu_principal.state('zoomed')
-        ventana_menu_principal.geometry('900x800')
-
-
-
-
-        ventana_menu_principal.mainloop()
-
-
             self.root.destroy()
 
     def crear(self):
@@ -387,4 +371,5 @@ class MenuPrincipal:
 
 if __name__ == "__main__":
     app = Materiales()
+
 login = Login()
