@@ -47,6 +47,7 @@ class Login:
                     else:
                         messagebox.showerror('Error', 'Contraseña incorrecta.')
                 else:
+                    Materiales()
                     pass
             else:
                 messagebox.showerror("Error", "Ingrese su usuario y contraseña.")
@@ -256,7 +257,7 @@ class Materiales:
 
         self.ayudamenu = Menu(self.menubar, tearoff=0)
         self.ayudamenu.add_command(label="Resetear Campos", command=self.limpiarCampos)
-        self.ayudamenu.add_command(label="Acerca", command=Gestor.mensaje)
+        self.ayudamenu.add_command(label="Acerca", command=GestorMateriales.mensaje)
         self.menubar.add_cascade(label="Ayuda", menu=self.ayudamenu)
 
         ventana_materiales.config(menu=self.menubar)
@@ -289,7 +290,7 @@ class Materiales:
         ventana_materiales.mainloop()
 
     def conexionBBDD(self):
-        Gestor.conexionBBDD()
+        GestorMateriales.conexionBBDD()
 
     def limpiarMostrar(self):
         self.limpiarCampos()
@@ -306,7 +307,7 @@ class Materiales:
     def mostrar(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
-        Gestor.mostrar(self.tree)
+        GestorMateriales.mostrar(self.tree)
 
     def salirAplicacion(self):
         valor = messagebox.askquestion("Salir", "¿Está seguro que desea salir del programa?")
@@ -314,7 +315,7 @@ class Materiales:
             ventana_materiales.destroy()
 
     def crear(self):
-        Gestor.crear(
+        GestorMateriales.crear(
             self.miDescripcion.get(),
             self.miUnidad.get(),
             self.miPrec_unitario.get()
@@ -322,7 +323,7 @@ class Materiales:
         self.limpiarMostrar()
 
     def actualizar(self):
-        Gestor.actualizar(
+        GestorMateriales.actualizar(
             self.miDescripcion.get(),
             self.miUnidad.get(),
             self.miPrec_unitario.get(),
@@ -340,13 +341,13 @@ class Materiales:
         if not confirmar:
             return
 
-        Gestor.borrar(self.miID.get())
+        GestorMateriales.borrar(self.miID.get())
         self.limpiarMostrar()
 
     def buscar(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
-        Gestor.buscar(self.tree, self.miDescripcion.get())
+        GestorMateriales.buscar(self.tree, self.miDescripcion.get())
 
     def seleccionarUsandoClick(self, event):
         item_id = self.tree.identify('item', event.x, event.y)

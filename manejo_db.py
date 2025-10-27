@@ -1,6 +1,13 @@
 import sqlite3
 from tkinter import messagebox
 
+db_name = '21design.db'
+
+def conectar():
+    miConexion = sqlite3.connect(db_name)
+    miCursor = miConexion.cursor()
+    return miConexion, miCursor
+
 class Material:
     def __init__(self, descripcion, unidad, prec_unitario):
         self.descripcion = descripcion
@@ -14,7 +21,7 @@ material = Material("Block", "unidad", 15)
 print(material.info())
 '''
 
-class Consulta:
+class ConsultaMateriales:
     CREATE = '''
     CREATE TABLE IF NOT EXISTS materiales (
         id_material INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,41 +36,35 @@ class Consulta:
     DELETE = "DELETE FROM materiales WHERE id_material="
     BUSCAR = "SELECT * FROM materiales WHERE descripcion LIKE '%' || ? || '%'"
 
-class Servicio:
-    @staticmethod
-    def conectar():
-        miConexion = sqlite3.connect("21design.db")
-        miCursor = miConexion.cursor()
-        return miConexion, miCursor
-
+class ServicioMateriales:
     @staticmethod
     def conexionBBDD():
-        miConexion, miCursor = Servicio.conectar()
-        miCursor.execute(Consulta.CREATE)
+        miConexion, miCursor = conectar()
+        miCursor.execute(ConsultaMateriales.CREATE)
         miConexion.commit()
         miConexion.close()
 
     @staticmethod
     def consultar():
-        miConexion, miCursor = Servicio.conectar()
-        miCursor.execute(Consulta.SELECT)
+        miConexion, miCursor = conectar()
+        miCursor.execute(ConsultaMateriales.SELECT)
         datos = miCursor.fetchall()
         miConexion.close()
         return datos
 
     @staticmethod
     def crear(descripcion, unidad, prec_unitario):
-        miConexion, miCursor = Servicio.conectar()
+        miConexion, miCursor = conectar()
         material = Material(descripcion, unidad, prec_unitario)
-        miCursor.execute(Consulta.INSERT, material.info())
+        miCursor.execute(ConsultaMateriales.INSERT, material.info())
         miConexion.commit()
         miConexion.close()
 
     @staticmethod
     def actualizar(descripcion, unidad, prec_unitario, ide):
-        miConexion, miCursor = Servicio.conectar()
+        miConexion, miCursor = conectar()
         miCursor.execute(
-            Consulta.UPDATE,
+            ConsultaMateriales.UPDATE,
             (descripcion, unidad, prec_unitario, ide)
         )
         miConexion.commit()
@@ -71,7 +72,7 @@ class Servicio:
 
     @staticmethod
     def borrar(id_material):
-        conexion = sqlite3.connect("21design.db")
+        conexion = sqlite3.connect(db_name)
         cursor = conexion.cursor()
         cursor.execute("DELETE FROM materiales WHERE id_material = ?", (id_material,))
         conexion.commit()
@@ -79,19 +80,18 @@ class Servicio:
 
     @staticmethod
     def buscar(descripcion):
-        miConexion, miCursor = Servicio.conectar()
-        miCursor.execute(Consulta.BUSCAR, (descripcion,))
+        miConexion, miCursor = conectar()
+        miCursor.execute(ConsultaMateriales.BUSCAR, (descripcion,))
         datos = miCursor.fetchall()
         miConexion.close()
         return datos
 
-class Gestor:
-
+class GestorMateriales:
     @staticmethod
     def conexionBBDD():
         try:
-            Servicio.conexionBBDD()
-            messagebox.showinfo("CONEXION", "Base de datos conectada exitosamente")
+            ServicioMateriales.conexionBBDD()
+            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
         except:
             messagebox.showerror("ERROR", "Error al conectar la base de datos")
 
@@ -102,7 +102,7 @@ class Gestor:
             tree.delete(elemento)
 
         try:
-            materiales = Servicio.consultar()
+            materiales = ServicioMateriales.consultar()
             for row in materiales:
                 tree.insert(
                     "",
@@ -118,8 +118,8 @@ class Gestor:
         registros = tree.get_children()
         [tree.delete(elemento) for elemento in registros]
         try:
-            if(criterio != ""):
-                materiales = Servicio.buscar(criterio)
+            if criterio != "":
+                materiales = ServicioMateriales.buscar(criterio)
                 [tree.insert("", 0, text=row[0], values=(row[1], row[2], row[3])) for row in materiales]
             else:
                 messagebox.showwarning("ERROR", "No ha escrito un criterio de búsqueda")
@@ -130,7 +130,7 @@ class Gestor:
     def crear(descripcion, unidad, prec_unitario):
         try:
             if (descripcion != "" and unidad != "" and prec_unitario != ""):
-                Servicio.crear(descripcion, unidad, prec_unitario)
+                ServicioMateriales.crear(descripcion, unidad, prec_unitario)
             else:
                 messagebox.showwarning("ADVERTENCIA", "Por favor llene todos los campos")
         except:
@@ -140,7 +140,7 @@ class Gestor:
     def actualizar(descripcion, unidad, prec_unitario, ide):
         try:
             if (descripcion != "" and unidad != "" and prec_unitario != ""):
-                Servicio.actualizar(descripcion, unidad, prec_unitario, ide)
+                ServicioMateriales.actualizar(descripcion, unidad, prec_unitario, ide)
             else:
                 messagebox.showwarning("ADVERTENCIA", "Por favor llene todos los campos")
         except:
@@ -149,7 +149,7 @@ class Gestor:
     @staticmethod
     def borrar(ide):
             if messagebox.askyesno(message="¿Seguro desea eliminar el registro?", title="ADVERTENCIA"):
-                Servicio.borrar(ide)
+                ServicioMateriales.borrar(ide)
             else:
                 messagebox.showerror("Error", "Error al eliminar")
 
