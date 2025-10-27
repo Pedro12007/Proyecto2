@@ -1,5 +1,6 @@
 import sqlite3
 from tkinter import messagebox
+from main import validar_campo_lleno
 
 db_name = '21design.db'
 
@@ -7,6 +8,152 @@ def conectar():
     miConexion = sqlite3.connect(db_name)
     miCursor = miConexion.cursor()
     return miConexion, miCursor
+
+class Usuario:
+    def __init__(self, nombres, apellidos, usuario, contrasena):
+        self.nombres = nombres
+        self.apellidos = apellidos
+        self.usuario = usuario
+        self.contrasena = contrasena
+
+    def info(self):
+        return self.nombres, self.apellidos, self.usuario, self.contrasena
+
+class ConsultaUsuarios:
+    CREATE = '''
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombres TEXT NOT NULL,
+        apellidos TEXT NOT NULL,
+        usuario TEXT NOT NULL UNIQUE,
+        contrasena TEXT NOT NULL
+    );
+    '''
+    INSERT = "INSERT INTO usuarios VALUES (NULL,?,?,?,?)"
+    SELECT = "SELECT * FROM usuarios"
+    UPDATE = "UPDATE usuarios SET nombres=?, apellidos=?, usuario=?, contrasena=? WHERE id_usuario=?"
+    DELETE = "DELETE FROM usuarios WHERE id_usuario=?"
+    BUSCAR = "SELECT * FROM usuarios WHERE nombres LIKE '%' || ? || '%' OR apellidos LIKE '%' || ? || '%'"
+
+class ServicioUsuarios:
+    @staticmethod
+    def conexionBBDD():
+        miConexion, miCursor = conectar()
+        miCursor.execute(ConsultaUsuarios.CREATE)
+        miConexion.commit()
+        miConexion.close()
+
+    @staticmethod
+    def consultar():
+        miConexion, miCursor = conectar()
+        miCursor.execute(ConsultaUsuarios.SELECT)
+        datos = miCursor.fetchall()
+        miConexion.close()
+        return datos
+
+    @staticmethod
+    def crear(nombres, apellidos, usuario_a, contrasena):
+        miConexion, miCursor = conectar()
+        usuario = Usuario(nombres, apellidos, usuario_a, contrasena)
+        miCursor.execute(ConsultaUsuarios.INSERT, usuario.info())
+        miConexion.commit()
+        miConexion.close()
+
+    @staticmethod
+    def actualizar(nombres, apellidos, usuario_a, contrasena, ide):
+        miConexion, miCursor = conectar()
+        miCursor.execute(ConsultaUsuarios.UPDATE, (nombres, apellidos, usuario_a, contrasena, ide))
+        miConexion.commit()
+        miConexion.close()
+
+    @staticmethod
+    def borrar(id_usuario):
+        conexion = sqlite3.connect(db_name)
+        cursor = conexion.cursor()
+        cursor.execute(ConsultaUsuarios.DELETE, (id_usuario,))
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def buscar(nombre_o_apellido):
+        miConexion, miCursor = conectar()
+        miCursor.execute(ConsultaUsuarios.BUSCAR, (nombre_o_apellido, nombre_o_apellido))
+        datos = miCursor.fetchall()
+        miConexion.close()
+        return datos
+
+class GestorUsuarios:
+    @staticmethod
+    def conexionBBDD():
+        try:
+            ServicioUsuarios.conexionBBDD()
+            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
+        except:
+            messagebox.showerror("ERROR", "Error al conectar la base de datos")
+
+    @staticmethod
+    def mostrar(tree):
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            usuarios = ServicioUsuarios.consultar()
+            for row in usuarios:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    values=(row[1], row[2], row[3], row[4])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
+
+    @staticmethod
+    def buscar(tree, criterio):
+        registros = tree.get_children()
+        [tree.delete(elemento) for elemento in registros]
+        try:
+            if criterio != "":
+                usuarios = ServicioUsuarios.buscar(criterio)
+                [tree.insert("", 0, text=row[0], values=(row[1], row[2], row[3], row[4])) for row in usuarios]
+            else:
+                messagebox.showwarning("ERROR", "No ha escrito un criterio de búsqueda")
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
+
+    @staticmethod
+    def crear(nombres, apellidos, usuario_a, contrasena):
+        try:
+            if validar_campo_lleno(nombres) and validar_campo_lleno(apellidos) and validar_campo_lleno(usuario_a) and validar_campo_lleno(contrasena):
+                ServicioUsuarios.crear(nombres, apellidos, usuario_a, contrasena)
+            else:
+                messagebox.showwarning("ADVERTENCIA", "Por favor llene todos los campos")
+        except:
+            messagebox.showerror("ERROR", "Error al crear")
+
+    @staticmethod
+    def actualizar(nombres, apellidos, usuario_a, contrasena, ide):
+        try:
+            if validar_campo_lleno(nombres) and validar_campo_lleno(apellidos) and validar_campo_lleno(usuario_a) and validar_campo_lleno(contrasena):
+                ServicioUsuarios.actualizar(nombres, apellidos, usuario_a, contrasena, ide)
+            else:
+                messagebox.showwarning("ADVERTENCIA", "Por favor llene todos los campos")
+        except:
+            messagebox.showerror("ERROR", "Error al actualizar")
+
+    @staticmethod
+    def borrar(ide):
+            if messagebox.askyesno(message="¿Seguro desea eliminar el registro?", title="ADVERTENCIA"):
+                ServicioUsuarios.borrar(ide)
+            else:
+                messagebox.showerror("Error", "Error al eliminar")
+
+    @staticmethod
+    def mensaje():
+        messagebox.showinfo("INFORMACIÓN", "Aplicación 21 Design"
+                                           "Versión 1.0"
+                                           "Tecnología Python Tkinter")
 
 class Material:
     def __init__(self, descripcion, unidad, prec_unitario):
