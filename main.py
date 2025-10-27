@@ -291,10 +291,6 @@ class Materiales:
     def conexionBBDD(self):
         Gestor.conexionBBDD()
 
-    def eliminarBBDD(self):
-        Gestor.eliminarBBDD()
-        self.limpiarMostrar()
-
     def limpiarMostrar(self):
         self.limpiarCampos()
         self.mostrar()
