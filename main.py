@@ -3,8 +3,25 @@ from tkinter import *
 from PIL import ImageTk, Image
 from manejo_db import *
 
-def validar_campo_lleno(entrada):
-    return len(entrada.replace(' ', '')) > 0
+def seleccionar_haciendo_click(tree, event, id_var, campos_vars, readonly_widget=None):
+    item_id = tree.identify('item', event.x, event.y)
+    if not item_id:
+        return None
+
+    datos_item = tree.item(item_id, "values")
+    id_texto = tree.item(item_id, "text")
+
+    if readonly_widget:
+        readonly_widget.config(state="normal")
+    id_var.set(id_texto)
+    if readonly_widget:
+        readonly_widget.config(state="readonly")
+
+    for i, variable in enumerate(campos_vars):
+        if i < len(datos_item):
+            variable.set(datos_item[i])
+
+    return id_texto
 
 class Login:
     def __init__(self):
@@ -124,13 +141,94 @@ class Admin:
                 self.usuario.insert(0, usuario_generado)
                 self.usuario.config(state='readonly')
 
-
-
             else:
                 messagebox.showerror('Error', 'El nombre y/o apellido están vacíos.')
 
+        def guardar_usuario():
+            self.nombre_usuario = self.nombres.get()
+            self.apellido_usuario = self.apellidos.get()
+            self.usuario_nuevo = self.usuario.get()
+            self.contrasena_usuario = self.contrasena.get()
+            self.contrasena_conf_usuario = self.contrasena_conf.get()
+
+            if validar_campo_lleno(self.nombre_usuario) and validar_campo_lleno(self.apellido_usuario) and validar_campo_lleno(self.usuario_nuevo) and validar_campo_lleno(self.contrasena_usuario) and validar_campo_lleno(self.contrasena_conf_usuario):
+                if self.contrasena_usuario == self.contrasena_conf_usuario:
+                    ServicioUsuarios.crear(self.nombre_usuario, self.apellido_usuario, self.usuario_nuevo, self.contrasena_usuario)
+                    messagebox.showinfo('Usuario creado', 'Usuario creado satisfactoriamente.')
+                else:
+                    messagebox.showerror('Error', 'La contraseña debe coincidir.')
+            else:
+                messagebox.showerror('Error', 'Todos los campos deben estar llenos.')
+
+        def mostrar_usuarios():
+            GestorUsuarios.mostrar(self.tree)
+            frame_mostrar_usuarios.tkraise()
+
+        def seleccionar_usuario():
+            if not self.miID_usuario.get():
+                messagebox.showerror('Error', 'Seleccione un usuario primero.')
+                return
+
+            datos = ServicioUsuarios.buscar_id(self.miID_usuario.get())
+            if datos:
+                self.nombres_m.delete(0, END)
+                self.nombres_m.insert(0, datos[1])
+                self.apellidos_m.delete(0, END)
+                self.apellidos_m.insert(0, datos[2])
+                self.miUsuario.set(f'Usuario: {datos[3]}')
+                self.contrasena_m.delete(0, END)
+                self.contrasena_m.insert(0, datos[4])
+                self.contrasena_conf_m.delete(0, END)
+                self.contrasena_conf_m.insert(0, datos[4])
+                frame_modificar_usuario.tkraise()
+            else:
+                messagebox.showerror('Error', 'Usuario no encontrado.')
+
+        def modificar_usuario():
+            ide = self.miID_usuario.get()
+            nuevo_nombre = self.nombres_m.get()
+            nuevo_apellido = self.apellidos_m.get()
+            usuario_seleccionado = self.miUsuario.get().replace('Usuario: ', '')
+            nueva_contrasena = self.contrasena_m.get()
+            nueva_contrasena_conf = self.contrasena_conf_m.get()
+
+            if validar_campo_lleno(nuevo_nombre) and validar_campo_lleno(nuevo_apellido) and validar_campo_lleno(nueva_contrasena) and validar_campo_lleno(nueva_contrasena_conf):
+                if nueva_contrasena == nueva_contrasena_conf:
+                    ServicioUsuarios.actualizar(nuevo_nombre, nuevo_apellido, usuario_seleccionado, nueva_contrasena, ide)
+                    messagebox.showinfo('Usuario actualizado', 'Usuario actualizado satisfactoriamente.')
+                    GestorUsuarios.mostrar(self.tree)
+                    frame_mostrar_usuarios.tkraise()
+                else:
+                    messagebox.showerror('Error', 'La contraseña debe coincidir.')
+            else:
+                messagebox.showerror('Error', 'Todos los campos deben estar llenos.')
+
+        def eliminar_usuario():
+            if not self.miID_usuario.get():
+                messagebox.showerror('Error', 'Seleccione un usuario primero.')
+                return
+
+            confirmar = messagebox.askyesno('Confirmar',f'¿Está seguro de eliminar el usuario con ID {self.miID_usuario.get()}?')
+
+            if confirmar:
+                try:
+                    ServicioUsuarios.borrar(self.miID_usuario.get())
+                    messagebox.showinfo('Éxito', 'Usuario eliminado correctamente.')
+                    GestorUsuarios.mostrar(self.tree)
+                    self.miID_usuario.set('')
+                    self.miNombres.set('')
+                    self.miApellidos.set('')
+                    self.miUsuario.set('')
+                except Exception as e:
+                    messagebox.showerror('Error', f'Error al eliminar usuario: {e}')
+
+
         fondo = 'white'
 
+        self.miID_usuario = StringVar()
+        self.miNombres = StringVar()
+        self.miApellidos = StringVar()
+        self.miUsuario = StringVar()
 
         ventana_admin.protocol('WM_DELETE_WINDOW', cerrar_sesion)
 
@@ -150,7 +248,7 @@ class Admin:
         # Contenido Frame principal
         Label(frame_principal, text='Menú de administrador', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
         Button(frame_principal, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_add_usuario.tkraise()).pack(pady=20)
-        Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(pady=20)
+        Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=mostrar_usuarios).pack(pady=20)
         Button(frame_principal, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
 
 
@@ -180,19 +278,37 @@ class Admin:
         self.contrasena_conf = Entry(frame_add_usuario, width=40, bd=1)
         self.contrasena_conf.pack(anchor='center', pady=10)
 
-        Button(frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
+        Button(frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black", command=guardar_usuario).pack(anchor='center', pady=10)
 
         # Contenido Frame - mostrar usuarios
         Button(frame_mostrar_usuarios, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
         Label(frame_mostrar_usuarios, text='Mostrar usuarios', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
-        Button(frame_mostrar_usuarios, text='Seleccionar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_modificar_usuario.tkraise()).pack(side='right', pady=20)
+
+        self.cabecera = ["ID", "Nombres", "Apellidos", "Usuario"]
+        self.tree = ttk.Treeview(frame_mostrar_usuarios, height=10, columns=("#1", "#2", "#3"))
+        self.tree.place(x=0, y=150)
+
+        self.tree.column("#0", width=100)
+        self.tree.heading("#0", text=self.cabecera[0], anchor=CENTER)
+        self.tree.column("#1", width=250)
+        self.tree.heading("#1", text=self.cabecera[1], anchor=CENTER)
+        self.tree.column("#2", width=150)
+        self.tree.heading("#2", text=self.cabecera[2], anchor=CENTER)
+        self.tree.column("#3", width=120)
+        self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
+        self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+
+        GestorUsuarios.mostrar(self.tree)
+
+        Button(frame_mostrar_usuarios, text='Eliminar', font=('Arial', 16), bg="white", fg="black", command=eliminar_usuario).pack(side='left', pady=20)
+        Button(frame_mostrar_usuarios, text='Modificar', font=('Arial', 16), bg="white", fg="black", command=seleccionar_usuario).pack(side='right', pady=20)
 
 
         # Contenido Frame - modificar usuario
         Button(frame_modificar_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(side='left', anchor='n', pady=20)
         Label(frame_modificar_usuario, text='Modificar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
 
-        Label(frame_modificar_usuario, text=f'Usuario: pendiente', font=('Arial', 14), bg=fondo).pack(anchor='center',pady=20)
+        Label(frame_modificar_usuario, textvariable=self.miUsuario, font=('Arial', 14), bg=fondo).pack(anchor='center',pady=20)
 
         Label(frame_modificar_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
         self.nombres_m = Entry(frame_modificar_usuario, width=40, bd=1)
@@ -210,9 +326,17 @@ class Admin:
         self.contrasena_conf_m = Entry(frame_modificar_usuario, width=40, bd=1)
         self.contrasena_conf_m.pack(anchor='center', pady=10)
 
-        Button(frame_modificar_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black").pack(anchor='center', pady=10)
+        Button(frame_modificar_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black", command=modificar_usuario).pack(anchor='center', pady=10)
 
         frame_principal.tkraise()
+
+    def seleccionarUsandoClick(self, event):
+        id_seleccionado = seleccionar_haciendo_click(
+            tree=self.tree,
+            event=event,
+            id_var=self.miID_usuario,
+            campos_vars = [self.miNombres, self.miApellidos, self.miUsuario]
+        )
 
 class Materiales:
     def __init__(self):
@@ -350,20 +474,13 @@ class Materiales:
         GestorMateriales.buscar(self.tree, self.miDescripcion.get())
 
     def seleccionarUsandoClick(self, event):
-        item_id = self.tree.identify('item', event.x, event.y)
-        if not item_id:
-            return
-        datos_item = self.tree.item(item_id, "values")
-        id_texto = self.tree.item(item_id, "text")
-        self.e1.config(state="normal")
-        self.miID.set(id_texto)
-        self.e1.config(state="readonly")
-        if len(datos_item) >= 1:
-            self.miDescripcion.set(datos_item[0])
-        if len(datos_item) >= 2:
-            self.miUnidad.set(datos_item[1])
-        if len(datos_item) >= 3:
-            self.miPrec_unitario.set(datos_item[2])
+        seleccionar_haciendo_click(
+            tree=self.tree,
+            event=event,
+            id_var=self.miID,
+            campos_vars=[self.miDescripcion, self.miUnidad, self.miPrec_unitario],
+            readonly_widget=self.e1
+        )
 
 
 login = Login()

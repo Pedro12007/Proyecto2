@@ -1,6 +1,5 @@
 import sqlite3
 from tkinter import messagebox
-from main import validar_campo_lleno
 
 db_name = '21design.db'
 
@@ -8,6 +7,9 @@ def conectar():
     miConexion = sqlite3.connect(db_name)
     miCursor = miConexion.cursor()
     return miConexion, miCursor
+
+def validar_campo_lleno(entrada):
+    return len(entrada.replace(' ', '')) > 0
 
 class Usuario:
     def __init__(self, nombres, apellidos, usuario, contrasena):
@@ -79,6 +81,14 @@ class ServicioUsuarios:
         miConexion, miCursor = conectar()
         miCursor.execute(ConsultaUsuarios.BUSCAR, (nombre_o_apellido, nombre_o_apellido))
         datos = miCursor.fetchall()
+        miConexion.close()
+        return datos
+
+    @staticmethod
+    def buscar_id(id_usuario):
+        miConexion, miCursor = conectar()
+        miCursor.execute('SELECT * FROM usuarios WHERE id_usuario=?', (id_usuario,))
+        datos = miCursor.fetchone()
         miConexion.close()
         return datos
 
