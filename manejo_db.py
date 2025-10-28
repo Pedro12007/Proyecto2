@@ -132,6 +132,33 @@ class GestorUsuarios:
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
+class DetalleProyecto:
+    def __init__(self, id_detalle_proyecto, id_usuario, id_proyecto):
+        self.id_detalle_proyecto = id_detalle_proyecto
+        self.id_usuario = id_usuario
+        self.id_proyecto = id_proyecto
+
+    def info(self):
+        return self.id_detalle_proyecto, self.id_usuario, self.id_proyecto
+
+class ConsultaDetalleProyecto:
+    CREATE = '''
+    CREATE TABLE IF NOT EXISTS detalle_proyecto (
+        id_detalle_proyecto INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_usuario INTEGER NOT NULL,
+        id_proyecto INTEGER NOT NULL,
+        UNIQUE(id_usuario, id_proyecto),
+        FOREIGN KEY (id_usuario)  REFERENCES usuarios(id_usuario)  ON UPDATE CASCADE ON DELETE CASCADE,
+        FOREIGN KEY (id_proyecto) REFERENCES proyecto(id_proyecto) ON UPDATE CASCADE ON DELETE CASCADE
+    );
+    '''
+
+class ServicioDetalleProyecto:
+    pass
+
+class GestorDetalleProyecto:
+    pass
+
 
 class Material:
     def __init__(self, descripcion, unidad, prec_unitario):

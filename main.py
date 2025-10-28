@@ -71,7 +71,6 @@ class Login:
                         ventana_login.withdraw()
                     else:
                         messagebox.showerror('Error', 'Usuario o contraseña incorrectos.')
-                    pass
             else:
                 messagebox.showerror("Error", "Ingrese su usuario y contraseña.")
 
