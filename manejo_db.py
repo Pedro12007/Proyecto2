@@ -77,17 +77,17 @@ class ServicioUsuarios:
         conexion.close()
 
     @staticmethod
-    def buscar(nombre_o_apellido):
+    def buscar_id(id_usuario):
         miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaUsuarios.BUSCAR, (nombre_o_apellido, nombre_o_apellido))
-        datos = miCursor.fetchall()
+        miCursor.execute('SELECT * FROM usuarios WHERE id_usuario=?', (id_usuario,))
+        datos = miCursor.fetchone()
         miConexion.close()
         return datos
 
     @staticmethod
-    def buscar_id(id_usuario):
+    def buscar_usuario_password(nombre_usuario, contrasena):
         miConexion, miCursor = conectar()
-        miCursor.execute('SELECT * FROM usuarios WHERE id_usuario=?', (id_usuario,))
+        miCursor.execute('SELECT * FROM usuarios WHERE usuario=? AND contrasena=?', (nombre_usuario, contrasena))
         datos = miCursor.fetchone()
         miConexion.close()
         return datos
@@ -132,38 +132,6 @@ class GestorUsuarios:
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
-    @staticmethod
-    def crear(nombres, apellidos, usuario_a, contrasena):
-        try:
-            if validar_campo_lleno(nombres) and validar_campo_lleno(apellidos) and validar_campo_lleno(usuario_a) and validar_campo_lleno(contrasena):
-                ServicioUsuarios.crear(nombres, apellidos, usuario_a, contrasena)
-            else:
-                messagebox.showwarning("ADVERTENCIA", "Por favor llene todos los campos")
-        except:
-            messagebox.showerror("ERROR", "Error al crear")
-
-    @staticmethod
-    def actualizar(nombres, apellidos, usuario_a, contrasena, ide):
-        try:
-            if validar_campo_lleno(nombres) and validar_campo_lleno(apellidos) and validar_campo_lleno(usuario_a) and validar_campo_lleno(contrasena):
-                ServicioUsuarios.actualizar(nombres, apellidos, usuario_a, contrasena, ide)
-            else:
-                messagebox.showwarning("ADVERTENCIA", "Por favor llene todos los campos")
-        except:
-            messagebox.showerror("ERROR", "Error al actualizar")
-
-    @staticmethod
-    def borrar(ide):
-            if messagebox.askyesno(message="¿Seguro desea eliminar el registro?", title="ADVERTENCIA"):
-                ServicioUsuarios.borrar(ide)
-            else:
-                messagebox.showerror("Error", "Error al eliminar")
-
-    @staticmethod
-    def mensaje():
-        messagebox.showinfo("INFORMACIÓN", "Aplicación 21 Design"
-                                           "Versión 1.0"
-                                           "Tecnología Python Tkinter")
 
 class Material:
     def __init__(self, descripcion, unidad, prec_unitario):

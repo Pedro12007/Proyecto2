@@ -64,8 +64,12 @@ class Login:
                     else:
                         messagebox.showerror('Error', 'Contraseña incorrecta.')
                 else:
-                    Materiales()
-                    pass
+                    usuario_encontrado = ServicioUsuarios.buscar_usuario_password(self.user, self.password)
+                    if usuario_encontrado:
+                        Materiales()
+                        ventana_login.withdraw()
+                    else:
+                        messagebox.showerror('Error', 'Usuario o contraseña incorrectos.')
             else:
                 messagebox.showerror("Error", "Ingrese su usuario y contraseña.")
 
