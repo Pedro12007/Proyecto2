@@ -529,10 +529,4 @@ class MenuPrincipal():
     def toggle_menu(self):
         print("Click en el botón del menú ✅")
 
-
-        menu_bar_frame = Frame(ventana_menu_principal, bg='white')
-        menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
-        menu_bar_frame.pack_propagate(False)
-        menu_bar_frame.configure(width=45)
-
 login = Login()
