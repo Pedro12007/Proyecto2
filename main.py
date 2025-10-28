@@ -47,7 +47,7 @@ class Login:
                     else:
                         messagebox.showerror('Error', 'Contraseña incorrecta.')
                 else:
-                    Materiales()
+                    MenuPrincipal()
                     pass
             else:
                 messagebox.showerror("Error", "Ingrese su usuario y contraseña.")
@@ -365,5 +365,12 @@ class Materiales:
         if len(datos_item) >= 3:
             self.miPrec_unitario.set(datos_item[2])
 
+class MenuPrincipal():
+    def __init__(self):
+        global ventana_menu_principal
+        ventana_menu_principal = Toplevel(ventana_login)
+        ventana_menu_principal.title("21° Design")
+        ventana_menu_principal.configure(background='white')
+        ventana_menu_principal.geometry("400x600")
 
 login = Login()
