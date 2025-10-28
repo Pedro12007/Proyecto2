@@ -370,7 +370,16 @@ class MenuPrincipal():
         global ventana_menu_principal
         ventana_menu_principal = Toplevel(ventana_login)
         ventana_menu_principal.title("21° Design")
-        ventana_menu_principal.configure(background='white')
+        ventana_menu_principal.configure(background='black')
         ventana_menu_principal.geometry("400x600")
 
+        menu_bar_colour = 'white'
+
+
+
+        menu_bar_frame = Frame(ventana_menu_principal, bg=menu_bar_colour)
+        menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
+        menu_bar_frame.pack_propagate(False)
+
+        menu_bar_frame.configure(width=45)
 login = Login()
