@@ -2,6 +2,7 @@ from tkinter import ttk
 from tkinter import *
 from PIL import ImageTk, Image
 from manejo_db import *
+import os
 
 def seleccionar_haciendo_click(tree, event, id_var, campos_vars, readonly_widget=None):
     item_id = tree.identify('item', event.x, event.y)
@@ -497,11 +498,41 @@ class MenuPrincipal():
 
         menu_bar_colour = 'white'
 
+class MenuPrincipal():
+    def __init__(self):
+        global ventana_menu_principal
+        ventana_menu_principal = Toplevel(ventana_login)
+        ventana_menu_principal.title("21° Design")
+        ventana_menu_principal.configure(background='black')
+        ventana_menu_principal.geometry("400x600")
 
+        menu_bar_colour = 'white'
+        ruta_icono = os.path.join(os.path.dirname(__file__), 'imagenes', 'tresb.png')
+
+        self.toggle_icon = PhotoImage(file=ruta_icono)
 
         menu_bar_frame = Frame(ventana_menu_principal, bg=menu_bar_colour)
         menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
         menu_bar_frame.pack_propagate(False)
+        menu_bar_frame.configure(width=60)
 
+        self.toggle_menu_btn = Button(
+            menu_bar_frame,
+            image=self.toggle_icon,
+            bg=menu_bar_colour,
+            activebackground=menu_bar_colour,
+            bd=0,
+            command=self.toggle_menu
+        )
+        self.toggle_menu_btn.place(x=4, y=10)
+
+    def toggle_menu(self):
+        print("Click en el botón del menú ✅")
+
+
+        menu_bar_frame = Frame(ventana_menu_principal, bg='white')
+        menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
+        menu_bar_frame.pack_propagate(False)
         menu_bar_frame.configure(width=45)
+
 login = Login()
