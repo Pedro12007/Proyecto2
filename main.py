@@ -506,9 +506,11 @@ class MenuPrincipal():
         ventana_menu_principal.geometry("400x600")
 
         menu_bar_colour = 'white'
-        ruta_icono = os.path.join(os.path.dirname(__file__), 'imagenes', 'tresb.png')
+        ruta_icono_tresb = os.path.join(os.path.dirname(__file__), 'imagenes', 'tresb.png')
+        ruta_icono_mas = os.path.join(os.path.dirname(__file__), 'imagenes', 'mas.png')
 
-        self.toggle_icon = PhotoImage(file=ruta_icono)
+
+        self.toggle_icon = PhotoImage(file=ruta_icono_tresb)
 
         menu_bar_frame = Frame(ventana_menu_principal, bg=menu_bar_colour)
         menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
@@ -527,5 +529,6 @@ class MenuPrincipal():
 
     def toggle_menu(self):
         print("Click en el botón del menú ✅")
+        Materiales()
 
 login = Login()
