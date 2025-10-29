@@ -494,23 +494,29 @@ class MenuPrincipal():
         ventana_menu_principal.title("21° Design")
         ventana_menu_principal.configure(background='black')
         ventana_menu_principal.geometry("400x600")
+        ventana_menu_principal.state("zoomed")
 
-        menu_bar_colour = 'white'
-
-class MenuPrincipal():
-    def __init__(self):
-        global ventana_menu_principal
-        ventana_menu_principal = Toplevel(ventana_login)
-        ventana_menu_principal.title("21° Design")
-        ventana_menu_principal.configure(background='black')
-        ventana_menu_principal.geometry("400x600")
+        ventana_menu_principal.protocol('WM_DELETE_WINDOW', self.cerrar_sesion)
 
         menu_bar_colour = 'white'
         ruta_icono_tresb = os.path.join(os.path.dirname(__file__), 'imagenes', 'tresb.png')
         ruta_icono_mas = os.path.join(os.path.dirname(__file__), 'imagenes', 'mas.png')
-
+        ruta_icono_block = os.path.join(os.path.dirname(__file__), 'imagenes', 'block.png')
+        ruta_icono_home = os.path.join(os.path.dirname(__file__), 'imagenes', 'home.png')
 
         self.toggle_icon = PhotoImage(file=ruta_icono_tresb)
+        self.mas_icon = PhotoImage(file=ruta_icono_mas)
+        self.block_icon = PhotoImage(file=ruta_icono_block)
+        self.home_icon = PhotoImage(file=ruta_icono_home)
+
+        def switch_indication(indicador_lb):
+
+            home_btn_indicator.config(bg='white')
+            mas_btn_indicator.config(bg='white')
+            block_btn_indicator.config(bg='white')
+
+            indicador_lb.config(bg='black')
+
 
         menu_bar_frame = Frame(ventana_menu_principal, bg=menu_bar_colour)
         menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
@@ -525,10 +531,59 @@ class MenuPrincipal():
             bd=0,
             command=self.toggle_menu
         )
-        self.toggle_menu_btn.place(x=4, y=10)
+        self.toggle_menu_btn.place(x=13, y=10)
+
+        self.home_menu_btn = Button(
+            menu_bar_frame,
+            image=self.home_icon,
+            bg=menu_bar_colour,
+            activebackground=menu_bar_colour,
+            bd=0,
+            command=lambda: switch_indication(indicador_lb=home_btn_indicator)
+        )
+        self.home_menu_btn.place(x=13, y=250, width=30, height=40)
+
+        home_btn_indicator = Label(menu_bar_frame, bg='black')
+        home_btn_indicator.place(x=3, y=250, height=40, width=3)
+
+        self.mas_menu_btn = Button(
+            menu_bar_frame,
+            image=self.mas_icon,
+            bg=menu_bar_colour,
+            activebackground=menu_bar_colour,
+            bd=0,
+            command=lambda: switch_indication(indicador_lb=mas_btn_indicator)
+        )
+        self.mas_menu_btn.place(x=13, y=310, width=30, height=40)
+
+        mas_btn_indicator = Label(menu_bar_frame, bg='white')
+        mas_btn_indicator.place(x=3, y=310, height=40, width=3)
+
+        self.block_menu_btn = Button(
+            menu_bar_frame,
+            image=self.block_icon,
+            bg=menu_bar_colour,
+            activebackground=menu_bar_colour,
+            bd=0,
+            command=self.ir_a_mat
+        )
+        self.block_menu_btn.place(x=13, y=370, width=30, height=40)
+
+        block_btn_indicator = Label(menu_bar_frame, bg='white')
+        block_btn_indicator.place(x=3, y=370, height=40, width=3)
 
     def toggle_menu(self):
         print("Click en el botón del menú ✅")
+
+    def agregar_proyecto(self):
+        pass
+
+    def ir_a_mat(self):
         Materiales()
+
+    def cerrar_sesion(self):
+        ventana_menu_principal.destroy()
+        ventana_login.deiconify()
+        ventana_login.state('zoomed')
 
 login = Login()
