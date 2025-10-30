@@ -4,9 +4,9 @@ from tkinter import messagebox
 db_name = '21design.db'
 
 def conectar():
-    miConexion = sqlite3.connect(db_name)
-    miCursor = miConexion.cursor()
-    return miConexion, miCursor
+    conexion = sqlite3.connect(db_name)
+    cursor = conexion.cursor()
+    return conexion, cursor
 
 def validar_campo_lleno(entrada):
     return len(entrada.replace(' ', '')) > 0
@@ -44,33 +44,33 @@ class ConsultaClientes:
 class ServicioClientes:
     @staticmethod
     def conexionBBDD():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaClientes.CREATE)
-        miConexion.commit()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaClientes.CREATE)
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def consultar():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaClientes.SELECT)
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaClientes.SELECT)
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
     @staticmethod
     def crear(nombre, apellido, telefono, mail, datos_referencia, direccion):
-        miConexion, miCursor = conectar()
+        conexion, cursor = conectar()
         cliente = Cliente(nombre, apellido, telefono, mail, datos_referencia, direccion)
-        miCursor.execute(ConsultaClientes.INSERT, cliente.info())
-        miConexion.commit()
-        miConexion.close()
+        cursor.execute(ConsultaClientes.INSERT, cliente.info())
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def actualizar(nombre, apellido, telefono, mail, datos_referencia, direccion, ide):
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaClientes.UPDATE, (nombre, apellido, telefono, mail, datos_referencia, direccion, ide))
-        miConexion.commit()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaClientes.UPDATE, (nombre, apellido, telefono, mail, datos_referencia, direccion, ide))
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def borrar(id_cliente):
@@ -82,10 +82,10 @@ class ServicioClientes:
 
     @staticmethod
     def buscar(criterio):
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaClientes.BUSCAR, (criterio, criterio))
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaClientes.BUSCAR, (criterio, criterio))
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
 class Usuario:
@@ -117,33 +117,33 @@ class ConsultaUsuarios:
 class ServicioUsuarios:
     @staticmethod
     def conexionBBDD():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaUsuarios.CREATE)
-        miConexion.commit()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaUsuarios.CREATE)
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def consultar():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaUsuarios.SELECT)
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaUsuarios.SELECT)
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
     @staticmethod
     def crear(nombres, apellidos, usuario_a, contrasena):
-        miConexion, miCursor = conectar()
+        conexion, cursor = conectar()
         usuario = Usuario(nombres, apellidos, usuario_a, contrasena)
-        miCursor.execute(ConsultaUsuarios.INSERT, usuario.info())
-        miConexion.commit()
-        miConexion.close()
+        cursor.execute(ConsultaUsuarios.INSERT, usuario.info())
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def actualizar(nombres, apellidos, usuario_a, contrasena, ide):
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaUsuarios.UPDATE, (nombres, apellidos, usuario_a, contrasena, ide))
-        miConexion.commit()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaUsuarios.UPDATE, (nombres, apellidos, usuario_a, contrasena, ide))
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def borrar(id_usuario):
@@ -155,18 +155,18 @@ class ServicioUsuarios:
 
     @staticmethod
     def buscar_id(id_usuario):
-        miConexion, miCursor = conectar()
-        miCursor.execute('SELECT * FROM usuarios WHERE id_usuario=?', (id_usuario,))
-        datos = miCursor.fetchone()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute('SELECT * FROM usuarios WHERE id_usuario=?', (id_usuario,))
+        datos = cursor.fetchone()
+        conexion.close()
         return datos
 
     @staticmethod
     def buscar_usuario_password(nombre_usuario, contrasena):
-        miConexion, miCursor = conectar()
-        miCursor.execute('SELECT * FROM usuarios WHERE usuario=? AND contrasena=?', (nombre_usuario, contrasena))
-        datos = miCursor.fetchone()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute('SELECT * FROM usuarios WHERE usuario=? AND contrasena=?', (nombre_usuario, contrasena))
+        datos = cursor.fetchone()
+        conexion.close()
         return datos
 
 class GestorUsuarios:
@@ -193,19 +193,6 @@ class GestorUsuarios:
                     text=row[0],
                     values=(row[1], row[2], row[3], row[4])
                 )
-        except:
-            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
-
-    @staticmethod
-    def buscar(tree, criterio):
-        registros = tree.get_children()
-        [tree.delete(elemento) for elemento in registros]
-        try:
-            if criterio != "":
-                usuarios = ServicioUsuarios.buscar(criterio)
-                [tree.insert("", 0, text=row[0], values=(row[1], row[2], row[3], row[4])) for row in usuarios]
-            else:
-                messagebox.showwarning("ERROR", "No ha escrito un criterio de búsqueda")
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
@@ -250,35 +237,35 @@ class ConsultaProyecto:
 class ServicioProyecto:
     @staticmethod
     def conexionBBDD():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaProyecto.CREATE)
-        miConexion.commit()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaProyecto.CREATE)
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def consultar():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaProyecto.SELECT)
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaProyecto.SELECT)
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
     @staticmethod
     def crear(nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente):
-        miConexion, miCursor = conectar()
+        conexion, cursor = conectar()
         proyecto = Proyecto(nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente)
-        miCursor.execute(ConsultaProyecto.INSERT, proyecto.info())
-        miConexion.commit()
-        id_proyecto = miCursor.lastrowid
-        miConexion.close()
+        cursor.execute(ConsultaProyecto.INSERT, proyecto.info())
+        conexion.commit()
+        id_proyecto = cursor.lastrowid
+        conexion.close()
         return id_proyecto
 
     @staticmethod
     def actualizar(nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente, ide):
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaProyecto.UPDATE, (nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente, ide))
-        miConexion.commit()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaProyecto.UPDATE, (nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente, ide))
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def borrar(id_proyecto):
@@ -290,18 +277,18 @@ class ServicioProyecto:
 
     @staticmethod
     def buscar(criterio):
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaProyecto.BUSCAR, (criterio,))
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaProyecto.BUSCAR, (criterio,))
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
     @staticmethod
     def buscar_por_estado(estado):
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaProyecto.SELECT_BY_ESTADO, (estado,))
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaProyecto.SELECT_BY_ESTADO, (estado,))
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
 class DetalleProyecto:
@@ -330,42 +317,57 @@ class ConsultaDetalleProyecto:
     INNER JOIN proyecto p ON dp.id_proyecto = p.id_proyecto
     WHERE dp.id_usuario = ?;
     '''
-    DELETE = "DELETE FROM detalle_proyecto WHERE id_detalle_proyecto=?"
 
 class ServicioDetalleProyecto:
     @staticmethod
     def conexionBBDD():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaDetalleProyecto.CREATE)
-        miConexion.commit()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleProyecto.CREATE)
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def consultar(id_usuario):
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaDetalleProyecto.SELECT, (id_usuario,))
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleProyecto.SELECT, (id_usuario,))
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
     @staticmethod
     def crear(id_usuario, id_proyecto):
-        miConexion, miCursor = conectar()
+        conexion, cursor = conectar()
         detalle = DetalleProyecto(id_usuario, id_proyecto)
-        miCursor.execute(ConsultaDetalleProyecto.INSERT, detalle.info())
-        miConexion.commit()
-        miConexion.close()
-
-    @staticmethod
-    def borrar(id_detalle):
-        conexion = sqlite3.connect(db_name)
-        cursor = conexion.cursor()
-        cursor.execute(ConsultaDetalleProyecto.DELETE, (id_detalle,))
+        cursor.execute(ConsultaDetalleProyecto.INSERT, detalle.info())
         conexion.commit()
         conexion.close()
 
 class GestorDetalleProyecto:
-    pass
+    @staticmethod
+    def conexionBBDD():
+        try:
+            ServicioDetalleProyecto.conexionBBDD()
+            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
+        except:
+            messagebox.showerror("ERROR", "Error al conectar la base de datos")
+
+    @staticmethod
+    def mostrar(tree, id_usuario):
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            proyectos = ServicioDetalleProyecto.consultar(id_usuario)
+            for row in proyectos:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    values=(row[1], row[2], row[3], row[4], row[5])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
 class AvanceProyecto:
     def __init__(self, id_usuario, id_proyecto, mensaje):
@@ -383,13 +385,54 @@ class ConsultaAvanceProyecto:
         id_usuario INTEGER NOT NULL,
         id_proyecto INTEGER NOT NULL, 
         mensaje TEXT NOT NULL,
+        fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (id_usuario)  REFERENCES usuarios(id_usuario) ON UPDATE CASCADE ON DELETE CASCADE,
         FOREIGN KEY (id_proyecto) REFERENCES proyecto(id_proyecto) ON UPDATE CASCADE ON DELETE CASCADE
     );
     '''
+    INSERT = "INSERT INTO avances_proyecto VALUES (NULL,?,?,?,CURRENT_TIMESTAMP)"
+    SELECT = '''
+        SELECT a.id_avance, a.mensaje, a.fecha_registro, u.nombres, u.apellidos
+        FROM avances_proyecto a
+        INNER JOIN usuarios u ON a.id_usuario = u.id_usuario
+        WHERE a.id_proyecto = ?
+        ORDER BY a.fecha_registro DESC;
+        '''
+    DELETE = "DELETE FROM avances_proyecto WHERE id_avance=?"
 
 class ServicioAvanceProyecto:
-    pass
+    @staticmethod
+    def conexionBBDD():
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaAvanceProyecto.CREATE)
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def crear(id_usuario, id_proyecto, mensaje):
+        conexion, cursor = conectar()
+        avance = AvanceProyecto(id_usuario, id_proyecto, mensaje)
+        cursor.execute(ConsultaAvanceProyecto.INSERT, avance.info())
+        conexion.commit()
+        id_avance = cursor.lastrowid
+        conexion.close()
+        return id_avance
+
+    @staticmethod
+    def avances_por_proyecto(id_proyecto):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaAvanceProyecto.SELECT, (id_proyecto,))
+        datos = cursor.fetchall()
+        conexion.close()
+        return datos
+
+    @staticmethod
+    def borrar(id_avance):
+        conexion = sqlite3.connect(db_name)
+        cursor = conexion.cursor()
+        cursor.execute(ConsultaAvanceProyecto.DELETE, (id_avance,))
+        conexion.commit()
+        conexion.close()
 
 class ImagenesMensaje:
     def __init__(self, id_avance, ubicacion):
@@ -408,6 +451,9 @@ class ConsultaImagenesMensaje:
         FOREIGN KEY (id_avance)  REFERENCES avances_proyecto(id_avance) ON UPDATE CASCADE ON DELETE CASCADE
     );
     '''
+    INSERT = "INSERT INTO imagenes_mensaje VALUES (NULL,?,?)"
+    SELECT = "SELECT * FROM imagenes_mensaje WHERE id_avance=?"
+    DELETE = "DELETE FROM imagenes_mensaje WHERE id_imagen=?"
 
 class ServicioImagenesMensaje:
     pass
@@ -492,36 +538,36 @@ class ConsultaMateriales:
 class ServicioMateriales:
     @staticmethod
     def conexionBBDD():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaMateriales.CREATE)
-        miConexion.commit()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaMateriales.CREATE)
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def consultar():
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaMateriales.SELECT)
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaMateriales.SELECT)
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
     @staticmethod
     def crear(descripcion, unidad, prec_unitario):
-        miConexion, miCursor = conectar()
+        conexion, cursor = conectar()
         material = Material(descripcion, unidad, prec_unitario)
-        miCursor.execute(ConsultaMateriales.INSERT, material.info())
-        miConexion.commit()
-        miConexion.close()
+        cursor.execute(ConsultaMateriales.INSERT, material.info())
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def actualizar(descripcion, unidad, prec_unitario, ide):
-        miConexion, miCursor = conectar()
-        miCursor.execute(
+        conexion, cursor = conectar()
+        cursor.execute(
             ConsultaMateriales.UPDATE,
             (descripcion, unidad, prec_unitario, ide)
         )
-        miConexion.commit()
-        miConexion.close()
+        conexion.commit()
+        conexion.close()
 
     @staticmethod
     def borrar(id_material):
@@ -533,10 +579,10 @@ class ServicioMateriales:
 
     @staticmethod
     def buscar(descripcion):
-        miConexion, miCursor = conectar()
-        miCursor.execute(ConsultaMateriales.BUSCAR, (descripcion,))
-        datos = miCursor.fetchall()
-        miConexion.close()
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaMateriales.BUSCAR, (descripcion,))
+        datos = cursor.fetchall()
+        conexion.close()
         return datos
 
 class GestorMateriales:
@@ -582,7 +628,7 @@ class GestorMateriales:
     @staticmethod
     def crear(descripcion, unidad, prec_unitario):
         try:
-            if (descripcion != "" and unidad != "" and prec_unitario != ""):
+            if descripcion != "" and unidad != "" and prec_unitario != "":
                 ServicioMateriales.crear(descripcion, unidad, prec_unitario)
             else:
                 messagebox.showwarning("ADVERTENCIA", "Por favor llene todos los campos")
@@ -592,7 +638,7 @@ class GestorMateriales:
     @staticmethod
     def actualizar(descripcion, unidad, prec_unitario, ide):
         try:
-            if (descripcion != "" and unidad != "" and prec_unitario != ""):
+            if descripcion != "" and unidad != "" and prec_unitario != "":
                 ServicioMateriales.actualizar(descripcion, unidad, prec_unitario, ide)
             else:
                 messagebox.showwarning("ADVERTENCIA", "Por favor llene todos los campos")
