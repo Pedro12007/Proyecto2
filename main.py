@@ -578,6 +578,7 @@ class MenuPrincipal():
         self.home_page_lb = Label(menu_bar_frame, text='Proyectos', bg='white', fg='black',
                                   font=('Arial', 10), anchor=W)
         self.home_page_lb.place(x=45, y=250, width=100, height=40)
+        self.home_page_lb.bind("<Button-1>", lambda e: switch_indication(indicador_lb=home_btn_indicator))
 
         self.mas_menu_btn = Button(
             menu_bar_frame,
@@ -595,6 +596,7 @@ class MenuPrincipal():
         self.mas_page_lb = Label(menu_bar_frame, text='Crear Proyecto', bg='white', fg='black',
                                   font=('Arial', 10), anchor=W)
         self.mas_page_lb.place(x=45, y=310, width=100, height=40)
+        self.mas_page_lb.bind("<Button-1>", lambda e: switch_indication(indicador_lb=mas_btn_indicator))
 
         self.block_menu_btn = Button(
             menu_bar_frame,
@@ -612,6 +614,7 @@ class MenuPrincipal():
         self.block_page_lb = Label(menu_bar_frame, text='Materiales', bg='white', fg='black',
                                  font=('Arial', 10), anchor=W)
         self.block_page_lb.place(x=45, y=370, width=100, height=40)
+        self.block_page_lb.bind("<Button-1>", lambda e: switch_indication(indicador_lb=block_btn_indicator))
 
         self.salir_menu_btn = Button(
             menu_bar_frame,
