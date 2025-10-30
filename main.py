@@ -67,7 +67,7 @@ class Login:
                 else:
                     usuario_encontrado = ServicioUsuarios.buscar_usuario_password(self.user, self.password)
                     if usuario_encontrado:
-                        MenuPrincipal()
+                        MenuPrincipal(usuario_encontrado[0])
                         ventana_login.withdraw()
                     else:
                         messagebox.showerror('Error', 'Usuario o contraseña incorrectos.')
@@ -487,14 +487,15 @@ class Materiales:
             readonly_widget=self.e1
         )
 
-class MenuPrincipal():
-    def __init__(self):
+class MenuPrincipal:
+    def __init__(self, id_usuario):
         global ventana_menu_principal
         ventana_menu_principal = Toplevel(ventana_login)
         ventana_menu_principal.title("21° Design")
         ventana_menu_principal.configure(background='black')
         ventana_menu_principal.geometry("400x600")
         ventana_menu_principal.state("zoomed")
+        self.id_usuario = id_usuario
 
         ventana_menu_principal.protocol('WM_DELETE_WINDOW', self.cerrar_sesion)
 
@@ -553,6 +554,36 @@ class MenuPrincipal():
             lb = Label(home_page_fm, text='Proyectos', font=('Arial', 20), bg='black', fg='white')
             lb.place(x=100, y=20)
             home_page_fm.pack(fill=BOTH, expand=True)
+
+            self.id_proyecto = StringVar()
+            self.nombre = StringVar()
+            self.descripcion = StringVar()
+            self.n_usuarios = StringVar()
+            self.fecha_inicio = StringVar()
+            self.duracion = StringVar()
+            self.fecha_final = StringVar()
+            self.estado = StringVar()
+            self.presupuesto_total = StringVar()
+            self.id_cliente = StringVar()
+
+            self.cabecera = ["ID","Nombre", "Descripción", "Estado", "Fecha Inicio", "Fecha Fin"]
+
+            self.tree = ttk.Treeview(home_page_fm, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
+            self.tree.place(x=50, y=100)
+
+            self.tree.column("#0", width=50)
+            self.tree.heading("#0", text=self.cabecera[0], anchor=CENTER)
+            self.tree.column("#1", width=150)
+            self.tree.heading("#1", text=self.cabecera[1], anchor=CENTER)
+            self.tree.column("#2", width=350)
+            self.tree.heading("#2", text=self.cabecera[2], anchor=CENTER)
+            self.tree.column("#3", width=150)
+            self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
+            self.tree.column("#4", width=150)
+            self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
+            self.tree.column("#5", width=150)
+            self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
+            #self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
 
         def agregar_page():
             agregar_page_fm = Frame(page_frame, bg='black')
