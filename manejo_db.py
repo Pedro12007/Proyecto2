@@ -428,8 +428,7 @@ class ServicioAvanceProyecto:
 
     @staticmethod
     def borrar(id_avance):
-        conexion = sqlite3.connect(db_name)
-        cursor = conexion.cursor()
+        conexion, cursor = conectar()
         cursor.execute(ConsultaAvanceProyecto.DELETE, (id_avance,))
         conexion.commit()
         conexion.close()
@@ -481,8 +480,7 @@ class ServicioImagenesMensaje:
 
     @staticmethod
     def borrar(id_imagen):
-        conexion = sqlite3.connect(db_name)
-        cursor = conexion.cursor()
+        conexion, cursor = conectar()
         cursor.execute(ConsultaImagenesMensaje.DELETE, (id_imagen,))
         conexion.commit()
         conexion.close()
@@ -505,9 +503,57 @@ class ConsultaManoObra:
         ocupacion TEXT
     );
     '''
+    INSERT = "INSERT INTO mano_obra VALUES (NULL,?,?,?)"
+    SELECT = "SELECT * FROM mano_obra"
+    UPDATE = "UPDATE mano_obra SET nombre=?, telefono=?, ocupacion=? WHERE id_trabajador=?"
+    DELETE = "DELETE FROM mano_obra WHERE id_trabajador=?"
+    BUSCAR = "SELECT * FROM mano_obra WHERE nombre LIKE '%' || ? || '%' OR ocupacion LIKE '%' || ? || '%'"
 
 class ServicioManoObra:
-    pass
+    @staticmethod
+    def conexionBBDD():
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaManoObra.CREATE)
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def consultar():
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaManoObra.SELECT)
+        datos = cursor.fetchall()
+        conexion.close()
+        return datos
+
+    @staticmethod
+    def crear(nombre, telefono, ocupacion):
+        conexion, cursor = conectar()
+        trabajador = ManoObra(nombre, telefono, ocupacion)
+        cursor.execute(ConsultaManoObra.INSERT, trabajador.info())
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def actualizar(nombre, telefono, ocupacion, ide):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaManoObra.UPDATE, (nombre, telefono, ocupacion, ide))
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def borrar(id_trabajador):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaManoObra.DELETE, (id_trabajador,))
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def buscar(criterio):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaManoObra.BUSCAR, (criterio, criterio))
+        datos = cursor.fetchall()
+        conexion.close()
+        return datos
 
 class DetalleManoObra:
     def __init__(self, id_proyecto, id_trabajador, costo_trabajo, tipo_trabajo):
@@ -532,9 +578,53 @@ class ConsultaDetalleManoObra:
         UNIQUE(id_proyecto, id_trabajador, tipo_trabajo)
     );
     '''
+    INSERT = "INSERT INTO detalle_mano_obra VALUES (NULL,?,?,?,?)"
+    SELECT = '''
+    SELECT d.id_detalle_trabajo, m.nombre, m.ocupacion, d.tipo_trabajo, d.costo_trabajo
+    FROM detalle_mano_obra d
+    INNER JOIN mano_obra m ON d.id_trabajador = m.id_trabajador
+    WHERE d.id_proyecto = ?;
+    '''
+    UPDATE = "UPDATE detalle_mano_obra SET costo_trabajo=?, tipo_trabajo=? WHERE id_detalle_trabajo=?"
+    DELETE = "DELETE FROM detalle_mano_obra WHERE id_detalle_trabajo=?"
 
 class ServicioDetalleManoObra:
-    pass
+    @staticmethod
+    def conexionBBDD():
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleManoObra.CREATE)
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def crear(id_proyecto, id_trabajador, costo_trabajo, tipo_trabajo):
+        conexion, cursor = conectar()
+        detalle = DetalleManoObra(id_proyecto, id_trabajador, costo_trabajo, tipo_trabajo)
+        cursor.execute(ConsultaDetalleManoObra.INSERT, detalle.info())
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def consultar(id_proyecto):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleManoObra.SELECT, (id_proyecto,))
+        datos = cursor.fetchall()
+        conexion.close()
+        return datos
+
+    @staticmethod
+    def actualizar(costo_trabajo, tipo_trabajo, ide):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleManoObra.UPDATE, (costo_trabajo, tipo_trabajo, ide))
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def borrar(id_detalle):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleManoObra.DELETE, (id_detalle,))
+        conexion.commit()
+        conexion.close()
 
 class Material:
     def __init__(self, descripcion, unidad, prec_unitario):
@@ -710,9 +800,54 @@ class ConsultaDetalleMateriales:
         UNIQUE(id_proyecto, id_material)
     );
     '''
+    INSERT = "INSERT INTO detalle_materiales VALUES (NULL,?,?,?,?)"
+    SELECT = '''
+    SELECT d.id_detalle_material, m.descripcion, m.unidad, d.cantidad, m.costo_unitario, d.costo_total
+    FROM detalle_materiales d
+    INNER JOIN materiales m ON d.id_material = m.id_material
+    WHERE d.id_proyecto = ?;
+    '''
+    UPDATE = "UPDATE detalle_materiales SET cantidad=?, costo_total=? WHERE id_detalle_material=?"
+    DELETE = "DELETE FROM detalle_materiales WHERE id_detalle_material=?"
 
 class ServicioDetalleMateriales:
-    pass
+    @staticmethod
+    def conexionBBDD():
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleMateriales.CREATE)
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def crear(id_proyecto, id_material, cantidad, costo_total):
+        conexion, cursor = conectar()
+        detalle = DetalleMateriales(id_proyecto, id_material, cantidad, costo_total)
+        cursor.execute(ConsultaDetalleMateriales.INSERT, detalle.info())
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def consultar(id_proyecto):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleMateriales.SELECT, (id_proyecto,))
+        datos = cursor.fetchall()
+        conexion.close()
+        return datos
+
+    @staticmethod
+    def actualizar(cantidad, costo_total, ide):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleMateriales.UPDATE, (cantidad, costo_total, ide))
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def borrar(id_detalle):
+        conexion = sqlite3.connect(db_name)
+        cursor = conexion.cursor()
+        cursor.execute(ConsultaDetalleMateriales.DELETE, (id_detalle,))
+        conexion.commit()
+        conexion.close()
 
 class Administracion:
     def __init__(self, tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto):
@@ -739,6 +874,56 @@ class ConsultaAdministracion:
         FOREIGN KEY (id_proyecto) REFERENCES proyecto(id_proyecto) ON UPDATE CASCADE ON DELETE CASCADE
     );
     '''
+    INSERT = "INSERT INTO administracion VALUES (NULL,?,?,?,?,?,?)"
+    SELECT = "SELECT * FROM administracion WHERE id_proyecto=?"
+    UPDATE = "UPDATE administracion SET tipo_gasto=?, fecha=?, forma_pago=?, proveedor=?, costo=?, id_proyecto=? WHERE id_administracion=?"
+    DELETE = "DELETE FROM administracion WHERE id_administracion=?"
+    BUSCAR = "SELECT * FROM administracion WHERE tipo_gasto LIKE '%' || ? || '%' OR proveedor LIKE '%' || ? || '%'"
 
 class ServicioAdministracion:
-    pass
+    @staticmethod
+    def conexionBBDD():
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaAdministracion.CREATE)
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def crear(tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto):
+        conexion, cursor = conectar()
+        administracion = Administracion(tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto)
+        cursor.execute(ConsultaAdministracion.INSERT, administracion.info())
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def consultar(id_proyecto):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaAdministracion.SELECT, (id_proyecto,))
+        datos = cursor.fetchall()
+        conexion.close()
+        return datos
+
+    @staticmethod
+    def actualizar(tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto, ide):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaAdministracion.UPDATE,
+                         (tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto, ide))
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def borrar(id_administracion):
+        conexion = sqlite3.connect(db_name)
+        cursor = conexion.cursor()
+        cursor.execute(ConsultaAdministracion.DELETE, (id_administracion,))
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def buscar(criterio):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaAdministracion.BUSCAR, (criterio, criterio))
+        datos = cursor.fetchall()
+        conexion.close()
+        return datos
