@@ -312,7 +312,7 @@ class ConsultaDetalleProyecto:
     '''
     INSERT = "INSERT INTO detalle_proyecto VALUES (NULL,?,?)"
     SELECT = '''
-    SELECT p.id_proyecto, p.nombre, p.descripcion, p.estado, p.fecha_inicio, p.fecha_fin
+    SELECT p.*
     FROM detalle_proyecto dp
     INNER JOIN proyecto p ON dp.id_proyecto = p.id_proyecto
     WHERE dp.id_usuario = ?;
