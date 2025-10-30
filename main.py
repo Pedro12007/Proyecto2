@@ -551,13 +551,13 @@ class MenuPrincipal():
         def proyectos_page():
             home_page_fm = Frame(page_frame, bg='black')
             lb = Label(home_page_fm, text='Proyectos', font=('Arial', 20), bg='black', fg='white')
-            lb.place(x=100, y=200)
+            lb.place(x=100, y=20)
             home_page_fm.pack(fill=BOTH, expand=True)
 
         def agregar_page():
             agregar_page_fm = Frame(page_frame, bg='black')
             lb = Label(agregar_page_fm, text='Agregar proyecto', font=('Arial', 20), bg='black', fg='white')
-            lb.place(x=100, y=200)
+            lb.place(x=100, y=20)
             agregar_page_fm.pack(fill=BOTH, expand=True)
 
         page_frame = Frame(ventana_menu_principal, bg='black')
@@ -586,7 +586,7 @@ class MenuPrincipal():
             bd=0,
             command=extend_bar_frame
         )
-        self.toggle_menu_btn.place(x=9, y=10)
+        self.toggle_menu_btn.place(x=7, y=10)
 
         self.home_menu_btn = Button(
             menu_bar_frame,
