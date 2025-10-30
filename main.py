@@ -513,7 +513,7 @@ class MenuPrincipal():
         self.salir_icon = PhotoImage(file=ruta_icono_salir)
         self.x_icon = PhotoImage(file=ruta_icono_x)
 
-        def switch_indication(indicador_lb):
+        def switch_indication(indicador_lb, page):
 
             home_btn_indicator.config(bg='white')
             mas_btn_indicator.config(bg='white')
@@ -523,6 +523,11 @@ class MenuPrincipal():
 
             if menu_bar_frame.winfo_width() > 45:
                fold_menu_bar()
+
+            for frame in page_frame.winfo_children():
+                frame.destroy()
+
+            page()
 
         def extending_animation():
             current_width = menu_bar_frame.winfo_width()
@@ -550,6 +555,27 @@ class MenuPrincipal():
             self.toggle_menu_btn.config(image=self.toggle_icon)
             self.toggle_menu_btn.config(command=extend_bar_frame)
 
+        def proyectos_page():
+            home_page_fm = Frame(page_frame, bg='black')
+
+            lb = Label(home_page_fm, text='Proyectos', font=('Arial', 20))
+            lb.place(x=100, y=200)
+
+            home_page_fm.pack(fill= BOTH, expand=True)
+
+        def agregar_page():
+            agregar_page_fm = Frame(page_frame, bg='black')
+
+            lb = Label(agregar_page_fm, text='Agregar proyecto', font=('Arial', 20))
+            lb.place(x=100, y=200)
+
+            agregar_page_fm.pack(fill=BOTH, expand=True)
+
+        page_frame = Frame(ventana_menu_principal, bg='black')
+        page_frame.place(relwidth=1.0, relheight=1.0, x=50)
+        proyectos_page()
+
+
         menu_bar_frame = Frame(ventana_menu_principal, bg=menu_bar_colour)
         menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
         menu_bar_frame.pack_propagate(False)
@@ -571,7 +597,8 @@ class MenuPrincipal():
             bg=menu_bar_colour,
             activebackground=menu_bar_colour,
             bd=0,
-            command=lambda: switch_indication(indicador_lb=home_btn_indicator)
+            command=lambda: switch_indication(indicador_lb=home_btn_indicator,
+                                              page=proyectos_page)
         )
         self.home_menu_btn.place(x=9, y=250, width=30, height=40)
 
@@ -581,7 +608,10 @@ class MenuPrincipal():
         self.home_page_lb = Label(menu_bar_frame, text='Proyectos', bg='white', fg='black',
                                   font=('Arial', 10), anchor=W)
         self.home_page_lb.place(x=45, y=250, width=100, height=40)
-        self.home_page_lb.bind("<Button-1>", lambda e: switch_indication(indicador_lb=home_btn_indicator))
+        self.home_page_lb.bind(
+            "<Button-1>",
+            lambda e: switch_indication(indicador_lb=home_btn_indicator, page=proyectos_page)
+        )
 
         self.mas_menu_btn = Button(
             menu_bar_frame,
@@ -589,7 +619,7 @@ class MenuPrincipal():
             bg=menu_bar_colour,
             activebackground=menu_bar_colour,
             bd=0,
-            command=lambda: switch_indication(indicador_lb=mas_btn_indicator)
+            command=lambda: switch_indication(indicador_lb=mas_btn_indicator, page=agregar_page)
         )
         self.mas_menu_btn.place(x=9, y=310, width=30, height=40)
 
@@ -599,7 +629,11 @@ class MenuPrincipal():
         self.mas_page_lb = Label(menu_bar_frame, text='Crear Proyecto', bg='white', fg='black',
                                   font=('Arial', 10), anchor=W)
         self.mas_page_lb.place(x=45, y=310, width=100, height=40)
-        self.mas_page_lb.bind("<Button-1>", lambda e: switch_indication(indicador_lb=mas_btn_indicator))
+
+        self.home_page_lb.bind(
+            "<Button-1>",
+            lambda e: switch_indication(indicador_lb=home_btn_indicator, page=proyectos_page)
+        )
 
         self.block_menu_btn = Button(
             menu_bar_frame,
@@ -617,7 +651,8 @@ class MenuPrincipal():
         self.block_page_lb = Label(menu_bar_frame, text='Materiales', bg='white', fg='black',
                                  font=('Arial', 10), anchor=W)
         self.block_page_lb.place(x=45, y=370, width=100, height=40)
-        self.block_page_lb.bind("<Button-1>", lambda e: switch_indication(indicador_lb=block_btn_indicator))
+        self.block_page_lb.bind("<Button-1>", lambda e: self.ir_a_mat())
+
 
         self.salir_menu_btn = Button(
             menu_bar_frame,
