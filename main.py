@@ -503,11 +503,15 @@ class MenuPrincipal():
         ruta_icono_mas = os.path.join(os.path.dirname(__file__), 'imagenes', 'mas.png')
         ruta_icono_block = os.path.join(os.path.dirname(__file__), 'imagenes', 'block.png')
         ruta_icono_home = os.path.join(os.path.dirname(__file__), 'imagenes', 'home.png')
+        ruta_icono_salir = os.path.join(os.path.dirname(__file__), 'imagenes', 'salir.png')
+        ruta_icono_x = os.path.join(os.path.dirname(__file__), 'imagenes', 'x.png')
 
         self.toggle_icon = PhotoImage(file=ruta_icono_tresb)
         self.mas_icon = PhotoImage(file=ruta_icono_mas)
         self.block_icon = PhotoImage(file=ruta_icono_block)
         self.home_icon = PhotoImage(file=ruta_icono_home)
+        self.salir_icon = PhotoImage(file=ruta_icono_salir)
+        self.x_icon = PhotoImage(file=ruta_icono_x)
 
         def switch_indication(indicador_lb):
 
@@ -517,11 +521,36 @@ class MenuPrincipal():
 
             indicador_lb.config(bg='black')
 
+        def extending_animation():
+            current_width = menu_bar_frame.winfo_width()
+            if not current_width > 200:
+                current_width += 10
+                menu_bar_frame.config(width=current_width)
+
+                ventana_menu_principal.after(ms=8, func=extending_animation)
+
+        def extend_bar_frame():
+            extending_animation()
+            self.toggle_menu_btn.config(image=self.x_icon)
+            self.toggle_menu_btn.config(command=fold_menu_bar)
+
+        def folding_animation():
+            current_width = menu_bar_frame.winfo_width()
+            if current_width != 45:
+                current_width -= 10
+                menu_bar_frame.config(width=current_width)
+
+                ventana_menu_principal.after(ms=8, func=folding_animation)
+
+        def fold_menu_bar():
+            folding_animation()
+            self.toggle_menu_btn.config(image=self.toggle_icon)
+            self.toggle_menu_btn.config(command=extend_bar_frame)
 
         menu_bar_frame = Frame(ventana_menu_principal, bg=menu_bar_colour)
         menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
         menu_bar_frame.pack_propagate(False)
-        menu_bar_frame.configure(width=60)
+        menu_bar_frame.configure(width=45)
 
         self.toggle_menu_btn = Button(
             menu_bar_frame,
@@ -529,9 +558,9 @@ class MenuPrincipal():
             bg=menu_bar_colour,
             activebackground=menu_bar_colour,
             bd=0,
-            command=self.toggle_menu
+            command=extend_bar_frame
         )
-        self.toggle_menu_btn.place(x=13, y=10)
+        self.toggle_menu_btn.place(x=9, y=10)
 
         self.home_menu_btn = Button(
             menu_bar_frame,
@@ -541,10 +570,14 @@ class MenuPrincipal():
             bd=0,
             command=lambda: switch_indication(indicador_lb=home_btn_indicator)
         )
-        self.home_menu_btn.place(x=13, y=250, width=30, height=40)
+        self.home_menu_btn.place(x=9, y=250, width=30, height=40)
 
         home_btn_indicator = Label(menu_bar_frame, bg='black')
         home_btn_indicator.place(x=3, y=250, height=40, width=3)
+
+        self.home_page_lb = Label(menu_bar_frame, text='Proyectos', bg='white', fg='black',
+                                  font=('Arial', 10), anchor=W)
+        self.home_page_lb.place(x=45, y=250, width=100, height=40)
 
         self.mas_menu_btn = Button(
             menu_bar_frame,
@@ -554,10 +587,14 @@ class MenuPrincipal():
             bd=0,
             command=lambda: switch_indication(indicador_lb=mas_btn_indicator)
         )
-        self.mas_menu_btn.place(x=13, y=310, width=30, height=40)
+        self.mas_menu_btn.place(x=9, y=310, width=30, height=40)
 
         mas_btn_indicator = Label(menu_bar_frame, bg='white')
         mas_btn_indicator.place(x=3, y=310, height=40, width=3)
+
+        self.mas_page_lb = Label(menu_bar_frame, text='Crear Proyecto', bg='white', fg='black',
+                                  font=('Arial', 10), anchor=W)
+        self.mas_page_lb.place(x=45, y=310, width=100, height=40)
 
         self.block_menu_btn = Button(
             menu_bar_frame,
@@ -567,10 +604,27 @@ class MenuPrincipal():
             bd=0,
             command=self.ir_a_mat
         )
-        self.block_menu_btn.place(x=13, y=370, width=30, height=40)
+        self.block_menu_btn.place(x=9, y=370, width=30, height=40)
 
         block_btn_indicator = Label(menu_bar_frame, bg='white')
         block_btn_indicator.place(x=3, y=370, height=40, width=3)
+
+        self.block_page_lb = Label(menu_bar_frame, text='Materiales', bg='white', fg='black',
+                                 font=('Arial', 10), anchor=W)
+        self.block_page_lb.place(x=45, y=370, width=100, height=40)
+
+        self.salir_menu_btn = Button(
+            menu_bar_frame,
+            image=self.salir_icon,
+            bg=menu_bar_colour,
+            activebackground=menu_bar_colour,
+            bd=0,
+            #command
+        )
+        self.salir_menu_btn.place(relx=0.5, rely=1.0, anchor='s')
+
+        salir_btn_indicator = Label(menu_bar_frame, bg='white')
+        salir_btn_indicator.place(x=3, y=720, height=40, width=3)
 
     def toggle_menu(self):
         print("Click en el botón del menú ✅")
