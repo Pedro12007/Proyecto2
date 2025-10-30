@@ -521,6 +521,9 @@ class MenuPrincipal():
 
             indicador_lb.config(bg='black')
 
+            if menu_bar_frame.winfo_width() > 45:
+               fold_menu_bar()
+
         def extending_animation():
             current_width = menu_bar_frame.winfo_width()
             if not current_width > 200:
@@ -622,7 +625,7 @@ class MenuPrincipal():
             bg=menu_bar_colour,
             activebackground=menu_bar_colour,
             bd=0,
-            #command
+            command=self.cerrar_sesion
         )
         self.salir_menu_btn.place(relx=0.5, rely=1.0, anchor='s')
 
