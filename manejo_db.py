@@ -456,7 +456,36 @@ class ConsultaImagenesMensaje:
     DELETE = "DELETE FROM imagenes_mensaje WHERE id_imagen=?"
 
 class ServicioImagenesMensaje:
-    pass
+    @staticmethod
+    def conexionBBDD():
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaImagenesMensaje.CREATE)
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def crear(id_avance, ubicacion):
+        conexion, cursor = conectar()
+        imagen = ImagenesMensaje(id_avance, ubicacion)
+        cursor.execute(ConsultaImagenesMensaje.INSERT, imagen.info())
+        conexion.commit()
+        conexion.close()
+
+    @staticmethod
+    def consultar(id_avance):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaImagenesMensaje.SELECT, (id_avance,))
+        datos = cursor.fetchall()
+        conexion.close()
+        return datos
+
+    @staticmethod
+    def borrar(id_imagen):
+        conexion = sqlite3.connect(db_name)
+        cursor = conexion.cursor()
+        cursor.execute(ConsultaImagenesMensaje.DELETE, (id_imagen,))
+        conexion.commit()
+        conexion.close()
 
 class ManoObra:
     def __init__(self, nombre, telefono, ocupacion):
