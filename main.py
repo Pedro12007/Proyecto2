@@ -118,116 +118,6 @@ class Admin:
         ventana_admin.state("zoomed")
         ventana_admin.geometry('900x800')
 
-        def cerrar_sesion():
-            ventana_admin.destroy()
-            ventana_login.deiconify()
-            ventana_login.state("zoomed")
-
-        def generar_usuario():
-            self.nombre_usuario = self.nombres.get()
-            self.apellido_usuario = self.apellidos.get()
-
-            usuario_generado = ''
-
-            if validar_campo_lleno(self.nombre_usuario) and validar_campo_lleno(self.apellido_usuario):
-                lista_nombres = self.nombre_usuario.split()
-                lista_apellidos = self.apellido_usuario.split()
-                for i in lista_nombres:
-                    usuario_generado += i[0].lower()
-                if len(lista_apellidos) == 1:
-                    usuario_generado += lista_apellidos[0].lower()
-                else:
-                    usuario_generado += lista_apellidos.pop(0).lower()
-                    for i in lista_apellidos:
-                        usuario_generado += i[0].lower()
-
-                self.usuario.config(state='normal')
-                self.usuario.delete(0, END)
-                self.usuario.insert(0, usuario_generado)
-                self.usuario.config(state='readonly')
-
-            else:
-                messagebox.showerror('Error', 'El nombre y/o apellido están vacíos.')
-
-        def guardar_usuario():
-            self.nombre_usuario = self.nombres.get()
-            self.apellido_usuario = self.apellidos.get()
-            self.usuario_nuevo = self.usuario.get()
-            self.contrasena_usuario = self.contrasena.get()
-            self.contrasena_conf_usuario = self.contrasena_conf.get()
-
-            if validar_campo_lleno(self.nombre_usuario) and validar_campo_lleno(self.apellido_usuario) and validar_campo_lleno(self.usuario_nuevo) and validar_campo_lleno(self.contrasena_usuario) and validar_campo_lleno(self.contrasena_conf_usuario):
-                if self.contrasena_usuario == self.contrasena_conf_usuario:
-                    ServicioUsuarios.crear(self.nombre_usuario, self.apellido_usuario, self.usuario_nuevo, self.contrasena_usuario)
-                    messagebox.showinfo('Usuario creado', 'Usuario creado satisfactoriamente.')
-                else:
-                    messagebox.showerror('Error', 'La contraseña debe coincidir.')
-            else:
-                messagebox.showerror('Error', 'Todos los campos deben estar llenos.')
-
-        def mostrar_usuarios():
-            GestorUsuarios.mostrar(self.tree)
-            frame_mostrar_usuarios.tkraise()
-
-        def seleccionar_usuario():
-            if not self.miID_usuario.get():
-                messagebox.showerror('Error', 'Seleccione un usuario primero.')
-                return
-
-            datos = ServicioUsuarios.buscar_id(self.miID_usuario.get())
-            if datos:
-                self.nombres_m.delete(0, END)
-                self.nombres_m.insert(0, datos[1])
-                self.apellidos_m.delete(0, END)
-                self.apellidos_m.insert(0, datos[2])
-                self.miUsuario.set(f'Usuario: {datos[3]}')
-                self.contrasena_m.delete(0, END)
-                self.contrasena_m.insert(0, datos[4])
-                self.contrasena_conf_m.delete(0, END)
-                self.contrasena_conf_m.insert(0, datos[4])
-                frame_modificar_usuario.tkraise()
-            else:
-                messagebox.showerror('Error', 'Usuario no encontrado.')
-
-        def modificar_usuario():
-            ide = self.miID_usuario.get()
-            nuevo_nombre = self.nombres_m.get()
-            nuevo_apellido = self.apellidos_m.get()
-            usuario_seleccionado = self.miUsuario.get().replace('Usuario: ', '')
-            nueva_contrasena = self.contrasena_m.get()
-            nueva_contrasena_conf = self.contrasena_conf_m.get()
-
-            if validar_campo_lleno(nuevo_nombre) and validar_campo_lleno(nuevo_apellido) and validar_campo_lleno(nueva_contrasena) and validar_campo_lleno(nueva_contrasena_conf):
-                if nueva_contrasena == nueva_contrasena_conf:
-                    ServicioUsuarios.actualizar(nuevo_nombre, nuevo_apellido, usuario_seleccionado, nueva_contrasena, ide)
-                    messagebox.showinfo('Usuario actualizado', 'Usuario actualizado satisfactoriamente.')
-                    GestorUsuarios.mostrar(self.tree)
-                    frame_mostrar_usuarios.tkraise()
-                else:
-                    messagebox.showerror('Error', 'La contraseña debe coincidir.')
-            else:
-                messagebox.showerror('Error', 'Todos los campos deben estar llenos.')
-
-        def eliminar_usuario():
-            if not self.miID_usuario.get():
-                messagebox.showerror('Error', 'Seleccione un usuario primero.')
-                return
-
-            confirmar = messagebox.askyesno('Confirmar',f'¿Está seguro de eliminar el usuario con ID {self.miID_usuario.get()}?')
-
-            if confirmar:
-                try:
-                    ServicioUsuarios.borrar(self.miID_usuario.get())
-                    messagebox.showinfo('Éxito', 'Usuario eliminado correctamente.')
-                    GestorUsuarios.mostrar(self.tree)
-                    self.miID_usuario.set('')
-                    self.miNombres.set('')
-                    self.miApellidos.set('')
-                    self.miUsuario.set('')
-                except Exception as e:
-                    messagebox.showerror('Error', f'Error al eliminar usuario: {e}')
-
-
         fondo = 'white'
 
         self.miID_usuario = StringVar()
@@ -235,62 +125,62 @@ class Admin:
         self.miApellidos = StringVar()
         self.miUsuario = StringVar()
 
-        ventana_admin.protocol('WM_DELETE_WINDOW', cerrar_sesion)
+        ventana_admin.protocol('WM_DELETE_WINDOW', self.cerrar_sesion)
 
-        frame_principal = Frame(ventana_admin, bg='white')
-        frame_principal.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.frame_principal = Frame(ventana_admin, bg='white')
+        self.frame_principal.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        frame_add_usuario = Frame(ventana_admin, bg='white')
-        frame_add_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.frame_add_usuario = Frame(ventana_admin, bg='white')
+        self.frame_add_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        frame_mostrar_usuarios = Frame(ventana_admin, bg='white')
-        frame_mostrar_usuarios.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.frame_mostrar_usuarios = Frame(ventana_admin, bg='white')
+        self.frame_mostrar_usuarios.place(relx=0, rely=0, relwidth=1, relheight=1)
 
-        frame_modificar_usuario = Frame(ventana_admin, bg='white')
-        frame_modificar_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.frame_modificar_usuario = Frame(ventana_admin, bg='white')
+        self.frame_modificar_usuario.place(relx=0, rely=0, relwidth=1, relheight=1)
 
 
         # Contenido Frame principal
-        Label(frame_principal, text='Menú de administrador', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
-        Button(frame_principal, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: frame_add_usuario.tkraise()).pack(pady=20)
-        Button(frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=mostrar_usuarios).pack(pady=20)
-        Button(frame_principal, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=cerrar_sesion).pack(pady=20)
+        Label(self.frame_principal, text='Menú de administrador', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        Button(self.frame_principal, text="Agregar usuario", font=("Arial", 16), bg="white", fg="black", command=lambda: self.frame_add_usuario.tkraise()).pack(pady=20)
+        Button(self.frame_principal, text="Modificar datos de usuario", font=("Arial", 16), bg="white", fg="black", command=self.mostrar_usuarios).pack(pady=20)
+        Button(self.frame_principal, text="Cerrar sesión", font=("Arial", 16), bg="white", fg="black", command=self.cerrar_sesion).pack(pady=20)
 
 
         # Contenido Frame - agregar usuario
-        Button(frame_add_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
-        Label(frame_add_usuario, text='Agregar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
-        Label(frame_add_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
-        self.nombres = Entry(frame_add_usuario, width=40, bd=1)
+        Button(self.frame_add_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: self.frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
+        Label(self.frame_add_usuario, text='Agregar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        Label(self.frame_add_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
+        self.nombres = Entry(self.frame_add_usuario, width=40, bd=1)
         self.nombres.pack(anchor='center', pady=10)
 
-        Label(frame_add_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
-        self.apellidos = Entry(frame_add_usuario, width=40, bd=1)
+        Label(self.frame_add_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
+        self.apellidos = Entry(self.frame_add_usuario, width=40, bd=1)
         self.apellidos.pack(anchor='center', pady=10)
 
-        fila_usuario = Frame(frame_add_usuario, width=100, bg=fondo)
+        fila_usuario = Frame(self.frame_add_usuario, width=100, bg=fondo)
         fila_usuario.pack(pady=20)
         Label(fila_usuario, text='Usuario:', font=("Arial", 14), bg=fondo).pack(side='left', padx=10)
-        Button(fila_usuario, text='Generar usuario', font=('Arial', 12), bg="white", fg="black", command=generar_usuario).pack(side='right', padx=10)
-        self.usuario = Entry(frame_add_usuario, width=40, bd=1, state='readonly')
+        Button(fila_usuario, text='Generar usuario', font=('Arial', 12), bg="white", fg="black", command=self.generar_usuario).pack(side='right', padx=10)
+        self.usuario = Entry(self.frame_add_usuario, width=40, bd=1, state='readonly')
         self.usuario.pack(anchor='center', pady=10)
 
-        Label(frame_add_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
-        self.contrasena = Entry(frame_add_usuario, width=40, bd=1)
+        Label(self.frame_add_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
+        self.contrasena = Entry(self.frame_add_usuario, width=40, bd=1)
         self.contrasena.pack(anchor='center', pady=10)
 
-        Label(frame_add_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
-        self.contrasena_conf = Entry(frame_add_usuario, width=40, bd=1)
+        Label(self.frame_add_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center',pady=20)
+        self.contrasena_conf = Entry(self.frame_add_usuario, width=40, bd=1)
         self.contrasena_conf.pack(anchor='center', pady=10)
 
-        Button(frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black", command=guardar_usuario).pack(anchor='center', pady=10)
+        Button(self.frame_add_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black", command=self.guardar_usuario).pack(anchor='center', pady=10)
 
         # Contenido Frame - mostrar usuarios
-        Button(frame_mostrar_usuarios, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
-        Label(frame_mostrar_usuarios, text='Mostrar usuarios', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        Button(self.frame_mostrar_usuarios, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: self.frame_principal.tkraise()).pack(side='left', anchor='n', pady=20)
+        Label(self.frame_mostrar_usuarios, text='Mostrar usuarios', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
 
         self.cabecera = ["ID", "Nombres", "Apellidos", "Usuario"]
-        self.tree = ttk.Treeview(frame_mostrar_usuarios, height=10, columns=("#1", "#2", "#3"))
+        self.tree = ttk.Treeview(self.frame_mostrar_usuarios, height=10, columns=("#1", "#2", "#3"))
         self.tree.place(x=0, y=150)
 
         self.tree.column("#0", width=100)
@@ -305,35 +195,144 @@ class Admin:
 
         GestorUsuarios.mostrar(self.tree)
 
-        Button(frame_mostrar_usuarios, text='Eliminar', font=('Arial', 16), bg="white", fg="black", command=eliminar_usuario).pack(side='left', pady=20)
-        Button(frame_mostrar_usuarios, text='Modificar', font=('Arial', 16), bg="white", fg="black", command=seleccionar_usuario).pack(side='right', pady=20)
+        Button(self.frame_mostrar_usuarios, text='Eliminar', font=('Arial', 16), bg="white", fg="black", command=self.eliminar_usuario).pack(side='left', pady=20)
+        Button(self.frame_mostrar_usuarios, text='Modificar', font=('Arial', 16), bg="white", fg="black", command=self.seleccionar_usuario).pack(side='right', pady=20)
 
 
         # Contenido Frame - modificar usuario
-        Button(frame_modificar_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: frame_mostrar_usuarios.tkraise()).pack(side='left', anchor='n', pady=20)
-        Label(frame_modificar_usuario, text='Modificar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
+        Button(self.frame_modificar_usuario, text='Regresar', font=('Arial', 16), bg="white", fg="black", command=lambda: self.frame_mostrar_usuarios.tkraise()).pack(side='left', anchor='n', pady=20)
+        Label(self.frame_modificar_usuario, text='Modificar usuario', font=("Arial", 16, 'bold'), bg=fondo).pack(pady=20)
 
-        Label(frame_modificar_usuario, textvariable=self.miUsuario, font=('Arial', 14), bg=fondo).pack(anchor='center',pady=20)
+        Label(self.frame_modificar_usuario, textvariable=self.miUsuario, font=('Arial', 14), bg=fondo).pack(anchor='center',pady=20)
 
-        Label(frame_modificar_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
-        self.nombres_m = Entry(frame_modificar_usuario, width=40, bd=1)
+        Label(self.frame_modificar_usuario, text='Nombre:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.nombres_m = Entry(self.frame_modificar_usuario, width=40, bd=1)
         self.nombres_m.pack(anchor='center', pady=10)
 
-        Label(frame_modificar_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
-        self.apellidos_m = Entry(frame_modificar_usuario, width=40, bd=1)
+        Label(self.frame_modificar_usuario, text='Apellido:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.apellidos_m = Entry(self.frame_modificar_usuario, width=40, bd=1)
         self.apellidos_m.pack(anchor='center', pady=10)
 
-        Label(frame_modificar_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
-        self.contrasena_m = Entry(frame_modificar_usuario, width=40, bd=1)
+        Label(self.frame_modificar_usuario, text='Contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.contrasena_m = Entry(self.frame_modificar_usuario, width=40, bd=1)
         self.contrasena_m.pack(anchor='center', pady=10)
 
-        Label(frame_modificar_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
-        self.contrasena_conf_m = Entry(frame_modificar_usuario, width=40, bd=1)
+        Label(self.frame_modificar_usuario, text='Confirmar contraseña:', font=("Arial", 14), bg=fondo).pack(anchor='center', pady=20)
+        self.contrasena_conf_m = Entry(self.frame_modificar_usuario, width=40, bd=1)
         self.contrasena_conf_m.pack(anchor='center', pady=10)
 
-        Button(frame_modificar_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black", command=modificar_usuario).pack(anchor='center', pady=10)
+        Button(self.frame_modificar_usuario, text='Guardar', font=('Arial', 16), bg="white", fg="black", command=self.modificar_usuario).pack(anchor='center', pady=10)
 
-        frame_principal.tkraise()
+        self.frame_principal.tkraise()
+
+    def cerrar_sesion(self):
+        ventana_admin.destroy()
+        ventana_login.deiconify()
+        ventana_login.state("zoomed")
+
+    def generar_usuario(self):
+        self.nombre_usuario = self.nombres.get()
+        self.apellido_usuario = self.apellidos.get()
+
+        usuario_generado = ''
+
+        if validar_campo_lleno(self.nombre_usuario) and validar_campo_lleno(self.apellido_usuario):
+            lista_nombres = self.nombre_usuario.split()
+            lista_apellidos = self.apellido_usuario.split()
+            for i in lista_nombres:
+                usuario_generado += i[0].lower()
+            if len(lista_apellidos) == 1:
+                usuario_generado += lista_apellidos[0].lower()
+            else:
+                usuario_generado += lista_apellidos.pop(0).lower()
+                for i in lista_apellidos:
+                    usuario_generado += i[0].lower()
+
+            self.usuario.config(state='normal')
+            self.usuario.delete(0, END)
+            self.usuario.insert(0, usuario_generado)
+            self.usuario.config(state='readonly')
+
+        else:
+            messagebox.showerror('Error', 'El nombre y/o apellido están vacíos.')
+
+    def guardar_usuario(self):
+        self.nombre_usuario = self.nombres.get()
+        self.apellido_usuario = self.apellidos.get()
+        self.usuario_nuevo = self.usuario.get()
+        self.contrasena_usuario = self.contrasena.get()
+        self.contrasena_conf_usuario = self.contrasena_conf.get()
+
+        if validar_campo_lleno(self.nombre_usuario) and validar_campo_lleno(self.apellido_usuario) and validar_campo_lleno(self.usuario_nuevo) and validar_campo_lleno(self.contrasena_usuario) and validar_campo_lleno(self.contrasena_conf_usuario):
+            if self.contrasena_usuario == self.contrasena_conf_usuario:
+                ServicioUsuarios.crear(self.nombre_usuario, self.apellido_usuario, self.usuario_nuevo, self.contrasena_usuario)
+                messagebox.showinfo('Usuario creado', 'Usuario creado satisfactoriamente.')
+            else:
+                messagebox.showerror('Error', 'La contraseña debe coincidir.')
+        else:
+            messagebox.showerror('Error', 'Todos los campos deben estar llenos.')
+
+    def mostrar_usuarios(self):
+        GestorUsuarios.mostrar(self.tree)
+        self.frame_mostrar_usuarios.tkraise()
+
+    def seleccionar_usuario(self):
+        if not self.miID_usuario.get():
+            messagebox.showerror('Error', 'Seleccione un usuario primero.')
+            return
+
+        datos = ServicioUsuarios.buscar_id(self.miID_usuario.get())
+        if datos:
+            self.nombres_m.delete(0, END)
+            self.nombres_m.insert(0, datos[1])
+            self.apellidos_m.delete(0, END)
+            self.apellidos_m.insert(0, datos[2])
+            self.miUsuario.set(f'Usuario: {datos[3]}')
+            self.contrasena_m.delete(0, END)
+            self.contrasena_m.insert(0, datos[4])
+            self.contrasena_conf_m.delete(0, END)
+            self.contrasena_conf_m.insert(0, datos[4])
+            self.frame_modificar_usuario.tkraise()
+        else:
+            messagebox.showerror('Error', 'Usuario no encontrado.')
+
+    def modificar_usuario(self):
+        ide = self.miID_usuario.get()
+        nuevo_nombre = self.nombres_m.get()
+        nuevo_apellido = self.apellidos_m.get()
+        usuario_seleccionado = self.miUsuario.get().replace('Usuario: ', '')
+        nueva_contrasena = self.contrasena_m.get()
+        nueva_contrasena_conf = self.contrasena_conf_m.get()
+
+        if validar_campo_lleno(nuevo_nombre) and validar_campo_lleno(nuevo_apellido) and validar_campo_lleno(nueva_contrasena) and validar_campo_lleno(nueva_contrasena_conf):
+            if nueva_contrasena == nueva_contrasena_conf:
+                ServicioUsuarios.actualizar(nuevo_nombre, nuevo_apellido, usuario_seleccionado, nueva_contrasena, ide)
+                messagebox.showinfo('Usuario actualizado', 'Usuario actualizado satisfactoriamente.')
+                GestorUsuarios.mostrar(self.tree)
+                self.frame_mostrar_usuarios.tkraise()
+            else:
+                messagebox.showerror('Error', 'La contraseña debe coincidir.')
+        else:
+            messagebox.showerror('Error', 'Todos los campos deben estar llenos.')
+
+    def eliminar_usuario(self):
+        if not self.miID_usuario.get():
+            messagebox.showerror('Error', 'Seleccione un usuario primero.')
+            return
+
+        confirmar = messagebox.askyesno('Confirmar',f'¿Está seguro de eliminar el usuario con ID {self.miID_usuario.get()}?')
+
+        if confirmar:
+            try:
+                ServicioUsuarios.borrar(self.miID_usuario.get())
+                messagebox.showinfo('Éxito', 'Usuario eliminado correctamente.')
+                GestorUsuarios.mostrar(self.tree)
+                self.miID_usuario.set('')
+                self.miNombres.set('')
+                self.miApellidos.set('')
+                self.miUsuario.set('')
+            except Exception as e:
+                messagebox.showerror('Error', f'Error al eliminar usuario: {e}')
 
     def seleccionarUsandoClick(self, event):
         id_seleccionado = seleccionar_haciendo_click(

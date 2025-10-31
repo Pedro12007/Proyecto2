@@ -113,6 +113,8 @@ class ConsultaUsuarios:
     UPDATE = "UPDATE usuarios SET nombres=?, apellidos=?, usuario=?, contrasena=? WHERE id_usuario=?"
     DELETE = "DELETE FROM usuarios WHERE id_usuario=?"
     BUSCAR = "SELECT * FROM usuarios WHERE nombres LIKE '%' || ? || '%' OR apellidos LIKE '%' || ? || '%'"
+    BUSCAR_BY_ID = 'SELECT * FROM usuarios WHERE id_usuario=?'
+    BUSCAR_USUARIO = 'SELECT * FROM usuarios WHERE usuario=? AND contrasena=?'
 
 class ServicioUsuarios:
     @staticmethod
@@ -147,8 +149,7 @@ class ServicioUsuarios:
 
     @staticmethod
     def borrar(id_usuario):
-        conexion = sqlite3.connect(db_name)
-        cursor = conexion.cursor()
+        conexion, cursor = conectar()
         cursor.execute(ConsultaUsuarios.DELETE, (id_usuario,))
         conexion.commit()
         conexion.close()
@@ -156,7 +157,7 @@ class ServicioUsuarios:
     @staticmethod
     def buscar_id(id_usuario):
         conexion, cursor = conectar()
-        cursor.execute('SELECT * FROM usuarios WHERE id_usuario=?', (id_usuario,))
+        cursor.execute(ConsultaUsuarios.BUSCAR_BY_ID, (id_usuario,))
         datos = cursor.fetchone()
         conexion.close()
         return datos
@@ -164,7 +165,7 @@ class ServicioUsuarios:
     @staticmethod
     def buscar_usuario_password(nombre_usuario, contrasena):
         conexion, cursor = conectar()
-        cursor.execute('SELECT * FROM usuarios WHERE usuario=? AND contrasena=?', (nombre_usuario, contrasena))
+        cursor.execute(ConsultaUsuarios.BUSCAR_USUARIO, (nombre_usuario, contrasena))
         datos = cursor.fetchone()
         conexion.close()
         return datos
@@ -651,7 +652,7 @@ class ConsultaMateriales:
     INSERT = "INSERT INTO materiales VALUES (NULL,?,?,?)"
     SELECT = "SELECT * FROM materiales"
     UPDATE = "UPDATE materiales SET descripcion=?, unidad=?, costo_unitario=? WHERE id_material=?"
-    DELETE = "DELETE FROM materiales WHERE id_material="
+    DELETE = "DELETE FROM materiales WHERE id_material=?"
     BUSCAR = "SELECT * FROM materiales WHERE descripcion LIKE '%' || ? || '%'"
 
 class ServicioMateriales:
@@ -690,9 +691,8 @@ class ServicioMateriales:
 
     @staticmethod
     def borrar(id_material):
-        conexion = sqlite3.connect(db_name)
-        cursor = conexion.cursor()
-        cursor.execute("DELETE FROM materiales WHERE id_material = ?", (id_material,))
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaMateriales.DELETE, (id_material,))
         conexion.commit()
         conexion.close()
 
