@@ -621,7 +621,7 @@ class MenuPrincipal:
                 borderwidth=2
             ).place(x=250, y=240)
 
-            Label(agregar_page_fm, text="Duración:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=280)
+            Label(agregar_page_fm, text="Duración (Estimada):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=280)
             Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=280)
 
             Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=320)
@@ -635,12 +635,6 @@ class MenuPrincipal:
                 borderwidth=2
             ).place(x=250, y=320)
 
-            Label(agregar_page_fm, text="Presupuesto total:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=360)
-            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=360)
-
-            Label(agregar_page_fm, text="ID Cliente:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=400)
-            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=400)
-
             Button(
                 agregar_page_fm,
                 text="Guardar",
@@ -649,7 +643,7 @@ class MenuPrincipal:
                 fg='black',
                 width=12,
                 #command=
-            ).place(x=150, y=480)
+            ).place(x=150, y=400)
 
         page_frame = Frame(ventana_menu_principal, bg='black')
         page_frame.place(relwidth=1.0, relheight=1.0, x=50)
