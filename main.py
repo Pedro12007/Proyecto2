@@ -595,7 +595,7 @@ class MenuPrincipal:
             self.nombre_var = StringVar()
             self.descripcion_var = StringVar()
             self.estado_var = StringVar()
-            self.no_personas_var = StringVar
+            self.no_usuarios_var = StringVar()
             self.fecha_inicio_var = StringVar()
             self.fecha_fin_var = StringVar()
 
@@ -609,7 +609,7 @@ class MenuPrincipal:
             Entry(agregar_page_fm, textvariable=self.descripcion_var, width=50).place(x=250, y=160)
 
             Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=200)
-            Entry(agregar_page_fm, textvariable=self.no_personas_var, width=30).place(x=250, y=200)
+            Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=30).place(x=250, y=200)
 
             Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=240)
             DateEntry(
@@ -643,8 +643,60 @@ class MenuPrincipal:
                 bg='white',
                 fg='black',
                 width=12,
-                #command=
+                command= self.guardar_proyecto
             ).place(x=150, y=400)
+
+        def guardar_proyecto(self):
+            nombre = self.nombre_var.get()
+            descripcion = self.descripcion_var.get()
+            n_usuarios = self.no_personas_var.get() if hasattr(self, "no_personas_var") else ""
+            fecha_inicio = self.fecha_inicio_var.get()
+            duracion = self.estado_var.get()
+            fecha_fin = self.fecha_fin_var.get()
+
+            estado = "planeado"
+            presupuesto_total = 0
+            id_cliente = None
+
+            if not nombre.strip():
+                messagebox.showerror("Error", "El nombre del proyecto es obligatorio.")
+                return
+
+            try:
+                n_usuarios = int(n_usuarios) if str(n_usuarios).strip() != "" else 0
+            except ValueError:
+                messagebox.showerror("Error", "El número de personas debe ser numérico.")
+                return
+
+            id_proyecto = ServicioProyecto.crear(
+                nombre=nombre,
+                descripcion=descripcion,
+                n_usuarios=n_usuarios,
+                fecha_inicio=fecha_inicio,
+                duracion=duracion,
+                fecha_fin=fecha_fin,
+                estado=estado,
+                presupuesto_total=presupuesto_total,
+                id_cliente=id_cliente
+            )
+
+            ServicioDetalleProyecto.crear(self.id_usuario, id_proyecto)
+
+            try:
+                GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
+            except Exception:
+                pass
+
+            self.id_proyecto_var.set("")
+            self.nombre_var.set("")
+            self.descripcion_var.set("")
+            if hasattr(self, "no_personas_var"):
+                self.no_personas_var.set("")
+            self.fecha_inicio_var.set("")
+            self.estado_var.set("")
+            self.fecha_fin_var.set("")
+
+            messagebox.showinfo("Éxito", "Proyecto creado y asignado al usuario.")
 
         page_frame = Frame(ventana_menu_principal, bg='black')
         page_frame.place(relwidth=1.0, relheight=1.0, x=50)

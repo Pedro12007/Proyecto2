@@ -303,6 +303,100 @@ class ServicioProyecto:
         conexion.close()
         return datos
 
+class GestorProyectos:
+    @staticmethod
+    def mostrar(tree, id_usuario=None):
+        """
+        Si se pasa id_usuario, mostramos SOLO los proyectos de ese usuario
+        (usando detalle_proyecto).
+        Si no se pasa, mostramos todos los proyectos.
+        """
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            if id_usuario is not None:
+                # usa la tabla intermedia
+                proyectos = ServicioDetalleProyecto.consultar(id_usuario)
+                # cada row = proyecto completo
+                for row in proyectos:
+                    # row = (id_proyecto, nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente)
+                    tree.insert(
+                        "",
+                        "end",
+                        text=row[0],
+                        values=(row[1], row[2], row[7], row[4], row[6])  # nombre, desc, estado, f_inicio, f_fin
+                    )
+            else:
+                proyectos = ServicioProyecto.consultar()
+                for row in proyectos:
+                    tree.insert(
+                        "",
+                        "end",
+                        text=row[0],
+                        values=(row[1], row[2], row[7], row[4], row[6])
+                    )
+        except Exception as e:
+            messagebox.showinfo("ADVERTENCIA", f"Error al mostrar proyectos: {e}")
+
+    @staticmethod
+    def crear(nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin,
+              estado, presupuesto_total, id_cliente, id_usuario_para_detalle=None):
+        try:
+            if nombre != "":
+                id_proyecto = ServicioProyecto.crear(
+                    nombre,
+                    descripcion,
+                    n_usuarios,
+                    fecha_inicio,
+                    duracion,
+                    fecha_fin,
+                    estado,
+                    presupuesto_total,
+                    id_cliente
+                )
+
+                if id_usuario_para_detalle is not None:
+                    ServicioDetalleProyecto.crear(id_usuario_para_detalle, id_proyecto)
+                return id_proyecto
+            else:
+                messagebox.showwarning("ADVERTENCIA", "El nombre del proyecto es obligatorio.")
+        except Exception as e:
+            messagebox.showerror("ERROR", f"Error al crear proyecto: {e}")
+
+    @staticmethod
+    def actualizar(ide, nombre, descripcion, n_usuarios, fecha_inicio, duracion,
+                   fecha_fin, estado, presupuesto_total, id_cliente):
+        try:
+            if nombre != "":
+                ServicioProyecto.actualizar(
+                    nombre,
+                    descripcion,
+                    n_usuarios,
+                    fecha_inicio,
+                    duracion,
+                    fecha_fin,
+                    estado,
+                    presupuesto_total,
+                    id_cliente,
+                    ide
+                )
+            else:
+                messagebox.showwarning("ADVERTENCIA", "El nombre del proyecto es obligatorio.")
+        except Exception as e:
+            messagebox.showerror("ERROR", f"Error al actualizar proyecto: {e}")
+
+    @staticmethod
+    def borrar(ide):
+        try:
+            if messagebox.askyesno(message="¿Seguro desea eliminar el proyecto?", title="ADVERTENCIA"):
+                # esto también borra en cascada detalle_proyecto por tu FK
+                ServicioProyecto.borrar(ide)
+        except Exception as e:
+            messagebox.showerror("ERROR", f"Error al eliminar proyecto: {e}")
+
+
 class DetalleProyecto:
     def __init__(self, id_usuario, id_proyecto):
         self.id_usuario = id_usuario
