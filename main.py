@@ -595,6 +595,7 @@ class MenuPrincipal:
             self.nombre_var = StringVar()
             self.descripcion_var = StringVar()
             self.estado_var = StringVar()
+            self.no_personas_var = StringVar
             self.fecha_inicio_var = StringVar()
             self.fecha_fin_var = StringVar()
 
@@ -608,7 +609,7 @@ class MenuPrincipal:
             Entry(agregar_page_fm, textvariable=self.descripcion_var, width=50).place(x=250, y=160)
 
             Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=200)
-            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=200)
+            Entry(agregar_page_fm, textvariable=self.no_personas_var, width=30).place(x=250, y=200)
 
             Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=240)
             DateEntry(
