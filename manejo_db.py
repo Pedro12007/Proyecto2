@@ -88,6 +88,25 @@ class ServicioClientes:
         conexion.close()
         return datos
 
+class GestorClientes:
+    @staticmethod
+    def mostrar(tree):
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            usuarios = ServicioClientes.consultar()
+            for row in usuarios:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    values=(row[1], row[2], row[3], row[4], row[5], row[6])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
+
 class Usuario:
     def __init__(self, nombres, apellidos, usuario, contrasena):
         self.nombres = nombres
@@ -172,14 +191,6 @@ class ServicioUsuarios:
 
 class GestorUsuarios:
     @staticmethod
-    def conexionBBDD():
-        try:
-            ServicioUsuarios.conexionBBDD()
-            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
-        except:
-            messagebox.showerror("ERROR", "Error al conectar la base de datos")
-
-    @staticmethod
     def mostrar(tree):
         # limpiar tabla
         for elemento in tree.get_children():
@@ -192,7 +203,7 @@ class GestorUsuarios:
                     "",
                     "end",
                     text=row[0],
-                    values=(row[1], row[2], row[3], row[4])
+                    values=(row[1], row[2], row[3])
                 )
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
@@ -318,6 +329,7 @@ class ConsultaDetalleProyecto:
     INNER JOIN proyecto p ON dp.id_proyecto = p.id_proyecto
     WHERE dp.id_usuario = ?;
     '''
+    DELETE = 'DELETE FROM detalle_proyecto WHERE id_proyecto = ?;'
 
 class ServicioDetalleProyecto:
     @staticmethod
@@ -343,15 +355,15 @@ class ServicioDetalleProyecto:
         conexion.commit()
         conexion.close()
 
-class GestorDetalleProyecto:
     @staticmethod
-    def conexionBBDD():
-        try:
-            ServicioDetalleProyecto.conexionBBDD()
-            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
-        except:
-            messagebox.showerror("ERROR", "Error al conectar la base de datos")
+    def borrar(id_proyecto):
+        conexion = sqlite3.connect(db_name)
+        cursor = conexion.cursor()
+        cursor.execute(ConsultaDetalleProyecto.DELETE, (id_proyecto,))
+        conexion.commit()
+        conexion.close()
 
+class GestorDetalleProyecto:
     @staticmethod
     def mostrar(tree, id_usuario):
         # limpiar tabla
@@ -365,7 +377,8 @@ class GestorDetalleProyecto:
                     "",
                     "end",
                     text=row[0],
-                    values=(row[1], row[2], row[3], row[4], row[5])
+                    values=(row[1], row[2], row[7], row[4], row[6])
+                    # 1- nombre | 2- descripcion | 7- estado | 4- fecha_inicio | 6- fecha_fin
                 )
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
@@ -705,14 +718,6 @@ class ServicioMateriales:
         return datos
 
 class GestorMateriales:
-    @staticmethod
-    def conexionBBDD():
-        try:
-            ServicioMateriales.conexionBBDD()
-            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
-        except:
-            messagebox.showerror("ERROR", "Error al conectar la base de datos")
-
     @staticmethod
     def mostrar(tree):
         # limpiar tabla
