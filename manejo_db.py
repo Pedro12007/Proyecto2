@@ -88,6 +88,25 @@ class ServicioClientes:
         conexion.close()
         return datos
 
+class GestorClientes:
+    @staticmethod
+    def mostrar(tree):
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            usuarios = ServicioClientes.consultar()
+            for row in usuarios:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    values=(row[1], row[2], row[3], row[4], row[5], row[6])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
+
 class Usuario:
     def __init__(self, nombres, apellidos, usuario, contrasena):
         self.nombres = nombres
@@ -113,6 +132,8 @@ class ConsultaUsuarios:
     UPDATE = "UPDATE usuarios SET nombres=?, apellidos=?, usuario=?, contrasena=? WHERE id_usuario=?"
     DELETE = "DELETE FROM usuarios WHERE id_usuario=?"
     BUSCAR = "SELECT * FROM usuarios WHERE nombres LIKE '%' || ? || '%' OR apellidos LIKE '%' || ? || '%'"
+    BUSCAR_BY_ID = 'SELECT * FROM usuarios WHERE id_usuario=?'
+    BUSCAR_USUARIO = 'SELECT * FROM usuarios WHERE usuario=? AND contrasena=?'
 
 class ServicioUsuarios:
     @staticmethod
@@ -147,8 +168,7 @@ class ServicioUsuarios:
 
     @staticmethod
     def borrar(id_usuario):
-        conexion = sqlite3.connect(db_name)
-        cursor = conexion.cursor()
+        conexion, cursor = conectar()
         cursor.execute(ConsultaUsuarios.DELETE, (id_usuario,))
         conexion.commit()
         conexion.close()
@@ -156,7 +176,7 @@ class ServicioUsuarios:
     @staticmethod
     def buscar_id(id_usuario):
         conexion, cursor = conectar()
-        cursor.execute('SELECT * FROM usuarios WHERE id_usuario=?', (id_usuario,))
+        cursor.execute(ConsultaUsuarios.BUSCAR_BY_ID, (id_usuario,))
         datos = cursor.fetchone()
         conexion.close()
         return datos
@@ -164,20 +184,12 @@ class ServicioUsuarios:
     @staticmethod
     def buscar_usuario_password(nombre_usuario, contrasena):
         conexion, cursor = conectar()
-        cursor.execute('SELECT * FROM usuarios WHERE usuario=? AND contrasena=?', (nombre_usuario, contrasena))
+        cursor.execute(ConsultaUsuarios.BUSCAR_USUARIO, (nombre_usuario, contrasena))
         datos = cursor.fetchone()
         conexion.close()
         return datos
 
 class GestorUsuarios:
-    @staticmethod
-    def conexionBBDD():
-        try:
-            ServicioUsuarios.conexionBBDD()
-            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
-        except:
-            messagebox.showerror("ERROR", "Error al conectar la base de datos")
-
     @staticmethod
     def mostrar(tree):
         # limpiar tabla
@@ -191,7 +203,7 @@ class GestorUsuarios:
                     "",
                     "end",
                     text=row[0],
-                    values=(row[1], row[2], row[3], row[4])
+                    values=(row[1], row[2], row[3])
                 )
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
@@ -317,6 +329,7 @@ class ConsultaDetalleProyecto:
     INNER JOIN proyecto p ON dp.id_proyecto = p.id_proyecto
     WHERE dp.id_usuario = ?;
     '''
+    DELETE = 'DELETE FROM detalle_proyecto WHERE id_proyecto = ?;'
 
 class ServicioDetalleProyecto:
     @staticmethod
@@ -342,15 +355,15 @@ class ServicioDetalleProyecto:
         conexion.commit()
         conexion.close()
 
-class GestorDetalleProyecto:
     @staticmethod
-    def conexionBBDD():
-        try:
-            ServicioDetalleProyecto.conexionBBDD()
-            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
-        except:
-            messagebox.showerror("ERROR", "Error al conectar la base de datos")
+    def borrar(id_proyecto):
+        conexion = sqlite3.connect(db_name)
+        cursor = conexion.cursor()
+        cursor.execute(ConsultaDetalleProyecto.DELETE, (id_proyecto,))
+        conexion.commit()
+        conexion.close()
 
+class GestorDetalleProyecto:
     @staticmethod
     def mostrar(tree, id_usuario):
         # limpiar tabla
@@ -364,7 +377,8 @@ class GestorDetalleProyecto:
                     "",
                     "end",
                     text=row[0],
-                    values=(row[1], row[2], row[3], row[4], row[5])
+                    values=(row[1], row[2], row[7], row[4], row[6])
+                    # 1- nombre | 2- descripcion | 7- estado | 4- fecha_inicio | 6- fecha_fin
                 )
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
@@ -651,7 +665,7 @@ class ConsultaMateriales:
     INSERT = "INSERT INTO materiales VALUES (NULL,?,?,?)"
     SELECT = "SELECT * FROM materiales"
     UPDATE = "UPDATE materiales SET descripcion=?, unidad=?, costo_unitario=? WHERE id_material=?"
-    DELETE = "DELETE FROM materiales WHERE id_material="
+    DELETE = "DELETE FROM materiales WHERE id_material=?"
     BUSCAR = "SELECT * FROM materiales WHERE descripcion LIKE '%' || ? || '%'"
 
 class ServicioMateriales:
@@ -690,9 +704,8 @@ class ServicioMateriales:
 
     @staticmethod
     def borrar(id_material):
-        conexion = sqlite3.connect(db_name)
-        cursor = conexion.cursor()
-        cursor.execute("DELETE FROM materiales WHERE id_material = ?", (id_material,))
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaMateriales.DELETE, (id_material,))
         conexion.commit()
         conexion.close()
 
@@ -705,14 +718,6 @@ class ServicioMateriales:
         return datos
 
 class GestorMateriales:
-    @staticmethod
-    def conexionBBDD():
-        try:
-            ServicioMateriales.conexionBBDD()
-            messagebox.showinfo("CONEXIÓN", "Base de datos conectada exitosamente")
-        except:
-            messagebox.showerror("ERROR", "Error al conectar la base de datos")
-
     @staticmethod
     def mostrar(tree):
         # limpiar tabla
