@@ -3,6 +3,7 @@ from tkinter import *
 from PIL import ImageTk, Image
 from manejo_db import *
 import os
+from tkcalendar import DateEntry
 
 def seleccionar_haciendo_click(tree, event, id_var, campos_vars, readonly_widget=None):
     item_id = tree.identify('item', event.x, event.y)
@@ -67,7 +68,7 @@ class Login:
                 else:
                     usuario_encontrado = ServicioUsuarios.buscar_usuario_password(self.user, self.password)
                     if usuario_encontrado:
-                        MenuPrincipal()
+                        MenuPrincipal(usuario_encontrado[0])
                         ventana_login.withdraw()
                     else:
                         messagebox.showerror('Error', 'Usuario o contraseña incorrectos.')
@@ -487,14 +488,15 @@ class Materiales:
             readonly_widget=self.e1
         )
 
-class MenuPrincipal():
-    def __init__(self):
+class MenuPrincipal:
+    def __init__(self, id_usuario):
         global ventana_menu_principal
         ventana_menu_principal = Toplevel(ventana_login)
         ventana_menu_principal.title("21° Design")
         ventana_menu_principal.configure(background='black')
         ventana_menu_principal.geometry("400x600")
         ventana_menu_principal.state("zoomed")
+        self.id_usuario = id_usuario
 
         ventana_menu_principal.protocol('WM_DELETE_WINDOW', self.cerrar_sesion)
 
@@ -554,11 +556,101 @@ class MenuPrincipal():
             lb.place(x=100, y=20)
             home_page_fm.pack(fill=BOTH, expand=True)
 
+            self.id_proyecto = StringVar()
+            self.nombre = StringVar()
+            self.descripcion = StringVar()
+            self.n_usuarios = StringVar()
+            self.fecha_inicio = StringVar()
+            self.duracion = StringVar()
+            self.fecha_final = StringVar()
+            self.estado = StringVar()
+            self.presupuesto_total = StringVar()
+            self.id_cliente = StringVar()
+
+            self.cabecera = ["ID","Nombre", "Descripción", "Estado", "Fecha Inicio", "Fecha Fin"]
+
+            self.tree = ttk.Treeview(home_page_fm, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
+            self.tree.place(x=50, y=100)
+
+            self.tree.column("#0", width=50)
+            self.tree.heading("#0", text=self.cabecera[0], anchor=CENTER)
+            self.tree.column("#1", width=150)
+            self.tree.heading("#1", text=self.cabecera[1], anchor=CENTER)
+            self.tree.column("#2", width=350)
+            self.tree.heading("#2", text=self.cabecera[2], anchor=CENTER)
+            self.tree.column("#3", width=150)
+            self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
+            self.tree.column("#4", width=150)
+            self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
+            self.tree.column("#5", width=150)
+            self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
+            #self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+
         def agregar_page():
             agregar_page_fm = Frame(page_frame, bg='black')
             lb = Label(agregar_page_fm, text='Agregar proyecto', font=('Arial', 20), bg='black', fg='white')
-            lb.place(x=100, y=20)
+            lb.place(x=150, y=20)
             agregar_page_fm.pack(fill=BOTH, expand=True)
+
+            self.id_proyecto_var = StringVar()
+            self.nombre_var = StringVar()
+            self.descripcion_var = StringVar()
+            self.estado_var = StringVar()
+            self.fecha_inicio_var = StringVar()
+            self.fecha_fin_var = StringVar()
+
+            Label(agregar_page_fm, text="ID:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=80)
+            Entry(agregar_page_fm, textvariable=self.id_proyecto_var, width=30).place(x=250, y=80)
+
+            Label(agregar_page_fm, text="Nombre:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=120)
+            Entry(agregar_page_fm, textvariable=self.nombre_var, width=30).place(x=250, y=120)
+
+            Label(agregar_page_fm, text="Descripción:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=160)
+            Entry(agregar_page_fm, textvariable=self.descripcion_var, width=50).place(x=250, y=160)
+
+            Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=200)
+            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=200)
+
+            Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=240)
+            DateEntry(
+                agregar_page_fm,
+                textvariable=self.fecha_inicio_var,
+                width=27,
+                date_pattern='yyyy-mm-dd',
+                background='darkblue',
+                foreground='white',
+                borderwidth=2
+            ).place(x=250, y=240)
+
+            Label(agregar_page_fm, text="Duración:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=280)
+            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=280)
+
+            Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=320)
+            DateEntry(
+                agregar_page_fm,
+                textvariable=self.fecha_fin_var,
+                width=27,
+                date_pattern='yyyy-mm-dd',
+                background='darkblue',
+                foreground='white',
+                borderwidth=2
+            ).place(x=250, y=320)
+
+            Label(agregar_page_fm, text="Presupuesto total:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=360)
+            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=360)
+
+            Label(agregar_page_fm, text="ID Cliente:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=400)
+            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=400)
+
+            Button(
+                agregar_page_fm,
+                text="Guardar",
+                font=('Arial', 12, 'bold'),
+                bg='white',
+                fg='black',
+                width=12,
+                #command=
+            ).place(x=150, y=480)
 
         page_frame = Frame(ventana_menu_principal, bg='black')
         page_frame.place(relwidth=1.0, relheight=1.0, x=50)
