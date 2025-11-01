@@ -552,6 +552,10 @@ class MenuPrincipal:
             self.toggle_menu_btn.config(command=extend_bar_frame)
 
         def mostrar_detalle_proyecto():
+            if not self.id_proyecto.get():
+                messagebox.showerror("Error", "No se ha seleccionado un proyecto.")
+                return
+
             for frame in page_frame.winfo_children():
                 frame.destroy()
 
