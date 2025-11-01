@@ -834,12 +834,6 @@ class MenuPrincipal:
         else:
             messagebox.showerror("Error", "Todos los campos deben estar llenos.")
 
-    def toggle_menu(self):
-        print("Click en el botón del menú ✅")
-
-    def agregar_proyecto(self):
-        pass
-
     def ir_a_mat(self):
         Materiales()
 
