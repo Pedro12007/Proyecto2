@@ -68,7 +68,7 @@ class Login:
                 else:
                     usuario_encontrado = ServicioUsuarios.buscar_usuario_password(self.user, self.password)
                     if usuario_encontrado:
-                        MenuPrincipal(usuario_encontrado[0])
+                        MenuPrincipal(usuario_encontrado[0]) #ID de usuario
                         ventana_login.withdraw()
                     else:
                         messagebox.showerror('Error', 'Usuario o contraseña incorrectos.')
@@ -591,7 +591,6 @@ class MenuPrincipal:
             lb.place(x=150, y=20)
             agregar_page_fm.pack(fill=BOTH, expand=True)
 
-            self.id_proyecto_var = StringVar()
             self.nombre_var = StringVar()
             self.descripcion_var = StringVar()
             self.estado_var = StringVar()
@@ -599,19 +598,16 @@ class MenuPrincipal:
             self.fecha_inicio_var = StringVar()
             self.fecha_fin_var = StringVar()
 
-            Label(agregar_page_fm, text="ID:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=80)
-            Entry(agregar_page_fm, textvariable=self.id_proyecto_var, width=30).place(x=250, y=80)
+            Label(agregar_page_fm, text="Nombre:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=80)
+            Entry(agregar_page_fm, textvariable=self.nombre_var, width=30).place(x=250, y=80)
 
-            Label(agregar_page_fm, text="Nombre:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=120)
-            Entry(agregar_page_fm, textvariable=self.nombre_var, width=30).place(x=250, y=120)
+            Label(agregar_page_fm, text="Descripción:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=120)
+            Entry(agregar_page_fm, textvariable=self.descripcion_var, width=50).place(x=250, y=120)
 
-            Label(agregar_page_fm, text="Descripción:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=160)
-            Entry(agregar_page_fm, textvariable=self.descripcion_var, width=50).place(x=250, y=160)
+            Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=160)
+            Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=30).place(x=250, y=160)
 
-            Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=200)
-            Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=30).place(x=250, y=200)
-
-            Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=240)
+            Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=200)
             DateEntry(
                 agregar_page_fm,
                 textvariable=self.fecha_inicio_var,
@@ -620,12 +616,12 @@ class MenuPrincipal:
                 background='darkblue',
                 foreground='white',
                 borderwidth=2
-            ).place(x=250, y=240)
+            ).place(x=250, y=200)
 
-            Label(agregar_page_fm, text="Duración (Estimada):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=280)
-            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=280)
+            Label(agregar_page_fm, text="Duración (Estimada):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=240)
+            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=240)
 
-            Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=320)
+            Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=280)
             DateEntry(
                 agregar_page_fm,
                 textvariable=self.fecha_fin_var,
@@ -634,7 +630,7 @@ class MenuPrincipal:
                 background='darkblue',
                 foreground='white',
                 borderwidth=2
-            ).place(x=250, y=320)
+            ).place(x=250, y=280)
 
             Button(
                 agregar_page_fm,
@@ -643,60 +639,8 @@ class MenuPrincipal:
                 bg='white',
                 fg='black',
                 width=12,
-                command= self.guardar_proyecto
-            ).place(x=150, y=400)
-
-        def guardar_proyecto(self):
-            nombre = self.nombre_var.get()
-            descripcion = self.descripcion_var.get()
-            n_usuarios = self.no_personas_var.get() if hasattr(self, "no_personas_var") else ""
-            fecha_inicio = self.fecha_inicio_var.get()
-            duracion = self.estado_var.get()
-            fecha_fin = self.fecha_fin_var.get()
-
-            estado = "planeado"
-            presupuesto_total = 0
-            id_cliente = None
-
-            if not nombre.strip():
-                messagebox.showerror("Error", "El nombre del proyecto es obligatorio.")
-                return
-
-            try:
-                n_usuarios = int(n_usuarios) if str(n_usuarios).strip() != "" else 0
-            except ValueError:
-                messagebox.showerror("Error", "El número de personas debe ser numérico.")
-                return
-
-            id_proyecto = ServicioProyecto.crear(
-                nombre=nombre,
-                descripcion=descripcion,
-                n_usuarios=n_usuarios,
-                fecha_inicio=fecha_inicio,
-                duracion=duracion,
-                fecha_fin=fecha_fin,
-                estado=estado,
-                presupuesto_total=presupuesto_total,
-                id_cliente=id_cliente
-            )
-
-            ServicioDetalleProyecto.crear(self.id_usuario, id_proyecto)
-
-            try:
-                GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
-            except Exception:
-                pass
-
-            self.id_proyecto_var.set("")
-            self.nombre_var.set("")
-            self.descripcion_var.set("")
-            if hasattr(self, "no_personas_var"):
-                self.no_personas_var.set("")
-            self.fecha_inicio_var.set("")
-            self.estado_var.set("")
-            self.fecha_fin_var.set("")
-
-            messagebox.showinfo("Éxito", "Proyecto creado y asignado al usuario.")
+                command=self.guardar_proyecto
+            ).place(x=150, y=360)
 
         page_frame = Frame(ventana_menu_principal, bg='black')
         page_frame.place(relwidth=1.0, relheight=1.0, x=50)
@@ -792,6 +736,56 @@ class MenuPrincipal:
 
         salir_btn_indicator = Label(menu_bar_frame, bg='white')
         salir_btn_indicator.place(x=3, y=720, height=40, width=3)
+
+    def guardar_proyecto(self):
+        nombre = self.nombre_var.get()
+        descripcion = self.descripcion_var.get()
+        n_usuarios = self.no_usuarios_var.get()
+        fecha_inicio = self.fecha_inicio_var.get()
+        duracion = self.estado_var.get()
+        fecha_fin = self.fecha_fin_var.get()
+
+        estado = "planeado"
+        presupuesto_total = 0
+        id_cliente = None
+
+        if not nombre.strip():
+            messagebox.showerror("Error", "El nombre del proyecto es obligatorio.")
+            return
+
+        try:
+            n_usuarios = int(n_usuarios) if str(n_usuarios).strip() != "" else 0
+        except ValueError:
+            messagebox.showerror("Error", "El número de personas debe ser numérico.")
+            return
+
+        id_proyecto = ServicioProyecto.crear(
+            nombre=nombre,
+            descripcion=descripcion,
+            n_usuarios=n_usuarios,
+            fecha_inicio=fecha_inicio,
+            duracion=duracion,
+            fecha_fin=fecha_fin,
+            estado=estado,
+            presupuesto_total=presupuesto_total,
+            id_cliente=id_cliente
+        )
+
+        ServicioDetalleProyecto.crear(self.id_usuario, id_proyecto)
+
+        try:
+            GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
+        except Exception:
+            pass
+
+        self.nombre_var.set("")
+        self.descripcion_var.set("")
+        self.no_usuarios_var.set("")
+        self.fecha_inicio_var.set("")
+        self.estado_var.set("")
+        self.fecha_fin_var.set("")
+
+        messagebox.showinfo("Éxito", "Proyecto creado y asignado al usuario.")
 
     def toggle_menu(self):
         print("Click en el botón del menú ✅")
