@@ -551,6 +551,30 @@ class MenuPrincipal:
             self.toggle_menu_btn.config(image=self.toggle_icon)
             self.toggle_menu_btn.config(command=extend_bar_frame)
 
+        def mostrar_detalle_proyecto():
+            for frame in page_frame.winfo_children():
+                frame.destroy()
+
+            detalle_fm = Frame(page_frame, bg='black')
+            detalle_fm.pack(fill=BOTH, expand=True)
+
+            Label(
+                detalle_fm,
+                text='Datos del proyecto',
+                font=('Arial', 12),
+                bg='black',
+                fg='white'
+            ).place(x=80, y=90)
+
+            Button(
+                detalle_fm,
+                text='← Volver a Proyectos',
+                font=('Arial', 11, 'bold'),
+                bg='white',
+                fg='black',
+                command=lambda: switch_indication(indicador_lb=home_btn_indicator, page=proyectos_page)
+            ).place(x=80, y=150)
+
         def proyectos_page():
             home_page_fm = Frame(page_frame, bg='black')
             lb = Label(home_page_fm, text='Proyectos', font=('Arial', 20), bg='black', fg='white')
@@ -586,6 +610,17 @@ class MenuPrincipal:
             self.tree.column("#5", width=150)
             self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
             # self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+
+            Button(
+                home_page_fm,
+                text="Seleccionar",
+                font=('Arial', 11, 'bold'),
+                bg='white',
+                fg='black',
+                width=12,
+                command=mostrar_detalle_proyecto
+            ).place(x=50, y=360)
+
 
         def agregar_page():
             agregar_page_fm = Frame(page_frame, bg='black')
@@ -810,5 +845,6 @@ class MenuPrincipal:
         ventana_menu_principal.destroy()
         ventana_login.deiconify()
         ventana_login.state('zoomed')
+
 
 login = Login()
