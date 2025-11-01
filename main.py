@@ -585,7 +585,9 @@ class MenuPrincipal:
             self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
             self.tree.column("#5", width=150)
             self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
-            # self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+            self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+
+            GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
 
         def agregar_page():
             agregar_page_fm = Frame(page_frame, bg='black')
@@ -810,5 +812,28 @@ class MenuPrincipal:
         ventana_menu_principal.destroy()
         ventana_login.deiconify()
         ventana_login.state('zoomed')
+
+    def seleccionarUsandoClick(self, event):
+        id_seleccionado = seleccionar_haciendo_click(
+            tree=self.tree,
+            event=event,
+            id_var=self.id_proyecto,
+            campos_vars=[]
+        )
+
+        if not id_seleccionado:
+            return
+
+        datos = ServicioProyecto.buscar_por_id(id_seleccionado)
+        if datos:
+            self.nombre.set(datos[1])
+            self.descripcion.set(datos[2])
+            self.n_usuarios.set(datos[3])
+            self.fecha_inicio.set(datos[4])
+            self.duracion.set(datos[5])
+            self.fecha_final.set(datos[6])
+            self.estado.set(datos[7])
+            self.presupuesto_total.set(datos[8])
+            self.id_cliente.set(datos[9])
 
 login = Login()

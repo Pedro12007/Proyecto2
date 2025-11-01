@@ -248,6 +248,7 @@ class ConsultaProyecto:
     DELETE = "DELETE FROM proyecto WHERE id_proyecto=?"
     BUSCAR = "SELECT * FROM proyecto WHERE nombre LIKE '%' || ? || '%'"
     SELECT_BY_ESTADO = "SELECT * FROM proyecto WHERE estado=?"
+    SELECT_BY_ID = "SELECT * FROM proyecto WHERE id_proyecto=?"
 
 class ServicioProyecto:
     @staticmethod
@@ -303,6 +304,14 @@ class ServicioProyecto:
         conexion, cursor = conectar()
         cursor.execute(ConsultaProyecto.SELECT_BY_ESTADO, (estado,))
         datos = cursor.fetchall()
+        conexion.close()
+        return datos
+
+    @staticmethod
+    def buscar_por_id(ide):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaProyecto.SELECT_BY_ID, (ide,))
+        datos = cursor.fetchone()
         conexion.close()
         return datos
 
