@@ -9,7 +9,10 @@ def conectar():
     return conexion, cursor
 
 def validar_campo_lleno(entrada):
-    return len(entrada.replace(' ', '')) > 0
+    return entrada.strip() != ''
+
+def validar_numero(entrada):
+    return entrada.isdigit()
 
 class Cliente:
     def __init__(self, nombre, apellido, telefono, mail, datos_referencia, direccion):

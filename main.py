@@ -1,9 +1,10 @@
 from tkinter import ttk
 from tkinter import *
+from tkcalendar import DateEntry
 from PIL import ImageTk, Image
 from manejo_db import *
 import os
-from tkcalendar import DateEntry
+from datetime import datetime
 
 def seleccionar_haciendo_click(tree, event, id_var, campos_vars, readonly_widget=None):
     item_id = tree.identify('item', event.x, event.y)
@@ -487,6 +488,7 @@ class Materiales:
             readonly_widget=self.e1
         )
 
+
 class MenuPrincipal:
     def __init__(self, id_usuario):
         global ventana_menu_principal
@@ -520,7 +522,7 @@ class MenuPrincipal:
             block_btn_indicator.config(bg='white')
             indicador_lb.config(bg='black')
             if menu_bar_frame.winfo_width() > 45:
-               fold_menu_bar()
+                fold_menu_bar()
             for frame in page_frame.winfo_children():
                 frame.destroy()
             page()
@@ -566,7 +568,7 @@ class MenuPrincipal:
             self.presupuesto_total = StringVar()
             self.id_cliente = StringVar()
 
-            self.cabecera = ["ID","Nombre", "Descripción", "Estado", "Fecha Inicio", "Fecha Fin"]
+            self.cabecera = ["ID", "Nombre", "Descripción", "Estado", "Fecha Inicio", "Fecha Fin"]
 
             self.tree = ttk.Treeview(home_page_fm, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
             self.tree.place(x=50, y=100)
@@ -583,7 +585,7 @@ class MenuPrincipal:
             self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
             self.tree.column("#5", width=150)
             self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
-            #self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+            # self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
 
         def agregar_page():
             agregar_page_fm = Frame(page_frame, bg='black')
@@ -593,7 +595,6 @@ class MenuPrincipal:
 
             self.nombre_var = StringVar()
             self.descripcion_var = StringVar()
-            self.estado_var = StringVar()
             self.no_usuarios_var = StringVar()
             self.fecha_inicio_var = StringVar()
             self.fecha_fin_var = StringVar()
@@ -607,7 +608,8 @@ class MenuPrincipal:
             Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=160)
             Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=30).place(x=250, y=160)
 
-            Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=200)
+            Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50,
+                                                                                                              y=200)
             DateEntry(
                 agregar_page_fm,
                 textvariable=self.fecha_inicio_var,
@@ -618,10 +620,8 @@ class MenuPrincipal:
                 borderwidth=2
             ).place(x=250, y=200)
 
-            Label(agregar_page_fm, text="Duración (Estimada):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=240)
-            Entry(agregar_page_fm, textvariable=self.estado_var, width=30).place(x=250, y=240)
-
-            Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=280)
+            Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(
+                x=50, y=240)
             DateEntry(
                 agregar_page_fm,
                 textvariable=self.fecha_fin_var,
@@ -630,7 +630,7 @@ class MenuPrincipal:
                 background='darkblue',
                 foreground='white',
                 borderwidth=2
-            ).place(x=250, y=280)
+            ).place(x=250, y=240)
 
             Button(
                 agregar_page_fm,
@@ -640,7 +640,7 @@ class MenuPrincipal:
                 fg='black',
                 width=12,
                 command=self.guardar_proyecto
-            ).place(x=150, y=360)
+            ).place(x=150, y=320)
 
         page_frame = Frame(ventana_menu_principal, bg='black')
         page_frame.place(relwidth=1.0, relheight=1.0, x=50)
@@ -699,7 +699,7 @@ class MenuPrincipal:
         self.mas_menu_btn.place(x=9, y=310, width=30, height=40)
 
         self.mas_page_lb = Label(menu_bar_frame, text='Crear Proyecto', bg='white', fg='black',
-                                  font=('Arial', 10), anchor=W)
+                                 font=('Arial', 10), anchor=W)
         self.mas_page_lb.place(x=45, y=310, width=100, height=40)
         self.mas_page_lb.bind(
             "<Button-1>",
@@ -717,7 +717,7 @@ class MenuPrincipal:
         self.block_menu_btn.place(x=9, y=370, width=30, height=40)
 
         self.block_page_lb = Label(menu_bar_frame, text='Materiales', bg='white', fg='black',
-                                 font=('Arial', 10), anchor=W)
+                                   font=('Arial', 10), anchor=W)
         self.block_page_lb.place(x=45, y=370, width=100, height=40)
         self.block_page_lb.bind(
             "<Button-1>",
@@ -742,50 +742,60 @@ class MenuPrincipal:
         descripcion = self.descripcion_var.get()
         n_usuarios = self.no_usuarios_var.get()
         fecha_inicio = self.fecha_inicio_var.get()
-        duracion = self.estado_var.get()
         fecha_fin = self.fecha_fin_var.get()
 
         estado = "planeado"
         presupuesto_total = 0
         id_cliente = None
 
-        if not nombre.strip():
-            messagebox.showerror("Error", "El nombre del proyecto es obligatorio.")
-            return
+        if validar_campo_lleno(nombre) and validar_campo_lleno(descripcion) and validar_campo_lleno(n_usuarios) and validar_campo_lleno(fecha_inicio) and validar_campo_lleno(fecha_fin):
+            if not validar_numero(n_usuarios):
+                messagebox.showerror("Error", "La cantidad de usuarios debe ser un número.")
+                return
+            n_usuarios = int(n_usuarios)
 
-        try:
-            n_usuarios = int(n_usuarios) if str(n_usuarios).strip() != "" else 0
-        except ValueError:
-            messagebox.showerror("Error", "El número de personas debe ser numérico.")
-            return
+            # Calcular duración
+            try:
+                inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+                fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+                duracion = (fin - inicio).days
 
-        id_proyecto = ServicioProyecto.crear(
-            nombre=nombre,
-            descripcion=descripcion,
-            n_usuarios=n_usuarios,
-            fecha_inicio=fecha_inicio,
-            duracion=duracion,
-            fecha_fin=fecha_fin,
-            estado=estado,
-            presupuesto_total=presupuesto_total,
-            id_cliente=id_cliente
-        )
+                if duracion < 0:
+                    messagebox.showerror("Error", "La fecha de fin debe ser posterior a la fecha de inicio.")
+                    return
+            except ValueError:
+                messagebox.showerror("Error", "Las fechas deben estar en formato válido.")
+                return
 
-        ServicioDetalleProyecto.crear(self.id_usuario, id_proyecto)
+            id_proyecto = ServicioProyecto.crear(
+                nombre=nombre,
+                descripcion=descripcion,
+                n_usuarios=n_usuarios,
+                fecha_inicio=fecha_inicio,
+                duracion=duracion,
+                fecha_fin=fecha_fin,
+                estado=estado,
+                presupuesto_total=presupuesto_total,
+                id_cliente=id_cliente
+            )
 
-        try:
-            GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
-        except Exception:
-            pass
+            ServicioDetalleProyecto.crear(self.id_usuario, id_proyecto)
 
-        self.nombre_var.set("")
-        self.descripcion_var.set("")
-        self.no_usuarios_var.set("")
-        self.fecha_inicio_var.set("")
-        self.estado_var.set("")
-        self.fecha_fin_var.set("")
+            try:
+                GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
+            except Exception:
+                pass
 
-        messagebox.showinfo("Éxito", "Proyecto creado y asignado al usuario.")
+            self.nombre_var.set("")
+            self.descripcion_var.set("")
+            self.no_usuarios_var.set("")
+            self.fecha_inicio_var.set("")
+            self.fecha_fin_var.set("")
+
+            messagebox.showinfo("Éxito", f"Proyecto '{nombre}' creado exitosamente.")
+
+        else:
+            messagebox.showerror("Error", "Todos los campos deben estar llenos.")
 
     def toggle_menu(self):
         print("Click en el botón del menú ✅")
