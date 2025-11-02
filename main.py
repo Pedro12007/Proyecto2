@@ -897,7 +897,7 @@ class MenuPrincipal:
             self.id_cliente.set(datos[9])
 
 
-app_view = VistaLogin()
-app_controller = ControladorLogin(app_view)
-app_view.set_login_command(app_controller.acceder)
-app_view.iniciar_mainloop()
+vista_app = VistaLogin()
+controlador_app = ControladorLogin(vista_app)
+vista_app.set_login_command(controlador_app.acceder)
+vista_app.iniciar_mainloop()
