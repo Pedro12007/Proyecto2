@@ -951,22 +951,187 @@ class MenuPrincipal:
         detalle_fm = Frame(self.page_frame, bg='black')
         detalle_fm.pack(fill=BOTH, expand=True)
 
-        Label(
-            detalle_fm,
-            text='Datos del proyecto',
-            font=('Arial', 12),
-            bg='black',
-            fg='white'
-        ).place(x=80, y=90)
+        menu_superior_fm = Frame(detalle_fm, bg='black', height=150)
+        menu_superior_fm.pack(side=TOP, fill=X, pady=20)
 
+        contenido = Frame(detalle_fm, bg='black')
+        contenido.pack(side=TOP, fill=BOTH, expand=True, padx=20, pady=10)
+
+        self.frame_administracion = Frame(contenido, bg='#1a1a1a')
+        self.frame_administracion.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        self.frame_mano_obra = Frame(contenido, bg='#1a1a1a')
+        self.frame_mano_obra.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        self.frame_materiales = Frame(contenido, bg='#1a1a1a')
+        self.frame_materiales.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        self.frame_detalles = Frame(contenido, bg='#1a1a1a')
+        self.frame_detalles.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        self.contenido_administracion()
+        self.contenido_mano_obra()
+        self.contenido_materiales()
+        self.contenido_detalles()
+
+        # Botones con pack
         Button(
-            detalle_fm,
+            menu_superior_fm,
             text='← Volver a Proyectos',
             font=('Arial', 11, 'bold'),
             bg='white',
             fg='black',
             command=lambda: self.switch_indication(self.home_btn_indicator, self.proyectos_page)
-        ).place(x=80, y=150)
+        ).pack(side=LEFT, padx=10)
+
+        Button(
+            menu_superior_fm,
+            text='Detalles',
+            font=('Arial', 11, 'bold'),
+            bg='white',
+            fg='black',
+            command=lambda: self.frame_detalles.tkraise()
+        ).pack(side=LEFT, padx=10)
+
+        Label(
+            menu_superior_fm,
+            text='Opciones - presupuesto:',
+            font=('Arial', 12),
+            bg='black',
+            fg='white'
+        ).pack(side=LEFT, padx=15)
+
+        Button(
+            menu_superior_fm,
+            text='Administración',
+            font=('Arial', 11, 'bold'),
+            bg='white',
+            fg='black',
+            command=lambda: self.frame_administracion.tkraise()
+        ).pack(side=LEFT, padx=10)
+
+        Button(
+            menu_superior_fm,
+            text='Mano de obra',
+            font=('Arial', 11, 'bold'),
+            bg='white',
+            fg='black',
+            command=lambda: self.frame_mano_obra.tkraise()
+        ).pack(side=LEFT, padx=10)
+
+        Button(
+            menu_superior_fm,
+            text='Materiales',
+            font=('Arial', 11, 'bold'),
+            bg='white',
+            fg='black',
+            command=lambda: self.frame_materiales.tkraise()
+        ).pack(side=LEFT, padx=10)
+
+    def contenido_detalles(self):
+        """Crea el contenido del frame de detalles"""
+        Label(
+            self.frame_detalles,
+            text='Detalles del Proyecto',
+            font=('Arial', 16, 'bold'),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(pady=20)
+
+        Label(
+            self.frame_detalles,
+            text=f'Nombre: {self.nombre.get()}',
+            font=('Arial', 12),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(anchor='w', padx=30, pady=5)
+
+        Label(
+            self.frame_detalles,
+            text=f'Descripción: {self.descripcion.get()}',
+            font=('Arial', 12),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(anchor='w', padx=30, pady=5)
+
+        Label(
+            self.frame_detalles,
+            text=f'Estado: {self.estado.get()}',
+            font=('Arial', 12),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(anchor='w', padx=30, pady=5)
+
+        Label(
+            self.frame_detalles,
+            text=f'Fecha Inicio: {self.fecha_inicio.get()}',
+            font=('Arial', 12),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(anchor='w', padx=30, pady=5)
+
+        Label(
+            self.frame_detalles,
+            text=f'Fecha Fin: {self.fecha_final.get()}',
+            font=('Arial', 12),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(anchor='w', padx=30, pady=5)
+
+    def contenido_administracion(self):
+        """Crea el contenido del frame de administración"""
+        Label(
+            self.frame_administracion,
+            text='Administración del Proyecto',
+            font=('Arial', 16, 'bold'),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(pady=20)
+
+        Label(
+            self.frame_administracion,
+            text='Contenido de administración aquí...',
+            font=('Arial', 12),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(pady=10)
+
+    def contenido_mano_obra(self):
+        """Crea el contenido del frame de mano de obra"""
+        Label(
+            self.frame_mano_obra,
+            text='Mano de Obra',
+            font=('Arial', 16, 'bold'),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(pady=20)
+
+        Label(
+            self.frame_mano_obra,
+            text='Contenido de mano de obra aquí...',
+            font=('Arial', 12),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(pady=10)
+
+    def contenido_materiales(self):
+        """Crea el contenido del frame de materiales"""
+        Label(
+            self.frame_materiales,
+            text='Materiales del Proyecto',
+            font=('Arial', 16, 'bold'),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(pady=20)
+
+        Label(
+            self.frame_materiales,
+            text='Contenido de materiales aquí...',
+            font=('Arial', 12),
+            bg='#1a1a1a',
+            fg='white'
+        ).pack(pady=10)
+
 
     # ---------- MÉTODOS DE ACCIONES ----------
 
