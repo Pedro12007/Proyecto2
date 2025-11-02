@@ -875,7 +875,7 @@ class MenuPrincipal:
         self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
         self.tree.column("#5", width=150)
         self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
-        self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+        self.tree.bind("<Button-1>", self.seleccionarProyectosUsandoClick)
 
         # Cargar datos
         GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
@@ -1039,7 +1039,8 @@ class MenuPrincipal:
         Entry(self.frame_detalles, textvariable=self.n_usuarios, width=40).pack(anchor='w', padx=30, pady=5)
 
         Label(self.frame_detalles, text=f'Estado:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(self.frame_detalles, textvariable=self.estado, width=40).pack(anchor='w', padx=30, pady=5)
+        opciones = ['planeado','en_progreso','finalizado']
+        OptionMenu(self.frame_detalles, self.estado, *opciones).pack(anchor='w', padx=30, pady=5)
 
         Label(self.frame_detalles, text=f'Fecha Inicio:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
         DateEntry(
@@ -1069,7 +1070,7 @@ class MenuPrincipal:
         Label(self.frame_detalles, text=f'Presupuesto total:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
         Entry(self.frame_detalles, textvariable=self.presupuesto_total, width=40, state='readonly').pack(anchor='w', padx=30, pady=5)
 
-        Button(self.frame_detalles, text='Guardar', font=('Arial', 11, 'bold'), bg='white', fg='black').pack(anchor='w', padx=30, pady=10)
+        Button(self.frame_detalles, text='Guardar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.actualizar_proyecto).pack(anchor='w', padx=30, pady=10)
 
     def contenido_administracion(self):
         Label(self.frame_administracion, text='Administración del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
@@ -1152,7 +1153,42 @@ class MenuPrincipal:
 
         messagebox.showinfo("Éxito", f"Proyecto '{nombre}' creado exitosamente.")
 
-    def seleccionarUsandoClick(self, event):
+    def actualizar_proyecto(self):
+        nombre = self.nombre.get()
+        descripcion = self.descripcion.get()
+        n_usuarios = self.n_usuarios.get()
+        estado = self.estado.get()
+        fecha_inicio = self.fecha_inicio.get()
+        fecha_fin = self.fecha_final.get()
+        duracion = self.duracion.get()
+        presupuesto = self.presupuesto_total.get()
+
+        if not (validar_campo_lleno(nombre) and validar_campo_lleno(descripcion) and
+                validar_campo_lleno(n_usuarios) and validar_campo_lleno(fecha_inicio) and
+                validar_campo_lleno(fecha_fin)):
+            messagebox.showerror("Error", "Todos los campos deben estar llenos.")
+            return
+
+        try:
+            inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            duracion = (fin - inicio).days
+
+            if duracion < 0:
+                messagebox.showerror("Error", "La fecha de fin debe ser posterior a la fecha de inicio.")
+                return
+        except ValueError:
+            messagebox.showerror("Error", "Las fechas deben estar en formato válido.")
+            return
+
+        ServicioProyecto.actualizar(
+            nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto, self.id_proyecto.get()
+        )
+
+        messagebox.showinfo("Éxito", f"Proyecto '{nombre}' actualizado exitosamente.")
+
+
+    def seleccionarProyectosUsandoClick(self, event):
         id_seleccionado = seleccionar_haciendo_click(
             tree=self.tree,
             event=event,

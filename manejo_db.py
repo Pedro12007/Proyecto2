@@ -244,7 +244,7 @@ class ConsultaProyecto:
     '''
     INSERT = "INSERT INTO proyecto VALUES (NULL,?,?,?,?,?,?,?,?,?)"
     SELECT = "SELECT * FROM proyecto "
-    UPDATE = "UPDATE proyecto SET nombre=?, descripcion=?, n_usuarios=?, fecha_inicio=?, duracion=?, fecha_fin=?, estado=?, presupuesto_total=?, id_cliente=? WHERE id_proyecto=?"
+    UPDATE = "UPDATE proyecto SET nombre=?, descripcion=?, n_usuarios=?, fecha_inicio=?, duracion=?, fecha_fin=?, estado=?, presupuesto_total=? WHERE id_proyecto=?"
     DELETE = "DELETE FROM proyecto WHERE id_proyecto=?"
     BUSCAR = "SELECT * FROM proyecto WHERE nombre LIKE '%' || ? || '%'"
     SELECT_BY_ESTADO = "SELECT * FROM proyecto WHERE estado=?"
@@ -277,9 +277,9 @@ class ServicioProyecto:
         return id_proyecto
 
     @staticmethod
-    def actualizar(nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente, ide):
+    def actualizar(nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, ide):
         conexion, cursor = conectar()
-        cursor.execute(ConsultaProyecto.UPDATE, (nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente, ide))
+        cursor.execute(ConsultaProyecto.UPDATE, (nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, ide))
         conexion.commit()
         conexion.close()
 
@@ -797,13 +797,14 @@ class ConsultaDetalleMateriales:
     '''
     INSERT = "INSERT INTO detalle_materiales VALUES (NULL,?,?,?,?)"
     SELECT = '''
-    SELECT d.id_detalle_material, m.descripcion, m.unidad, d.cantidad, m.costo_unitario, d.costo_total
-    FROM detalle_materiales d
-    INNER JOIN materiales m ON d.id_material = m.id_material
-    WHERE d.id_proyecto = ?;
+    SELECT m.id_material, m.descripcion, m.unidad, m.costo_unitario, IFNULL(d.cantidad, 0) AS cantidad_en_proyecto, IFNULL(d.costo_total, 0) AS costo_total
+    FROM materiales m
+    LEFT JOIN detalle_materiales d 
+        ON m.id_material = d.id_material
+        AND d.id_proyecto = ?;
     '''
-    UPDATE = "UPDATE detalle_materiales SET cantidad=?, costo_total=? WHERE id_detalle_material=?"
-    DELETE = "DELETE FROM detalle_materiales WHERE id_detalle_material=?"
+    UPDATE = "UPDATE detalle_materiales SET cantidad=?, costo_total=? WHERE id_proyecto = ? and id_material = ?"
+    DELETE = "DELETE FROM detalle_materiales WHERE id_proyecto = ? and id_material = ?"
 
 class ServicioDetalleMateriales:
     @staticmethod
@@ -830,17 +831,17 @@ class ServicioDetalleMateriales:
         return datos
 
     @staticmethod
-    def actualizar(cantidad, costo_total, ide):
+    def actualizar(cantidad, costo_total, id_proyecto, id_material):
         conexion, cursor = conectar()
-        cursor.execute(ConsultaDetalleMateriales.UPDATE, (cantidad, costo_total, ide))
+        cursor.execute(ConsultaDetalleMateriales.UPDATE, (cantidad, costo_total, id_proyecto, id_material))
         conexion.commit()
         conexion.close()
 
     @staticmethod
-    def borrar(id_detalle):
+    def borrar(id_proyecto, id_material):
         conexion = sqlite3.connect(db_name)
         cursor = conexion.cursor()
-        cursor.execute(ConsultaDetalleMateriales.DELETE, (id_detalle,))
+        cursor.execute(ConsultaDetalleMateriales.DELETE, (id_proyecto, id_material))
         conexion.commit()
         conexion.close()
 
