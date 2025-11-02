@@ -917,8 +917,7 @@ class MenuPrincipal:
             borderwidth=2
         ).place(x=250, y=200)
 
-        Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50,
-                                                                                                                  y=240)
+        Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=240)
         DateEntry(
             agregar_page_fm,
             textvariable=self.fecha_fin_var,
@@ -969,12 +968,11 @@ class MenuPrincipal:
         self.frame_detalles = Frame(contenido, bg='#1a1a1a')
         self.frame_detalles.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+        self.contenido_detalles()
         self.contenido_administracion()
         self.contenido_mano_obra()
         self.contenido_materiales()
-        self.contenido_detalles()
 
-        # Botones con pack
         Button(
             menu_superior_fm,
             text='← Volver a Proyectos',
@@ -1029,108 +1027,58 @@ class MenuPrincipal:
         ).pack(side=LEFT, padx=10)
 
     def contenido_detalles(self):
-        """Crea el contenido del frame de detalles"""
-        Label(
-            self.frame_detalles,
-            text='Detalles del Proyecto',
-            font=('Arial', 16, 'bold'),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(pady=20)
+        Label(self.frame_detalles, text='Detalles del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
-        Label(
+        Label(self.frame_detalles, text=f'Nombre:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(self.frame_detalles, textvariable=self.nombre, width=40).pack(anchor='w', padx=30, pady=5)
+
+        Label(self.frame_detalles, text=f'Descripción:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(self.frame_detalles, textvariable=self.descripcion, width=40).pack(anchor='w', padx=30, pady=5)
+
+        Label(self.frame_detalles, text=f'No. Usuarios:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(self.frame_detalles, textvariable=self.n_usuarios, width=40).pack(anchor='w', padx=30, pady=5)
+
+        Label(self.frame_detalles, text=f'Estado:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(self.frame_detalles, textvariable=self.estado, width=40).pack(anchor='w', padx=30, pady=5)
+
+        Label(self.frame_detalles, text=f'Fecha Inicio:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        DateEntry(
             self.frame_detalles,
-            text=f'Nombre: {self.nombre.get()}',
-            font=('Arial', 12),
-            bg='#1a1a1a',
-            fg='white'
+            textvariable=self.fecha_inicio,
+            width=27,
+            date_pattern='yyyy-mm-dd',
+            background='darkblue',
+            foreground='white',
+            borderwidth=2
         ).pack(anchor='w', padx=30, pady=5)
 
-        Label(
+        Label(self.frame_detalles, text=f'Fecha Fin:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        DateEntry(
             self.frame_detalles,
-            text=f'Descripción: {self.descripcion.get()}',
-            font=('Arial', 12),
-            bg='#1a1a1a',
-            fg='white'
+            textvariable=self.fecha_final,
+            width=27,
+            date_pattern='yyyy-mm-dd',
+            background='darkblue',
+            foreground='white',
+            borderwidth=2
         ).pack(anchor='w', padx=30, pady=5)
 
-        Label(
-            self.frame_detalles,
-            text=f'Estado: {self.estado.get()}',
-            font=('Arial', 12),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(anchor='w', padx=30, pady=5)
+        Label(self.frame_detalles, text=f'Duración (días):', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(self.frame_detalles, textvariable=self.duracion, width=40, state='readonly').pack(anchor='w', padx=30, pady=5)
 
-        Label(
-            self.frame_detalles,
-            text=f'Fecha Inicio: {self.fecha_inicio.get()}',
-            font=('Arial', 12),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(anchor='w', padx=30, pady=5)
+        Label(self.frame_detalles, text=f'Presupuesto total:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(self.frame_detalles, textvariable=self.presupuesto_total, width=40, state='readonly').pack(anchor='w', padx=30, pady=5)
 
-        Label(
-            self.frame_detalles,
-            text=f'Fecha Fin: {self.fecha_final.get()}',
-            font=('Arial', 12),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(anchor='w', padx=30, pady=5)
+        Button(self.frame_detalles, text='Guardar', font=('Arial', 11, 'bold'), bg='white', fg='black').pack(anchor='w', padx=30, pady=10)
 
     def contenido_administracion(self):
-        """Crea el contenido del frame de administración"""
-        Label(
-            self.frame_administracion,
-            text='Administración del Proyecto',
-            font=('Arial', 16, 'bold'),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(pady=20)
-
-        Label(
-            self.frame_administracion,
-            text='Contenido de administración aquí...',
-            font=('Arial', 12),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(pady=10)
+        Label(self.frame_administracion, text='Administración del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
     def contenido_mano_obra(self):
-        """Crea el contenido del frame de mano de obra"""
-        Label(
-            self.frame_mano_obra,
-            text='Mano de Obra',
-            font=('Arial', 16, 'bold'),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(pady=20)
-
-        Label(
-            self.frame_mano_obra,
-            text='Contenido de mano de obra aquí...',
-            font=('Arial', 12),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(pady=10)
+        Label(self.frame_mano_obra, text='Mano de Obra', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
     def contenido_materiales(self):
-        """Crea el contenido del frame de materiales"""
-        Label(
-            self.frame_materiales,
-            text='Materiales del Proyecto',
-            font=('Arial', 16, 'bold'),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(pady=20)
-
-        Label(
-            self.frame_materiales,
-            text='Contenido de materiales aquí...',
-            font=('Arial', 12),
-            bg='#1a1a1a',
-            fg='white'
-        ).pack(pady=10)
+        Label(self.frame_materiales, text='Materiales del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
 
     # ---------- MÉTODOS DE ACCIONES ----------
