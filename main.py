@@ -628,11 +628,41 @@ class MenuPrincipal:
         ventana_menu_principal.configure(background='black')
         ventana_menu_principal.geometry("400x600")
         ventana_menu_principal.state("zoomed")
-        self.id_usuario = id_usuario
 
+        self.ventana = ventana_menu_principal
+        self.id_usuario = id_usuario
+        self.menu_bar_colour = 'white'
+
+        # Vincular el cierre de ventana
         ventana_menu_principal.protocol('WM_DELETE_WINDOW', self.cerrar_sesion)
 
-        menu_bar_colour = 'white'
+        self.inicializar_variables()
+        self.cargar_iconos()
+        self.crear_frames()
+        self.configurar_menu_lateral()
+        self.proyectos_page()
+
+    def inicializar_variables(self):
+        # Inicializa todas las variables StringVar para los proyectos
+        self.id_proyecto = StringVar()
+        self.nombre = StringVar()
+        self.descripcion = StringVar()
+        self.n_usuarios = StringVar()
+        self.fecha_inicio = StringVar()
+        self.duracion = StringVar()
+        self.fecha_final = StringVar()
+        self.estado = StringVar()
+        self.presupuesto_total = StringVar()
+        self.id_cliente = StringVar()
+
+        # Variables para agregar proyecto
+        self.nombre_var = StringVar()
+        self.descripcion_var = StringVar()
+        self.no_usuarios_var = StringVar()
+        self.fecha_inicio_var = StringVar()
+        self.fecha_fin_var = StringVar()
+
+    def cargar_iconos(self):
         ruta_icono_tresb = os.path.join(os.path.dirname(__file__), 'imagenes', 'tresb.png')
         ruta_icono_mas = os.path.join(os.path.dirname(__file__), 'imagenes', 'mas.png')
         ruta_icono_block = os.path.join(os.path.dirname(__file__), 'imagenes', 'block.png')
@@ -647,269 +677,301 @@ class MenuPrincipal:
         self.salir_icon = PhotoImage(file=ruta_icono_salir)
         self.x_icon = PhotoImage(file=ruta_icono_x)
 
-        def switch_indication(indicador_lb, page):
-            home_btn_indicator.config(bg='white')
-            mas_btn_indicator.config(bg='white')
-            block_btn_indicator.config(bg='white')
-            indicador_lb.config(bg='black')
-            if menu_bar_frame.winfo_width() > 45:
-                fold_menu_bar()
-            for frame in page_frame.winfo_children():
-                frame.destroy()
-            page()
+    def crear_frames(self):
+        self.page_frame = Frame(self.ventana, bg='black')
+        self.page_frame.place(relwidth=1.0, relheight=1.0, x=50)
 
-        def extending_animation():
-            current_width = menu_bar_frame.winfo_width()
-            if not current_width > 200:
-                current_width += 10
-                menu_bar_frame.config(width=current_width)
-                ventana_menu_principal.after(ms=8, func=extending_animation)
+        self.menu_bar_frame = Frame(self.ventana, bg=self.menu_bar_colour)
+        self.menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
+        self.menu_bar_frame.pack_propagate(False)
+        self.menu_bar_frame.configure(width=45)
 
-        def extend_bar_frame():
-            extending_animation()
-            self.toggle_menu_btn.config(image=self.x_icon)
-            self.toggle_menu_btn.config(command=fold_menu_bar)
+    def configurar_menu_lateral(self):
+        self.home_btn_indicator = Label(self.menu_bar_frame, bg='black')
+        self.home_btn_indicator.place(x=3, y=250, height=40, width=3)
 
-        def folding_animation():
-            current_width = menu_bar_frame.winfo_width()
-            if current_width != 45:
-                current_width -= 10
-                menu_bar_frame.config(width=current_width)
-                ventana_menu_principal.after(ms=8, func=folding_animation)
+        self.mas_btn_indicator = Label(self.menu_bar_frame, bg='white')
+        self.mas_btn_indicator.place(x=3, y=310, height=40, width=3)
 
-        def fold_menu_bar():
-            folding_animation()
-            self.toggle_menu_btn.config(image=self.toggle_icon)
-            self.toggle_menu_btn.config(command=extend_bar_frame)
+        self.block_btn_indicator = Label(self.menu_bar_frame, bg='white')
+        self.block_btn_indicator.place(x=3, y=370, height=40, width=3)
 
-        def mostrar_detalle_proyecto():
-            if not self.id_proyecto.get():
-                messagebox.showerror("Error", "No se ha seleccionado un proyecto.")
-                return
-
-            for frame in page_frame.winfo_children():
-                frame.destroy()
-
-            detalle_fm = Frame(page_frame, bg='black')
-            detalle_fm.pack(fill=BOTH, expand=True)
-
-            Label(
-                detalle_fm,
-                text='Datos del proyecto',
-                font=('Arial', 12),
-                bg='black',
-                fg='white'
-            ).place(x=80, y=90)
-
-            Button(
-                detalle_fm,
-                text='← Volver a Proyectos',
-                font=('Arial', 11, 'bold'),
-                bg='white',
-                fg='black',
-                command=lambda: switch_indication(indicador_lb=home_btn_indicator, page=proyectos_page)
-            ).place(x=80, y=150)
-
-        def proyectos_page():
-            home_page_fm = Frame(page_frame, bg='black')
-            lb = Label(home_page_fm, text='Proyectos', font=('Arial', 20), bg='black', fg='white')
-            lb.place(x=100, y=20)
-            home_page_fm.pack(fill=BOTH, expand=True)
-
-            self.id_proyecto = StringVar()
-            self.nombre = StringVar()
-            self.descripcion = StringVar()
-            self.n_usuarios = StringVar()
-            self.fecha_inicio = StringVar()
-            self.duracion = StringVar()
-            self.fecha_final = StringVar()
-            self.estado = StringVar()
-            self.presupuesto_total = StringVar()
-            self.id_cliente = StringVar()
-
-            self.cabecera = ["ID", "Nombre", "Descripción", "Estado", "Fecha Inicio", "Fecha Fin"]
-
-            self.tree = ttk.Treeview(home_page_fm, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
-            self.tree.place(x=50, y=100)
-
-            self.tree.column("#0", width=50)
-            self.tree.heading("#0", text=self.cabecera[0], anchor=CENTER)
-            self.tree.column("#1", width=150)
-            self.tree.heading("#1", text=self.cabecera[1], anchor=CENTER)
-            self.tree.column("#2", width=350)
-            self.tree.heading("#2", text=self.cabecera[2], anchor=CENTER)
-            self.tree.column("#3", width=150)
-            self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
-            self.tree.column("#4", width=150)
-            self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
-            self.tree.column("#5", width=150)
-            self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
-            self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
-
-            GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
-
-            Button(
-                home_page_fm,
-                text="Seleccionar",
-                font=('Arial', 11, 'bold'),
-                bg='white',
-                fg='black',
-                width=12,
-                command=mostrar_detalle_proyecto
-            ).place(x=50, y=360)
-
-
-        def agregar_page():
-            agregar_page_fm = Frame(page_frame, bg='black')
-            lb = Label(agregar_page_fm, text='Agregar proyecto', font=('Arial', 20), bg='black', fg='white')
-            lb.place(x=150, y=20)
-            agregar_page_fm.pack(fill=BOTH, expand=True)
-
-            self.nombre_var = StringVar()
-            self.descripcion_var = StringVar()
-            self.no_usuarios_var = StringVar()
-            self.fecha_inicio_var = StringVar()
-            self.fecha_fin_var = StringVar()
-
-            Label(agregar_page_fm, text="Nombre:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=80)
-            Entry(agregar_page_fm, textvariable=self.nombre_var, width=30).place(x=250, y=80)
-
-            Label(agregar_page_fm, text="Descripción:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=120)
-            Entry(agregar_page_fm, textvariable=self.descripcion_var, width=50).place(x=250, y=120)
-
-            Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=160)
-            Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=30).place(x=250, y=160)
-
-            Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50,
-                                                                                                              y=200)
-            DateEntry(
-                agregar_page_fm,
-                textvariable=self.fecha_inicio_var,
-                width=27,
-                date_pattern='yyyy-mm-dd',
-                background='darkblue',
-                foreground='white',
-                borderwidth=2
-            ).place(x=250, y=200)
-
-            Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(
-                x=50, y=240)
-            DateEntry(
-                agregar_page_fm,
-                textvariable=self.fecha_fin_var,
-                width=27,
-                date_pattern='yyyy-mm-dd',
-                background='darkblue',
-                foreground='white',
-                borderwidth=2
-            ).place(x=250, y=240)
-
-            Button(
-                agregar_page_fm,
-                text="Guardar",
-                font=('Arial', 12, 'bold'),
-                bg='white',
-                fg='black',
-                width=12,
-                command=self.guardar_proyecto
-            ).place(x=150, y=320)
-
-        page_frame = Frame(ventana_menu_principal, bg='black')
-        page_frame.place(relwidth=1.0, relheight=1.0, x=50)
-        proyectos_page()
-
-        menu_bar_frame = Frame(ventana_menu_principal, bg=menu_bar_colour)
-        menu_bar_frame.pack(side=LEFT, fill=Y, pady=4, padx=3)
-        menu_bar_frame.pack_propagate(False)
-        menu_bar_frame.configure(width=45)
-
-        home_btn_indicator = Label(menu_bar_frame, bg='black')
-        home_btn_indicator.place(x=3, y=250, height=40, width=3)
-
-        mas_btn_indicator = Label(menu_bar_frame, bg='white')
-        mas_btn_indicator.place(x=3, y=310, height=40, width=3)
-
-        block_btn_indicator = Label(menu_bar_frame, bg='white')
-        block_btn_indicator.place(x=3, y=370, height=40, width=3)
-
+        # Botón de toggle
         self.toggle_menu_btn = Button(
-            menu_bar_frame,
+            self.menu_bar_frame,
             image=self.toggle_icon,
-            bg=menu_bar_colour,
-            activebackground=menu_bar_colour,
+            bg=self.menu_bar_colour,
+            activebackground=self.menu_bar_colour,
             bd=0,
-            command=extend_bar_frame
+            command=self.extend_bar_frame
         )
         self.toggle_menu_btn.place(x=7, y=10)
 
+        # Botón Home/Proyectos
         self.home_menu_btn = Button(
-            menu_bar_frame,
+            self.menu_bar_frame,
             image=self.home_icon,
-            bg=menu_bar_colour,
-            activebackground=menu_bar_colour,
+            bg=self.menu_bar_colour,
+            activebackground=self.menu_bar_colour,
             bd=0,
-            command=lambda: switch_indication(indicador_lb=home_btn_indicator, page=proyectos_page)
+            command=lambda: self.switch_indication(self.home_btn_indicator, self.proyectos_page)
         )
         self.home_menu_btn.place(x=9, y=250, width=30, height=40)
 
-        self.home_page_lb = Label(menu_bar_frame, text='Proyectos', bg='white', fg='black',
-                                  font=('Arial', 10), anchor=W)
+        self.home_page_lb = Label(
+            self.menu_bar_frame,
+            text='Proyectos',
+            bg='white',
+            fg='black',
+            font=('Arial', 10),
+            anchor=W
+        )
         self.home_page_lb.place(x=45, y=250, width=100, height=40)
         self.home_page_lb.bind(
             "<Button-1>",
-            lambda e: switch_indication(indicador_lb=home_btn_indicator, page=proyectos_page)
+            lambda e: self.switch_indication(self.home_btn_indicator, self.proyectos_page)
         )
 
+        # Botón Agregar/Más
         self.mas_menu_btn = Button(
-            menu_bar_frame,
+            self.menu_bar_frame,
             image=self.mas_icon,
-            bg=menu_bar_colour,
-            activebackground=menu_bar_colour,
+            bg=self.menu_bar_colour,
+            activebackground=self.menu_bar_colour,
             bd=0,
-            command=lambda: switch_indication(indicador_lb=mas_btn_indicator, page=agregar_page)
+            command=lambda: self.switch_indication(self.mas_btn_indicator, self.agregar_page)
         )
         self.mas_menu_btn.place(x=9, y=310, width=30, height=40)
 
-        self.mas_page_lb = Label(menu_bar_frame, text='Crear Proyecto', bg='white', fg='black',
-                                 font=('Arial', 10), anchor=W)
+        self.mas_page_lb = Label(
+            self.menu_bar_frame,
+            text='Crear Proyecto',
+            bg='white',
+            fg='black',
+            font=('Arial', 10),
+            anchor=W
+        )
         self.mas_page_lb.place(x=45, y=310, width=100, height=40)
         self.mas_page_lb.bind(
             "<Button-1>",
-            lambda e: switch_indication(indicador_lb=mas_btn_indicator, page=agregar_page)
+            lambda e: self.switch_indication(self.mas_btn_indicator, self.agregar_page)
         )
 
+        # Botón Materiales
         self.block_menu_btn = Button(
-            menu_bar_frame,
+            self.menu_bar_frame,
             image=self.block_icon,
-            bg=menu_bar_colour,
-            activebackground=menu_bar_colour,
+            bg=self.menu_bar_colour,
+            activebackground=self.menu_bar_colour,
             bd=0,
             command=self.ir_a_mat
         )
         self.block_menu_btn.place(x=9, y=370, width=30, height=40)
 
-        self.block_page_lb = Label(menu_bar_frame, text='Materiales', bg='white', fg='black',
-                                   font=('Arial', 10), anchor=W)
+        self.block_page_lb = Label(
+            self.menu_bar_frame,
+            text='Materiales',
+            bg='white',
+            fg='black',
+            font=('Arial', 10),
+            anchor=W
+        )
         self.block_page_lb.place(x=45, y=370, width=100, height=40)
         self.block_page_lb.bind(
             "<Button-1>",
-            lambda e: (block_btn_indicator.config(bg='black'), self.ir_a_mat())
+            lambda e: (self.block_btn_indicator.config(bg='black'), self.ir_a_mat())
         )
 
+        # Botón Salir
         self.salir_menu_btn = Button(
-            menu_bar_frame,
+            self.menu_bar_frame,
             image=self.salir_icon,
-            bg=menu_bar_colour,
-            activebackground=menu_bar_colour,
+            bg=self.menu_bar_colour,
+            activebackground=self.menu_bar_colour,
             bd=0,
             command=self.cerrar_sesion
         )
         self.salir_menu_btn.place(relx=0.5, rely=1.0, anchor='s')
 
-        salir_btn_indicator = Label(menu_bar_frame, bg='white')
+        salir_btn_indicator = Label(self.menu_bar_frame, bg='white')
         salir_btn_indicator.place(x=3, y=720, height=40, width=3)
 
+    # ---------- MÉTODOS DE ANIMACIÓN DEL MENÚ ----------
+
+    def _extending_animation(self):
+        # Animación para extender el menú lateral
+        current_width = self.menu_bar_frame.winfo_width()
+        if not current_width > 200:
+            current_width += 10
+            self.menu_bar_frame.config(width=current_width)
+            self.ventana.after(ms=8, func=self._extending_animation)
+
+    def extend_bar_frame(self):
+        # Extiende el menú lateral
+        self._extending_animation()
+        self.toggle_menu_btn.config(image=self.x_icon)
+        self.toggle_menu_btn.config(command=self.fold_menu_bar)
+
+    def _folding_animation(self):
+        # Animación para contraer el menú lateral
+        current_width = self.menu_bar_frame.winfo_width()
+        if current_width != 45:
+            current_width -= 10
+            self.menu_bar_frame.config(width=current_width)
+            self.ventana.after(ms=8, func=self._folding_animation)
+
+    def fold_menu_bar(self):
+        # Contrae el menú lateral
+        self._folding_animation()
+        self.toggle_menu_btn.config(image=self.toggle_icon)
+        self.toggle_menu_btn.config(command=self.extend_bar_frame)
+
+    # ---------- MÉTODOS DE NAVEGACIÓN ----------
+
+    def switch_indication(self, indicador_lb, page):
+        # Cambia el indicador activo y muestra la página correspondiente
+        # Resetear todos los indicadores
+        self.home_btn_indicator.config(bg='white')
+        self.mas_btn_indicator.config(bg='white')
+        self.block_btn_indicator.config(bg='white')
+
+        # Activar el indicador seleccionado
+        indicador_lb.config(bg='black')
+
+        # Contraer menú si está extendido
+        if self.menu_bar_frame.winfo_width() > 45:
+            self.fold_menu_bar()
+
+        # Limpiar página actual
+        for frame in self.page_frame.winfo_children():
+            frame.destroy()
+
+        # Mostrar nueva página
+        page()
+
+    # ---------- MÉTODOS DE PÁGINAS ----------
+
+    def proyectos_page(self):
+        home_page_fm = Frame(self.page_frame, bg='black')
+        lb = Label(home_page_fm, text='Proyectos', font=('Arial', 20), bg='black', fg='white')
+        lb.place(x=100, y=20)
+        home_page_fm.pack(fill=BOTH, expand=True)
+
+        # Configurar TreeView
+        self.cabecera = ["ID", "Nombre", "Descripción", "Estado", "Fecha Inicio", "Fecha Fin"]
+
+        self.tree = ttk.Treeview(home_page_fm, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
+        self.tree.place(x=50, y=100)
+
+        self.tree.column("#0", width=50)
+        self.tree.heading("#0", text=self.cabecera[0], anchor=CENTER)
+        self.tree.column("#1", width=150)
+        self.tree.heading("#1", text=self.cabecera[1], anchor=CENTER)
+        self.tree.column("#2", width=350)
+        self.tree.heading("#2", text=self.cabecera[2], anchor=CENTER)
+        self.tree.column("#3", width=150)
+        self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
+        self.tree.column("#4", width=150)
+        self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
+        self.tree.column("#5", width=150)
+        self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
+        self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+
+        # Cargar datos
+        GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
+
+        # Botón de selección
+        Button(
+            home_page_fm,
+            text="Seleccionar",
+            font=('Arial', 11, 'bold'),
+            bg='white',
+            fg='black',
+            width=12,
+            command=self.mostrar_detalle_proyecto
+        ).place(x=50, y=360)
+
+    def agregar_page(self):
+        agregar_page_fm = Frame(self.page_frame, bg='black')
+        lb = Label(agregar_page_fm, text='Agregar proyecto', font=('Arial', 20), bg='black', fg='white')
+        lb.place(x=150, y=20)
+        agregar_page_fm.pack(fill=BOTH, expand=True)
+
+        Label(agregar_page_fm, text="Nombre:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=80)
+        Entry(agregar_page_fm, textvariable=self.nombre_var, width=30).place(x=250, y=80)
+
+        Label(agregar_page_fm, text="Descripción:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=120)
+        Entry(agregar_page_fm, textvariable=self.descripcion_var, width=50).place(x=250, y=120)
+
+        Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=160)
+        Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=30).place(x=250, y=160)
+
+        Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=200)
+        DateEntry(
+            agregar_page_fm,
+            textvariable=self.fecha_inicio_var,
+            width=27,
+            date_pattern='yyyy-mm-dd',
+            background='darkblue',
+            foreground='white',
+            borderwidth=2
+        ).place(x=250, y=200)
+
+        Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50,
+                                                                                                                  y=240)
+        DateEntry(
+            agregar_page_fm,
+            textvariable=self.fecha_fin_var,
+            width=27,
+            date_pattern='yyyy-mm-dd',
+            background='darkblue',
+            foreground='white',
+            borderwidth=2
+        ).place(x=250, y=240)
+
+        Button(
+            agregar_page_fm,
+            text="Guardar",
+            font=('Arial', 12, 'bold'),
+            bg='white',
+            fg='black',
+            width=12,
+            command=self.guardar_proyecto
+        ).place(x=150, y=320)
+
+    def mostrar_detalle_proyecto(self):
+        if not self.id_proyecto.get():
+            messagebox.showerror("Error", "No se ha seleccionado un proyecto.")
+            return
+
+        # Limpiar página actual
+        for frame in self.page_frame.winfo_children():
+            frame.destroy()
+
+        detalle_fm = Frame(self.page_frame, bg='black')
+        detalle_fm.pack(fill=BOTH, expand=True)
+
+        Label(
+            detalle_fm,
+            text='Datos del proyecto',
+            font=('Arial', 12),
+            bg='black',
+            fg='white'
+        ).place(x=80, y=90)
+
+        Button(
+            detalle_fm,
+            text='← Volver a Proyectos',
+            font=('Arial', 11, 'bold'),
+            bg='white',
+            fg='black',
+            command=lambda: self.switch_indication(self.home_btn_indicator, self.proyectos_page)
+        ).place(x=80, y=150)
+
+    # ---------- MÉTODOS DE ACCIONES ----------
+
     def guardar_proyecto(self):
+        # Guarda un nuevo proyecto en la base de datos
         nombre = self.nombre_var.get()
         descripcion = self.descripcion_var.get()
         n_usuarios = self.no_usuarios_var.get()
@@ -920,62 +982,62 @@ class MenuPrincipal:
         presupuesto_total = 0
         id_cliente = None
 
-        if validar_campo_lleno(nombre) and validar_campo_lleno(descripcion) and validar_campo_lleno(n_usuarios) and validar_campo_lleno(fecha_inicio) and validar_campo_lleno(fecha_fin):
-            if not validar_numero(n_usuarios):
-                messagebox.showerror("Error", "La cantidad de usuarios debe ser un número.")
-                return
-            n_usuarios = int(n_usuarios)
-
-            # Calcular duración
-            try:
-                inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
-                fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
-                duracion = (fin - inicio).days
-
-                if duracion < 0:
-                    messagebox.showerror("Error", "La fecha de fin debe ser posterior a la fecha de inicio.")
-                    return
-            except ValueError:
-                messagebox.showerror("Error", "Las fechas deben estar en formato válido.")
-                return
-
-            id_proyecto = ServicioProyecto.crear(
-                nombre=nombre,
-                descripcion=descripcion,
-                n_usuarios=n_usuarios,
-                fecha_inicio=fecha_inicio,
-                duracion=duracion,
-                fecha_fin=fecha_fin,
-                estado=estado,
-                presupuesto_total=presupuesto_total,
-                id_cliente=id_cliente
-            )
-
-            ServicioDetalleProyecto.crear(self.id_usuario, id_proyecto)
-
-            try:
-                GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
-            except Exception:
-                pass
-
-            self.nombre_var.set("")
-            self.descripcion_var.set("")
-            self.no_usuarios_var.set("")
-            self.fecha_inicio_var.set("")
-            self.fecha_fin_var.set("")
-
-            messagebox.showinfo("Éxito", f"Proyecto '{nombre}' creado exitosamente.")
-
-        else:
+        # Validar campos llenos
+        if not (validar_campo_lleno(nombre) and validar_campo_lleno(descripcion) and
+                validar_campo_lleno(n_usuarios) and validar_campo_lleno(fecha_inicio) and
+                validar_campo_lleno(fecha_fin)):
             messagebox.showerror("Error", "Todos los campos deben estar llenos.")
+            return
 
-    def ir_a_mat(self):
-        Materiales()
+        # Validar número de usuarios
+        if not validar_numero(n_usuarios):
+            messagebox.showerror("Error", "La cantidad de usuarios debe ser un número.")
+            return
+        n_usuarios = int(n_usuarios)
 
-    def cerrar_sesion(self):
-        ventana_menu_principal.destroy()
-        ventana_login.deiconify()
-        ventana_login.state('zoomed')
+        # Calcular duración
+        try:
+            inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
+            fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
+            duracion = (fin - inicio).days
+
+            if duracion < 0:
+                messagebox.showerror("Error", "La fecha de fin debe ser posterior a la fecha de inicio.")
+                return
+        except ValueError:
+            messagebox.showerror("Error", "Las fechas deben estar en formato válido.")
+            return
+
+        # Crear proyecto
+        id_proyecto = ServicioProyecto.crear(
+            nombre=nombre,
+            descripcion=descripcion,
+            n_usuarios=n_usuarios,
+            fecha_inicio=fecha_inicio,
+            duracion=duracion,
+            fecha_fin=fecha_fin,
+            estado=estado,
+            presupuesto_total=presupuesto_total,
+            id_cliente=id_cliente
+        )
+
+        # Crear detalle de proyecto
+        ServicioDetalleProyecto.crear(self.id_usuario, id_proyecto)
+
+        # Actualizar vista si existe
+        try:
+            GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
+        except Exception:
+            pass
+
+        # Limpiar campos
+        self.nombre_var.set("")
+        self.descripcion_var.set("")
+        self.no_usuarios_var.set("")
+        self.fecha_inicio_var.set("")
+        self.fecha_fin_var.set("")
+
+        messagebox.showinfo("Éxito", f"Proyecto '{nombre}' creado exitosamente.")
 
     def seleccionarUsandoClick(self, event):
         id_seleccionado = seleccionar_haciendo_click(
@@ -988,6 +1050,7 @@ class MenuPrincipal:
         if not id_seleccionado:
             return
 
+        # Cargar datos del proyecto
         datos = ServicioProyecto.buscar_por_id(id_seleccionado)
         if datos:
             self.nombre.set(datos[1])
@@ -999,6 +1062,14 @@ class MenuPrincipal:
             self.estado.set(datos[7])
             self.presupuesto_total.set(datos[8])
             self.id_cliente.set(datos[9])
+
+    def ir_a_mat(self):
+        Materiales()
+
+    def cerrar_sesion(self):
+        ventana_menu_principal.destroy()
+        ventana_login.deiconify()
+        ventana_login.state('zoomed')
 
 
 app = ControladorLogin.iniciar_app()
