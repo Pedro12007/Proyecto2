@@ -26,17 +26,20 @@ def seleccionar_haciendo_click(tree, event, id_var, campos_vars, readonly_widget
 
     return id_texto
 
-class Login:
+class VistaLogin:
     def __init__(self):
         global ventana_login
-        ventana_login = Tk()
-        ventana_login.title("Login")
-        ventana_login.state("zoomed")
-        ventana_login.geometry('900x800')
+
+        self.ventana_login = Tk()
+        ventana_login = self.ventana_login
+
+        self.ventana_login.title("Login")
+        self.ventana_login.state("zoomed")
+        self.ventana_login.geometry('900x800')
 
         fondo = 'white'
 
-        self.left_frame = Frame(ventana_login)
+        self.left_frame = Frame(self.ventana_login)
         self.left_frame.configure(bg=fondo)
         self.left_frame.pack(expand=True, fill="both", side='left')
 
@@ -48,37 +51,17 @@ class Login:
         content.grid(row=1, column=0)
 
         Label(content, text="Usuario", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
-        self.usuario = Entry(content, width=40, bd=1)
-        self.usuario.pack(pady=10)
+        self.usuario_entry = Entry(content, width=40, bd=1)
+        self.usuario_entry.pack(pady=10)
 
         Label(content, text="Contraseña", font=("Arial", 20), fg="black", bg=fondo).pack(pady=10)
-        self.contrasena = Entry(content, width=40, show='*', bd=1)
-        self.contrasena.pack(pady=10)
+        self.contrasena_entry = Entry(content, width=40, show='*', bd=1)
+        self.contrasena_entry.pack(pady=10)
 
-        def acceder():
-            self.user = self.usuario.get()
-            self.password = self.contrasena.get()
+        self.login_button = Button(content, text="Iniciar sesión", font=("Arial", 16), bg="white", fg="black")
+        self.login_button.pack(pady=20)
 
-            if self.user and self.password:
-                if self.user == 'admin':
-                    if self.password == '1234':
-                        Admin()
-                        ventana_login.withdraw()
-                    else:
-                        messagebox.showerror('Error', 'Contraseña incorrecta.')
-                else:
-                    usuario_encontrado = ServicioUsuarios.buscar_usuario_password(self.user, self.password)
-                    if usuario_encontrado:
-                        MenuPrincipal(usuario_encontrado[0]) #ID de usuario
-                        ventana_login.withdraw()
-                    else:
-                        messagebox.showerror('Error', 'Usuario o contraseña incorrectos.')
-            else:
-                messagebox.showerror("Error", "Ingrese su usuario y contraseña.")
-
-        Button(content, text="Iniciar sesión", font=("Arial", 16), bg="white", fg="black", command=acceder).pack(pady=20)
-
-        self.right_frame = Frame(ventana_login, bg= 'black')
+        self.right_frame = Frame(self.ventana_login, bg='black')
         self.right_frame.pack(expand=True, fill="both", side='right')
 
         self.imagen_original = Image.open("21design2.png")
@@ -87,7 +70,29 @@ class Login:
 
         self.right_frame.bind("<Configure>", self._ajustar_imagen)
 
-        ventana_login.mainloop()
+    def set_login_command(self, command):
+        #Metodo para que el controlador asigne la función al botón.
+        self.login_button.config(command=command)
+
+    def get_usuario(self):
+        #Devuelve el texto del campo usuario.
+        return self.usuario_entry.get()
+
+    def get_contrasena(self):
+        #Devuelve el texto del campo contraseña.
+        return self.contrasena_entry.get()
+
+    def mostrar_error(self, titulo, mensaje):
+        #Muestra un mensaje de error.
+        messagebox.showerror(titulo, mensaje)
+
+    def ocultar_ventana(self):
+        #Oculta la ventana de login.
+        self.ventana_login.withdraw()
+
+    def iniciar_mainloop(self):
+        #Inicia el bucle principal de la aplicación.
+        self.ventana_login.mainloop()
 
     def _ajustar_imagen(self, event):
         if event.width <= 1 or event.height <= 1:
@@ -95,22 +100,44 @@ class Login:
 
         img_w, img_h = self.imagen_original.size
         frame_w, frame_h = event.width, event.height
-
         prop_img = img_w / img_h
         prop_frame = frame_w / frame_h
-
         if prop_frame > prop_img:
             new_h = frame_h
             new_w = int(new_h * prop_img)
         else:
             new_w = frame_w
             new_h = int(new_w / prop_img)
-
         img_resized = self.imagen_original.resize((new_w, new_h), Image.Resampling.LANCZOS)
         self.img_tk = ImageTk.PhotoImage(img_resized)
-
         self.label_img.config(image=self.img_tk)
         self.label_img.image = self.img_tk
+
+class ControladorLogin:
+    def __init__(self, view):
+        self.view = view
+
+    def acceder(self):
+        user = self.view.get_usuario()
+        password = self.view.get_contrasena()
+
+        if user and password:
+            if user == 'admin':
+                if password == '1234':
+                    self.view.ocultar_ventana()
+                    Admin()
+                else:
+                    self.view.mostrar_error('Error', 'Contraseña incorrecta.')
+            else:
+                usuario_encontrado = ServicioUsuarios.buscar_usuario_password(user, password)
+
+                if usuario_encontrado:
+                    self.view.ocultar_ventana()
+                    MenuPrincipal(usuario_encontrado[0])
+                else:
+                    self.view.mostrar_error('Error', 'Usuario o contraseña incorrectos.')
+        else:
+            self.view.mostrar_error("Error", "Ingrese su usuario y contraseña.")
 
 class Admin:
     def __init__(self):
@@ -870,4 +897,7 @@ class MenuPrincipal:
             self.id_cliente.set(datos[9])
 
 
-login = Login()
+app_view = VistaLogin()
+app_controller = ControladorLogin(app_view)
+app_view.set_login_command(app_controller.acceder)
+app_view.iniciar_mainloop()
