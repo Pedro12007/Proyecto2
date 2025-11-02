@@ -1043,26 +1043,30 @@ class MenuPrincipal:
         OptionMenu(self.frame_detalles, self.estado, *opciones).pack(anchor='w', padx=30, pady=5)
 
         Label(self.frame_detalles, text=f'Fecha Inicio:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        DateEntry(
+        self.date_inicio_widget = DateEntry(
             self.frame_detalles,
-            textvariable=self.fecha_inicio,
             width=27,
             date_pattern='yyyy-mm-dd',
             background='darkblue',
             foreground='white',
             borderwidth=2
-        ).pack(anchor='w', padx=30, pady=5)
+        )
+        self.date_inicio_widget.pack(anchor='w', padx=30, pady=5)
+        fecha_inicio_obj = datetime.strptime(self.fecha_inicio.get(), '%Y-%m-%d')
+        self.date_inicio_widget.set_date(fecha_inicio_obj)
 
         Label(self.frame_detalles, text=f'Fecha Fin:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        DateEntry(
+        self.date_fin_widget = DateEntry(
             self.frame_detalles,
-            textvariable=self.fecha_final,
             width=27,
             date_pattern='yyyy-mm-dd',
             background='darkblue',
             foreground='white',
             borderwidth=2
-        ).pack(anchor='w', padx=30, pady=5)
+        )
+        self.date_fin_widget.pack(anchor='w', padx=30, pady=5)
+        fecha_fin_obj = datetime.strptime(self.fecha_final.get(), '%Y-%m-%d')
+        self.date_fin_widget.set_date(fecha_fin_obj)
 
         Label(self.frame_detalles, text=f'Duración (días):', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
         Entry(self.frame_detalles, textvariable=self.duracion, width=40, state='readonly').pack(anchor='w', padx=30, pady=5)
@@ -1158,8 +1162,8 @@ class MenuPrincipal:
         descripcion = self.descripcion.get()
         n_usuarios = self.n_usuarios.get()
         estado = self.estado.get()
-        fecha_inicio = self.fecha_inicio.get()
-        fecha_fin = self.fecha_final.get()
+        fecha_inicio = self.date_inicio_widget.get_date().strftime('%Y-%m-%d')
+        fecha_fin = self.date_fin_widget.get_date().strftime('%Y-%m-%d')
         duracion = self.duracion.get()
         presupuesto = self.presupuesto_total.get()
 
@@ -1180,6 +1184,8 @@ class MenuPrincipal:
         except ValueError:
             messagebox.showerror("Error", "Las fechas deben estar en formato válido.")
             return
+
+        self.duracion.set(f'{duracion}')
 
         ServicioProyecto.actualizar(
             nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto, self.id_proyecto.get()
