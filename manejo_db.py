@@ -566,6 +566,25 @@ class ServicioManoObra:
         conexion.close()
         return datos
 
+class GestorManoObra:
+    @staticmethod
+    def mostrar(tree):
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            trabajadores = ServicioManoObra.consultar()
+            for row in trabajadores:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    values=(row[1], row[2], row[3])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
+
 class DetalleManoObra:
     def __init__(self, id_proyecto, id_trabajador, costo_trabajo, tipo_trabajo):
         self.id_proyecto = id_proyecto
@@ -649,6 +668,25 @@ class ServicioDetalleManoObra:
         total = cursor.fetchone()[0]
         conexion.close()
         return total
+
+class GestorDetalleManoObra:
+    @staticmethod
+    def mostrar(tree, id_proyecto):
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            trabajadores = ServicioDetalleManoObra.consultar(id_proyecto)
+            for row in trabajadores:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    values=(row[1], row[2], row[3], row[4])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
 class Material:
     def __init__(self, descripcion, unidad, prec_unitario):
