@@ -619,6 +619,172 @@ class Materiales:
             readonly_widget=self.e1
         )
 
+class VentanaManoObra(Toplevel):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        self.title("Mano de obra")
+        self.geometry("700x540")
+        self.resizable(False, False)
+
+        # variables
+        self.var_id = StringVar()
+        self.var_nombre = StringVar()
+        self.var_telefono = StringVar()
+        self.var_ocupacion = StringVar()
+        self.var_buscar = StringVar()
+
+        # ----- FORMULARIO -----
+        frm_form = LabelFrame(self, text="Datos del trabajador", padx=5, pady=5)
+        frm_form.place(x=10, y=5, width=680, height=190)
+
+        Label(frm_form, text="Nombre:*").grid(row=0, column=0, sticky="w")
+        Entry(frm_form, textvariable=self.var_nombre, width=30).grid(row=0, column=1, padx=5, pady=2)
+
+        Label(frm_form, text="Teléfono:").grid(row=1, column=0, sticky="w")
+        Entry(frm_form, textvariable=self.var_telefono, width=20).grid(row=1, column=1, padx=5, pady=2, sticky="w")
+
+        Label(frm_form, text="Ocupación:").grid(row=0, column=2, sticky="w")
+        Entry(frm_form, textvariable=self.var_ocupacion, width=25).grid(row=0, column=3, padx=5, pady=2)
+
+        # botones
+        frm_btn = Frame(frm_form)
+        frm_btn.grid(row=0, column=4, rowspan=3, padx=10, sticky="n")
+
+        Button(frm_btn, text="Nuevo", width=10, command=self.limpiar).grid(row=0, column=0, pady=2)
+        Button(frm_btn, text="Guardar", width=10, command=self.guardar).grid(row=1, column=0, pady=2)
+        Button(frm_btn, text="Actualizar", width=10, command=self.actualizar).grid(row=2, column=0, pady=2)
+        Button(frm_btn, text="Eliminar", width=10, command=self.eliminar).grid(row=3, column=0, pady=2)
+
+        # ----- BUSCADOR -----
+        frm_buscar = LabelFrame(self, text="Buscar", padx=5, pady=5)
+        frm_buscar.place(x=10, y=205, width=680, height=55)
+
+        Label(frm_buscar, text="Nombre / Ocupación:").pack(side="left")
+        Entry(frm_buscar, textvariable=self.var_buscar, width=35).pack(side="left", padx=5)
+        Button(frm_buscar, text="Buscar", command=self.buscar).pack(side="left", padx=5)
+        Button(frm_buscar, text="Mostrar todo", command=self.cargar_tabla).pack(side="left", padx=5)
+
+        # ----- TABLA -----
+        frm_tabla = Frame(self)
+        frm_tabla.place(x=10, y=265, width=680, height=205)
+
+        columnas = ("nombre", "telefono", "ocupacion")
+        self.tree = ttk.Treeview(frm_tabla, columns=columnas, show="headings")
+        self.tree.heading("nombre", text="Nombre")
+        self.tree.heading("telefono", text="Teléfono")
+        self.tree.heading("ocupacion", text="Ocupación")
+
+        self.tree.column("nombre", width=230)
+        self.tree.column("telefono", width=120)
+        self.tree.column("ocupacion", width=230)
+
+        self.tree.pack(side="left", fill="both", expand=True)
+
+        scroll_y = ttk.Scrollbar(frm_tabla, orient="vertical", command=self.tree.yview)
+        scroll_y.pack(side="right", fill="y")
+        self.tree.configure(yscrollcommand=scroll_y.set)
+
+        self.tree.bind("<<TreeviewSelect>>", self.on_select)
+
+        self.cargar_tabla()
+
+    def cargar_tabla(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        try:
+            datos = ServicioManoObra.consultar()
+            for row in datos:
+                # (id_trabajador, nombre, telefono, ocupacion)
+                self.tree.insert("", "end", iid=row[0], values=(row[1], row[2], row[3]))
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo cargar la mano de obra:\n{e}")
+
+    def limpiar(self):
+        self.var_id.set("")
+        self.var_nombre.set("")
+        self.var_telefono.set("")
+        self.var_ocupacion.set("")
+        self.var_buscar.set("")
+
+    def guardar(self):
+        nombre = self.var_nombre.get().strip()
+        telefono = self.var_telefono.get().strip()
+        ocupacion = self.var_ocupacion.get().strip()
+
+        if not nombre:
+            messagebox.showwarning("Advertencia", "El nombre es obligatorio.")
+            return
+
+        try:
+            ServicioManoObra.crear(nombre, telefono, ocupacion)
+            self.cargar_tabla()
+            self.limpiar()
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar:\n{e}")
+
+    def on_select(self, event):
+        seleccionado = self.tree.selection()
+        if not seleccionado:
+            return
+        ide = seleccionado[0]
+        self.var_id.set(ide)
+        valores = self.tree.item(ide, "values")
+        self.var_nombre.set(valores[0])
+        self.var_telefono.set(valores[1])
+        self.var_ocupacion.set(valores[2])
+
+    def actualizar(self):
+        ide = self.var_id.get()
+        if not ide:
+            messagebox.showwarning("Advertencia", "Seleccione un registro.")
+            return
+
+        nombre = self.var_nombre.get().strip()
+        telefono = self.var_telefono.get().strip()
+        ocupacion = self.var_ocupacion.get().strip()
+
+        if not nombre:
+            messagebox.showwarning("Advertencia", "El nombre es obligatorio.")
+            return
+
+        try:
+            ServicioManoObra.actualizar(nombre, telefono, ocupacion, ide)
+            self.cargar_tabla()
+            self.limpiar()
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo actualizar:\n{e}")
+
+    def eliminar(self):
+        ide = self.var_id.get()
+        if not ide:
+            messagebox.showwarning("Advertencia", "Seleccione un registro.")
+            return
+
+        if not messagebox.askyesno("Confirmar", "¿Desea eliminar este trabajador?"):
+            return
+
+        try:
+            ServicioManoObra.borrar(ide)
+            self.cargar_tabla()
+            self.limpiar()
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo eliminar:\n{e}")
+
+    def buscar(self):
+        criterio = self.var_buscar.get().strip()
+        if not criterio:
+            self.cargar_tabla()
+            return
+
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        try:
+            datos = ServicioManoObra.buscar(criterio)
+            for row in datos:
+                self.tree.insert("", "end", iid=row[0], values=(row[1], row[2], row[3]))
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo buscar:\n{e}")
 
 class MenuPrincipal:
     def __init__(self, id_usuario):
@@ -691,6 +857,7 @@ class MenuPrincipal:
         ruta_icono_home = os.path.join(os.path.dirname(__file__), 'imagenes', 'home.png')
         ruta_icono_salir = os.path.join(os.path.dirname(__file__), 'imagenes', 'salir.png')
         ruta_icono_x = os.path.join(os.path.dirname(__file__), 'imagenes', 'x.png')
+        ruta_icono_persona = os.path.join(os.path.dirname(__file__), 'imagenes', 'persona.png')
 
         self.toggle_icon = PhotoImage(file=ruta_icono_tresb)
         self.mas_icon = PhotoImage(file=ruta_icono_mas)
@@ -698,6 +865,7 @@ class MenuPrincipal:
         self.home_icon = PhotoImage(file=ruta_icono_home)
         self.salir_icon = PhotoImage(file=ruta_icono_salir)
         self.x_icon = PhotoImage(file=ruta_icono_x)
+        self.persona_icon = PhotoImage(file=ruta_icono_persona)
 
     def crear_frames(self):
         self.page_frame = Frame(self.ventana, bg='black')
@@ -801,8 +969,31 @@ class MenuPrincipal:
         self.block_page_lb.place(x=45, y=370, width=100, height=40)
         self.block_page_lb.bind(
             "<Button-1>",
-            lambda e: (self.block_btn_indicator.config(bg='black'), self.ir_a_mat())
+            lambda e: (self.block_btn_indicator.config(bg='black'), self.ir_a_mat()))
+
+        # Botón Mano de Obra
+        self.persona_menu_btn = Button(
+            self.menu_bar_frame,
+            image=self.persona_icon,
+            bg=self.menu_bar_colour,
+            activebackground=self.menu_bar_colour,
+            bd=0,
+            command= lambda: VentanaManoObra(self.ventana)
         )
+        self.persona_menu_btn.place(x=9, y=430, width=30, height=40)
+
+        self.persona_page_lb = Label(
+            self.menu_bar_frame,
+            text='Mano de obra',
+            bg='white',
+            fg='black',
+            font=('Arial', 10),
+            anchor=W
+        )
+        self.persona_page_lb.place(x=45, y=430, width=100, height=40)
+        self.persona_page_lb.bind(
+            "<Button-1>",
+            lambda e: (self.block_btn_indicator.config(bg='black'), VentanaManoObra(self.ventana)))
 
         # Botón Salir
         self.salir_menu_btn = Button(
