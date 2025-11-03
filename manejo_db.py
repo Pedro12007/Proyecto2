@@ -315,6 +315,15 @@ class ServicioProyecto:
         conexion.close()
         return datos
 
+    @staticmethod
+    def calcular_presupuesto_total(id_proyecto):
+        total_materiales = ServicioDetalleMateriales.obtener_costo_total_materiales(id_proyecto)
+        total_mano_obra = ServicioDetalleManoObra.obtener_costo_total_mano_obra(id_proyecto)
+        total_admin = ServicioAdministracion.obtener_costo_total_administracion(id_proyecto)
+
+        presupuesto_total = total_materiales + total_mano_obra + total_admin
+        return presupuesto_total
+
 class GestorProyectos:
     @staticmethod
     def mostrar(tree, id_usuario=None):
@@ -591,6 +600,11 @@ class ConsultaDetalleManoObra:
     '''
     UPDATE = "UPDATE detalle_mano_obra SET costo_trabajo=?, tipo_trabajo=? WHERE id_detalle_trabajo=?"
     DELETE = "DELETE FROM detalle_mano_obra WHERE id_detalle_trabajo=?"
+    COSTO_TOTAL = '''
+    SELECT IFNULL(SUM(costo_trabajo), 0) 
+    FROM detalle_mano_obra 
+    WHERE id_proyecto = ?
+    '''
 
 class ServicioDetalleManoObra:
     @staticmethod
@@ -629,6 +643,14 @@ class ServicioDetalleManoObra:
         cursor.execute(ConsultaDetalleManoObra.DELETE, (id_detalle,))
         conexion.commit()
         conexion.close()
+
+    @staticmethod
+    def obtener_costo_total_mano_obra(id_proyecto):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaDetalleManoObra.COSTO_TOTAL, (id_proyecto,))
+        total = cursor.fetchone()[0]
+        conexion.close()
+        return total
 
 class Material:
     def __init__(self, descripcion, unidad, prec_unitario):
@@ -928,6 +950,11 @@ class ConsultaAdministracion:
     UPDATE = "UPDATE administracion SET tipo_gasto=?, fecha=?, forma_pago=?, proveedor=?, costo=?, id_proyecto=? WHERE id_administracion=?"
     DELETE = "DELETE FROM administracion WHERE id_administracion=?"
     BUSCAR = "SELECT * FROM administracion WHERE tipo_gasto LIKE '%' || ? || '%' OR proveedor LIKE '%' || ? || '%'"
+    COSTO_TOTAL = '''
+    SELECT IFNULL(SUM(costo), 0) 
+    FROM administracion 
+    WHERE id_proyecto = ?
+    '''
 
 class ServicioAdministracion:
     @staticmethod
@@ -976,3 +1003,11 @@ class ServicioAdministracion:
         datos = cursor.fetchall()
         conexion.close()
         return datos
+
+    @staticmethod
+    def obtener_costo_total_administracion(id_proyecto):
+        conexion, cursor = conectar()
+        cursor.execute(ConsultaAdministracion.COSTO_TOTAL, (id_proyecto,))
+        total = cursor.fetchone()[0]
+        conexion.close()
+        return total

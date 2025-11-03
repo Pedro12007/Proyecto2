@@ -662,7 +662,13 @@ class MenuPrincipal:
         self.fecha_inicio_var = StringVar()
         self.fecha_fin_var = StringVar()
 
-        #Variables para DetallesMateriales
+        # Variables para Administración
+        self.total_costo_administracion = StringVar()
+
+        #Variables para DetallesManoObra
+        self.total_costo_mano_obra = StringVar()
+
+        # Variables para DetallesMateriales
         self.id_material = StringVar()
         self.descripcion_material = StringVar()
         self.unidad_material = StringVar()
@@ -1081,15 +1087,25 @@ class MenuPrincipal:
         Entry(self.frame_detalles, textvariable=self.duracion, width=40, state='readonly').pack(anchor='w', padx=30, pady=5)
 
         Label(self.frame_detalles, text=f'Presupuesto total:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(self.frame_detalles, textvariable=self.presupuesto_total, width=40, state='readonly').pack(anchor='w', padx=30, pady=5)
+        total = ServicioProyecto.calcular_presupuesto_total(self.id_proyecto.get())
+        self.presupuesto_total.set(f'Q {total:.2f}')
+        Label(self.frame_detalles, textvariable=self.presupuesto_total, font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
 
         Button(self.frame_detalles, text='Guardar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.actualizar_proyecto).pack(anchor='w', padx=30, pady=10)
 
     def contenido_administracion(self):
         Label(self.frame_administracion, text='Administración del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
+        total = ServicioAdministracion.obtener_costo_total_administracion(self.id_proyecto.get())
+        self.total_costo_administracion.set(f'Total (Q): {total:.2f}')
+        Label(self.frame_administracion, textvariable=self.total_costo_administracion, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+
     def contenido_mano_obra(self):
         Label(self.frame_mano_obra, text='Mano de Obra', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+
+        total = ServicioDetalleManoObra.obtener_costo_total_mano_obra(self.id_proyecto.get())
+        self.total_costo_mano_obra.set(f'Total (Q): {total:.2f}')
+        Label(self.frame_mano_obra, textvariable=self.total_costo_mano_obra, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
     def contenido_materiales(self):
         Label(self.frame_materiales, text='Materiales del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
@@ -1262,8 +1278,10 @@ class MenuPrincipal:
             ServicioDetalleMateriales.actualizar(cantidad_nueva, costo_total, proyecto, material)
 
         GestorDetalleMateriales.mostrar(self.tree_mat, self.id_proyecto.get())
-        total = ServicioDetalleMateriales.obtener_costo_total_materiales(self.id_proyecto.get())
-        self.total_costo_materiales.set(f'Total (Q): {total:.2f}')
+        total_proyecto = ServicioProyecto.calcular_presupuesto_total(self.id_proyecto.get())
+        self.presupuesto_total.set(f'Q {total_proyecto:.2f}')
+        total_materiales = ServicioDetalleMateriales.obtener_costo_total_materiales(self.id_proyecto.get())
+        self.total_costo_materiales.set(f'Total (Q): {total_materiales:.2f}')
 
         messagebox.showinfo("Éxito", f"Material registrado.")
 
