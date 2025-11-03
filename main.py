@@ -444,6 +444,8 @@ class ControladorAdmin:
 
     def seleccionarUsandoClick(self, event):
         seleccionado = self.view.tree.selection()
+        if not seleccionado:
+            return
 
         ide = seleccionado[0]
         self.view.miID_usuario.set(ide)
