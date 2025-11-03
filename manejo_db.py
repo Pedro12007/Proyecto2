@@ -66,7 +66,9 @@ class ServicioClientes:
         cliente = Cliente(nombre, apellido, telefono, mail, datos_referencia, direccion)
         cursor.execute(ConsultaClientes.INSERT, cliente.info())
         conexion.commit()
+        nuevo_id = cursor.lastrowid
         conexion.close()
+        return nuevo_id
 
     @staticmethod
     def actualizar(nombre, apellido, telefono, mail, datos_referencia, direccion, ide):

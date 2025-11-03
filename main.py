@@ -662,6 +662,13 @@ class MenuPrincipal:
         self.fecha_inicio_var = StringVar()
         self.fecha_fin_var = StringVar()
 
+        self.cliente_nombre_var = StringVar()
+        self.cliente_apellido_var = StringVar()
+        self.cliente_telefono_var = StringVar()
+        self.cliente_mail_var = StringVar()
+        self.cliente_datos_ref_var = StringVar()
+        self.cliente_direccion_var = StringVar()
+
     def cargar_iconos(self):
         ruta_icono_tresb = os.path.join(os.path.dirname(__file__), 'imagenes', 'tresb.png')
         ruta_icono_mas = os.path.join(os.path.dirname(__file__), 'imagenes', 'mas.png')
@@ -928,6 +935,35 @@ class MenuPrincipal:
             borderwidth=2
         ).place(x=250, y=240)
 
+        cliente_frame = LabelFrame(
+            agregar_page_fm,
+            text="Datos del cliente",
+            bg='black',
+            fg='white',
+            font=('Arial', 10, 'bold'),
+            labelanchor='n',
+            bd=2
+        )
+        cliente_frame.place(x=50, y=290, width=550, height=210)
+
+        Label(cliente_frame, text="Nombre:", bg='black', fg='white').place(x=10, y=10)
+        Entry(cliente_frame, textvariable=self.cliente_nombre_var, width=20).place(x=100, y=10)
+
+        Label(cliente_frame, text="Apellido:", bg='black', fg='white').place(x=280, y=10)
+        Entry(cliente_frame, textvariable=self.cliente_apellido_var, width=20).place(x=360, y=10)
+
+        Label(cliente_frame, text="Teléfono:", bg='black', fg='white').place(x=10, y=45)
+        Entry(cliente_frame, textvariable=self.cliente_telefono_var, width=20).place(x=100, y=45)
+
+        Label(cliente_frame, text="Mail:", bg='black', fg='white').place(x=280, y=45)
+        Entry(cliente_frame, textvariable=self.cliente_mail_var, width=20).place(x=360, y=45)
+
+        Label(cliente_frame, text="Referencia:", bg='black', fg='white').place(x=10, y=80)
+        Entry(cliente_frame, textvariable=self.cliente_datos_ref_var, width=42).place(x=100, y=80)
+
+        Label(cliente_frame, text="Dirección:", bg='black', fg='white').place(x=10, y=115)
+        Entry(cliente_frame, textvariable=self.cliente_direccion_var, width=42).place(x=100, y=115)
+
         Button(
             agregar_page_fm,
             text="Guardar",
@@ -936,7 +972,8 @@ class MenuPrincipal:
             fg='black',
             width=12,
             command=self.guardar_proyecto
-        ).place(x=150, y=320)
+        ).place(x=150, y=520)
+
 
     def mostrar_detalle_proyecto(self):
         if not self.id_proyecto.get():
@@ -1089,7 +1126,6 @@ class MenuPrincipal:
     # ---------- MÉTODOS DE ACCIONES ----------
 
     def guardar_proyecto(self):
-        # Guarda un nuevo proyecto en la base de datos
         nombre = self.nombre_var.get()
         descripcion = self.descripcion_var.get()
         n_usuarios = self.no_usuarios_var.get()
@@ -1098,22 +1134,25 @@ class MenuPrincipal:
 
         estado = "planeado"
         presupuesto_total = 0
-        id_cliente = None
 
-        # Validar campos llenos
+        cli_nombre = self.cliente_nombre_var.get()
+        cli_apellido = self.cliente_apellido_var.get()
+        cli_tel = self.cliente_telefono_var.get()
+        cli_mail = self.cliente_mail_var.get()
+        cli_ref = self.cliente_datos_ref_var.get()
+        cli_dir = self.cliente_direccion_var.get()
+
         if not (validar_campo_lleno(nombre) and validar_campo_lleno(descripcion) and
                 validar_campo_lleno(n_usuarios) and validar_campo_lleno(fecha_inicio) and
                 validar_campo_lleno(fecha_fin)):
-            messagebox.showerror("Error", "Todos los campos deben estar llenos.")
+            messagebox.showerror("Error", "Todos los campos del proyecto deben estar llenos.")
             return
 
-        # Validar número de usuarios
         if not validar_numero(n_usuarios):
             messagebox.showerror("Error", "La cantidad de usuarios debe ser un número.")
             return
         n_usuarios = int(n_usuarios)
 
-        # Calcular duración
         try:
             inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d')
             fin = datetime.strptime(fecha_fin, '%Y-%m-%d')
@@ -1126,7 +1165,22 @@ class MenuPrincipal:
             messagebox.showerror("Error", "Las fechas deben estar en formato válido.")
             return
 
-        # Crear proyecto
+        id_cliente = None
+
+        if validar_campo_lleno(cli_nombre) and validar_campo_lleno(cli_apellido):
+            try:
+                id_cliente = ServicioClientes.crear(
+                    cli_nombre,
+                    cli_apellido,
+                    cli_tel,
+                    cli_mail,
+                    cli_ref,
+                    cli_dir
+                )
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar el cliente: {e}")
+                return
+
         id_proyecto = ServicioProyecto.crear(
             nombre=nombre,
             descripcion=descripcion,
@@ -1139,21 +1193,25 @@ class MenuPrincipal:
             id_cliente=id_cliente
         )
 
-        # Crear detalle de proyecto
         ServicioDetalleProyecto.crear(self.id_usuario, id_proyecto)
 
-        # Actualizar vista si existe
         try:
             GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
         except Exception:
             pass
 
-        # Limpiar campos
         self.nombre_var.set("")
         self.descripcion_var.set("")
         self.no_usuarios_var.set("")
         self.fecha_inicio_var.set("")
         self.fecha_fin_var.set("")
+
+        self.cliente_nombre_var.set("")
+        self.cliente_apellido_var.set("")
+        self.cliente_telefono_var.set("")
+        self.cliente_mail_var.set("")
+        self.cliente_datos_ref_var.set("")
+        self.cliente_direccion_var.set("")
 
         messagebox.showinfo("Éxito", f"Proyecto '{nombre}' creado exitosamente.")
 
