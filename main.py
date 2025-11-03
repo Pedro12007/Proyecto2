@@ -667,6 +667,12 @@ class MenuPrincipal:
 
         #Variables para DetallesManoObra
         self.total_costo_mano_obra = StringVar()
+        self.id_trabajador = StringVar()
+        self.nombre_trabajador = StringVar()
+        self.telefono_trabajador = StringVar()
+        self.ocupacion_trabajador = StringVar()
+        self.tipo_trabajo = StringVar()
+        self.costo_trabajo = StringVar()
 
         # Variables para DetallesMateriales
         self.id_material = StringVar()
@@ -1107,6 +1113,78 @@ class MenuPrincipal:
         self.total_costo_mano_obra.set(f'Total (Q): {total:.2f}')
         Label(self.frame_mano_obra, textvariable=self.total_costo_mano_obra, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
+        frame_contenedor = Frame(self.frame_mano_obra, bg='#1a1a1a')
+        frame_contenedor.pack(fill=BOTH, expand=True, padx=20, pady=10)
+
+        # Izquierda (Mano de obra)
+        frame_mano_obra_disponible = Frame(frame_contenedor, bg='#1a1a1a')
+        frame_mano_obra_disponible.pack(side=LEFT, fill=BOTH, expand=True, padx=(0, 10))
+
+        Label(frame_mano_obra_disponible, text='Trabajadores Disponibles', font=('Arial', 14, 'bold'), bg='#1a1a1a',
+              fg='white').pack(pady=10)
+
+        self.cabecera_trabajadores = ["ID", "Nombre", "Teléfono", "Ocupación"]
+
+        self.tree_trabajadores = ttk.Treeview(frame_mano_obra_disponible, height=10, columns=("#1", "#2", "#3"))
+        self.tree_trabajadores.pack(anchor='center', padx=10, pady=10)
+
+        self.tree_trabajadores.column("#0", width=50)
+        self.tree_trabajadores.heading("#0", text=self.cabecera_trabajadores[0], anchor=CENTER)
+        self.tree_trabajadores.column("#1", width=200)
+        self.tree_trabajadores.heading("#1", text=self.cabecera_trabajadores[1], anchor=CENTER)
+        self.tree_trabajadores.column("#2", width=150)
+        self.tree_trabajadores.heading("#2", text=self.cabecera_trabajadores[2], anchor=CENTER)
+        self.tree_trabajadores.column("#3", width=150)
+        self.tree_trabajadores.heading("#3", text=self.cabecera_trabajadores[3], anchor=CENTER)
+        GestorManoObra.mostrar(self.tree_trabajadores)
+
+        # Derecha (Detalle mano de obra)
+        frame_detalle_mano_obra = Frame(frame_contenedor, bg='#1a1a1a')
+        frame_detalle_mano_obra.pack(side=RIGHT, fill=BOTH, expand=True, padx=(10, 0))
+
+        Label(frame_detalle_mano_obra, text='Trabajadores del Proyecto', font=('Arial', 14, 'bold'), bg='#1a1a1a',
+              fg='white').pack(pady=10)
+
+        self.cabecera_detalle_trabajadores = ["ID", "Nombre", "Ocupación", "Tipo Trabajo", "Costo"]
+
+        self.tree_detalle_trabajadores = ttk.Treeview(frame_detalle_mano_obra, height=10, columns=("#1", "#2", "#3", "#4"))
+        self.tree_detalle_trabajadores.pack(anchor='center', padx=10, pady=10)
+
+        self.tree_detalle_trabajadores.column("#0", width=50)
+        self.tree_detalle_trabajadores.heading("#0", text=self.cabecera_detalle_trabajadores[0], anchor=CENTER)
+        self.tree_detalle_trabajadores.column("#1", width=200)
+        self.tree_detalle_trabajadores.heading("#1", text=self.cabecera_detalle_trabajadores[1], anchor=CENTER)
+        self.tree_detalle_trabajadores.column("#2", width=150)
+        self.tree_detalle_trabajadores.heading("#2", text=self.cabecera_detalle_trabajadores[2], anchor=CENTER)
+        self.tree_detalle_trabajadores.column("#3", width=150)
+        self.tree_detalle_trabajadores.heading("#3", text=self.cabecera_detalle_trabajadores[3], anchor=CENTER)
+        self.tree_detalle_trabajadores.column("#4", width=100)
+        self.tree_detalle_trabajadores.heading("#4", text=self.cabecera_detalle_trabajadores[4], anchor=CENTER)
+        GestorDetalleManoObra.mostrar(self.tree_detalle_trabajadores, self.id_proyecto.get())
+
+        frame_campos_trab1 = Frame(self.frame_mano_obra, bg='#1a1a1a')
+        frame_campos_trab1.pack(anchor='center', pady=5)
+        frame_campos_trab2 = Frame(self.frame_mano_obra, bg='#1a1a1a')
+        frame_campos_trab2.pack(anchor='center', pady=5)
+
+        Label(frame_campos_trab1, text=f'Nombre:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
+        Label(frame_campos_trab1, textvariable=self.nombre_trabajador, width=30, bg='white', fg='black').pack(side=LEFT,
+                                                                                                              padx=4)
+        Label(frame_campos_trab1, text=f'Ocupación:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT,
+                                                                                                         padx=4)
+        Label(frame_campos_trab1, textvariable=self.ocupacion_trabajador, width=20, bg='white', fg='black').pack(
+            side=LEFT, padx=4)
+
+        Label(frame_campos_trab2, text=f'Tipo de Trabajo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(
+            side=LEFT, padx=4)
+        Entry(frame_campos_trab2, textvariable=self.tipo_trabajo, width=30).pack(side=LEFT, padx=4)
+        Label(frame_campos_trab2, text=f'Costo (Q):', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT,
+                                                                                                         padx=4)
+        Entry(frame_campos_trab2, textvariable=self.costo_trabajo, width=10).pack(side=LEFT, padx=4)
+
+        Button(self.frame_mano_obra, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black',
+               command=self.guardar_detalle_trabajador).pack(anchor='center', padx=30, pady=10)
+
     def contenido_materiales(self):
         Label(self.frame_materiales, text='Materiales del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
@@ -1284,6 +1362,31 @@ class MenuPrincipal:
         self.total_costo_materiales.set(f'Total (Q): {total_materiales:.2f}')
 
         messagebox.showinfo("Éxito", f"Material registrado.")
+
+    def guardar_detalle_trabajador(self):
+        proyecto = self.id_proyecto.get()
+        trabajador = self.id_trabajador.get()
+        tipo_trabajo_nuevo = self.tipo_trabajo.get()
+        costo_nuevo = self.costo_trabajo.get()
+
+        if not validar_campo_lleno(trabajador):
+            messagebox.showerror("Error", "Seleccione un trabajador primero.")
+            return
+
+        if not (validar_campo_lleno(tipo_trabajo_nuevo) and validar_campo_lleno(costo_nuevo)):
+            messagebox.showerror("Error", "El tipo de trabajo y el costo deben estar llenos.")
+            return
+
+        try:
+            costo_float = float(costo_nuevo)
+            if costo_float < 0:
+                messagebox.showerror("Error", "El costo debe ser mayor o igual a 0.")
+                return
+        except ValueError:
+            messagebox.showerror("Error", "El costo debe ser un número válido.")
+            return
+
+        messagebox.showinfo("Éxito", f"Trabajador asignado al proyecto.")
 
     def seleccionarProyectosUsandoClick(self, event):
         id_seleccionado = seleccionar_haciendo_click(
