@@ -662,6 +662,15 @@ class MenuPrincipal:
         self.fecha_inicio_var = StringVar()
         self.fecha_fin_var = StringVar()
 
+        #Variables para DetallesMateriales
+        self.id_material = StringVar()
+        self.descripcion_material = StringVar()
+        self.unidad_material = StringVar()
+        self.costo_unitario = StringVar()
+        self.cantidad_material = StringVar()
+        self.costo_total = StringVar()
+        self.total_costo_materiales = StringVar()
+
     def cargar_iconos(self):
         ruta_icono_tresb = os.path.join(os.path.dirname(__file__), 'imagenes', 'tresb.png')
         ruta_icono_mas = os.path.join(os.path.dirname(__file__), 'imagenes', 'mas.png')
@@ -1085,6 +1094,46 @@ class MenuPrincipal:
     def contenido_materiales(self):
         Label(self.frame_materiales, text='Materiales del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
+        total = ServicioDetalleMateriales.obtener_costo_total_materiales(self.id_proyecto.get())
+        self.total_costo_materiales.set(f'Total (Q): {total:.2f}')
+        Label(self.frame_materiales, textvariable=self.total_costo_materiales, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+
+        self.cabecera_mat = ["ID", "Descripción", "Unidad", "Costo Unitario", "Cantidad", "Costo total"]
+
+        self.tree_mat = ttk.Treeview(self.frame_materiales, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
+        self.tree_mat.pack(anchor='center', padx=10, pady=10)
+
+        self.tree_mat.column("#0", width=50)
+        self.tree_mat.heading("#0", text=self.cabecera_mat[0], anchor=CENTER)
+        self.tree_mat.column("#1", width=350)
+        self.tree_mat.heading("#1", text=self.cabecera_mat[1], anchor=CENTER)
+        self.tree_mat.column("#2", width=150)
+        self.tree_mat.heading("#2", text=self.cabecera_mat[2], anchor=CENTER)
+        self.tree_mat.column("#3", width=150)
+        self.tree_mat.heading("#3", text=self.cabecera_mat[3], anchor=CENTER)
+        self.tree_mat.column("#4", width=150)
+        self.tree_mat.heading("#4", text=self.cabecera_mat[4], anchor=CENTER)
+        self.tree_mat.column("#5", width=150)
+        self.tree_mat.heading("#5", text=self.cabecera_mat[5], anchor=CENTER)
+        self.tree_mat.bind("<Button-1>", self.seleccionarMaterialesUsandoClick)
+        GestorDetalleMateriales.mostrar(self.tree_mat, self.id_proyecto.get())
+
+        frame_campos_mat1 = Frame(self.frame_materiales, bg='#1a1a1a')
+        frame_campos_mat1.pack(anchor='center', pady=5)
+        frame_campos_mat2 = Frame(self.frame_materiales, bg='#1a1a1a')
+        frame_campos_mat2.pack(anchor='center', pady=5)
+
+        Label(frame_campos_mat1, text=f'Descripción:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
+        Label(frame_campos_mat1, textvariable=self.descripcion_material, width=40, bg='white', fg='black').pack(side=LEFT, padx=4)
+        Label(frame_campos_mat1, text=f'Unidad:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
+        Label(frame_campos_mat1, textvariable=self.unidad_material, width=20, bg='white', fg='black').pack(side=LEFT, padx=4)
+        Label(frame_campos_mat2, text=f'Costo unitario:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
+        Label(frame_campos_mat2, textvariable=self.costo_unitario, width=10, bg='white', fg='black').pack(side=LEFT, padx=4)
+        Label(frame_campos_mat2, text=f'Cantidad:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
+        Entry(frame_campos_mat2, textvariable=self.cantidad_material, width=10).pack(side=LEFT, padx=4)
+
+        Button(self.frame_materiales, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.guardar_detalle_material).pack(anchor='center', padx=30, pady=10)
+
 
     # ---------- MÉTODOS DE ACCIONES ----------
 
@@ -1193,6 +1242,30 @@ class MenuPrincipal:
 
         messagebox.showinfo("Éxito", f"Proyecto '{nombre}' actualizado exitosamente.")
 
+    def guardar_detalle_material(self):
+        proyecto = self.id_proyecto.get()
+        material = self.id_material.get()
+        cantidad_nueva = self.cantidad_material.get()
+        costo_unitario = self.costo_unitario.get()
+
+        cantidad_cons = ServicioDetalleMateriales.buscar_por_id(proyecto, material)
+
+        if not (validar_campo_lleno(cantidad_nueva) and validar_numero(cantidad_nueva)):
+            messagebox.showerror("Error", "La cantidad debe llenarse y ser un número.")
+            return
+
+        costo_total = float(cantidad_nueva) * float(costo_unitario)
+
+        if cantidad_cons is None:
+            ServicioDetalleMateriales.crear(proyecto, material, cantidad_nueva, costo_total)
+        else:
+            ServicioDetalleMateriales.actualizar(cantidad_nueva, costo_total, proyecto, material)
+
+        GestorDetalleMateriales.mostrar(self.tree_mat, self.id_proyecto.get())
+        total = ServicioDetalleMateriales.obtener_costo_total_materiales(self.id_proyecto.get())
+        self.total_costo_materiales.set(f'Total (Q): {total:.2f}')
+
+        messagebox.showinfo("Éxito", f"Material registrado.")
 
     def seleccionarProyectosUsandoClick(self, event):
         id_seleccionado = seleccionar_haciendo_click(
@@ -1217,6 +1290,14 @@ class MenuPrincipal:
             self.estado.set(datos[7])
             self.presupuesto_total.set(datos[8])
             self.id_cliente.set(datos[9])
+
+    def seleccionarMaterialesUsandoClick(self, event):
+        id_seleccionado = seleccionar_haciendo_click(
+            tree=self.tree_mat,
+            event=event,
+            id_var=self.id_material,
+            campos_vars=[self.descripcion_material, self.unidad_material, self.costo_unitario, self.cantidad_material, self.costo_total]
+        )
 
     def ir_a_mat(self):
         Materiales()
