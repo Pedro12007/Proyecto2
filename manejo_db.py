@@ -21,6 +21,18 @@ def validar_float(entrada):
     except ValueError:
         return False
 
+def quick_sort(lista):
+    if len(lista) <= 1:
+        return lista
+    else:
+        pivot = lista[len(lista) // 2][4]
+
+        menores = [x for x in lista if x[4] < pivot]
+        iguales = [x for x in lista if x[4] == pivot]
+        mayores = [x for x in lista if x[4] > pivot]
+
+        return quick_sort(mayores) + iguales + quick_sort(menores)
+
 class Cliente:
     def __init__(self, nombre, apellido, telefono, mail, datos_referencia, direccion):
         self.nombre = nombre
@@ -953,6 +965,7 @@ class GestorDetalleMateriales:
 
         try:
             materiales = ServicioDetalleMateriales.consultar(id_proyecto)
+            materiales = quick_sort(materiales)
             for row in materiales:
                 tree.insert(
                     "",
