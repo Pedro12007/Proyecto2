@@ -1357,17 +1357,19 @@ class MenuPrincipal:
         frame_contenedor = Frame(self.frame_administracion, bg='#1a1a1a')
         frame_contenedor.pack(anchor='center', padx=20, pady=12)
 
-        frame_input = Frame(frame_contenedor, bg='#1a1a1a')
-        frame_input.pack(side='left', padx=10, pady=10)
+        frame_input_1 = Frame(frame_contenedor, bg='#1a1a1a')
+        frame_input_1.pack(side='left', padx=10, pady=10)
+        frame_input_2 = Frame(frame_contenedor, bg='#1a1a1a')
+        frame_input_2.pack(side='left', padx=10, pady=10)
         frame_btns = Frame(frame_contenedor, bg='#1a1a1a')
         frame_btns.pack(side='left', padx=10, pady=10)
 
-        Label(frame_input, text=f'Tipo de gasto:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(frame_input, textvariable=self.tipo_gasto_adm, width=40).pack(anchor='w', padx=30, pady=5)
+        Label(frame_input_1, text=f'Tipo de gasto:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(frame_input_1, textvariable=self.tipo_gasto_adm, width=40).pack(anchor='w', padx=30, pady=5)
 
-        Label(frame_input, text=f'Fecha:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Label(frame_input_1, text=f'Fecha:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
         self.date_adm_widget = DateEntry(
-            frame_input,
+            frame_input_1,
             width=27,
             date_pattern='yyyy-mm-dd',
             background='darkblue',
@@ -1376,15 +1378,15 @@ class MenuPrincipal:
         )
         self.date_adm_widget.pack(anchor='w', padx=30, pady=5)
 
-        Label(frame_input, text=f'Forma de pago:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Label(frame_input_1, text=f'Forma de pago:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
         opciones = ['efectivo','tarjeta','transferencia','cheque','otro']
-        OptionMenu(frame_input, self.estado, *opciones).pack(anchor='w', padx=30, pady=5)
+        OptionMenu(frame_input_1, self.forma_pago_adm, *opciones).pack(anchor='w', padx=30, pady=5)
 
-        Label(frame_input, text=f'Proveedor:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(frame_input, textvariable=self.proveedor_adm, width=40).pack(anchor='w', padx=30, pady=5)
+        Label(frame_input_2, text=f'Proveedor:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(frame_input_2, textvariable=self.proveedor_adm, width=40).pack(anchor='w', padx=30, pady=5)
 
-        Label(frame_input, text=f'Costo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(frame_input, textvariable=self.costo_adm, width=40).pack(anchor='w', padx=30, pady=5)
+        Label(frame_input_2, text=f'Costo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(frame_input_2, textvariable=self.costo_adm, width=40).pack(anchor='w', padx=30, pady=5)
 
         Button(frame_btns, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black',
                command=self.guardar_detalle_admin).pack(anchor='center', padx=30, pady=10)
@@ -1646,10 +1648,64 @@ class MenuPrincipal:
         messagebox.showinfo("Éxito", f"Proyecto '{nombre}' actualizado exitosamente.")
 
     def guardar_detalle_admin(self):
-        pass
+        id_proyecto = self.id_proyecto.get()
+        id_admin = self.id_admin.get()
+        tipo_gasto = self.tipo_gasto_adm.get()
+        fecha = self.date_adm_widget.get_date().strftime('%Y-%m-%d')
+        forma_pago = self.forma_pago_adm.get()
+        proveedor = self.proveedor_adm.get()
+        costo = self.costo_adm.get()
+
+        if not (validar_campo_lleno(tipo_gasto) and validar_campo_lleno(fecha) and validar_campo_lleno(forma_pago) and validar_campo_lleno(proveedor) and validar_campo_lleno(costo)):
+            messagebox.showerror("Error", "Todos los campos deben estar llenos.")
+            return
+
+        if not (validar_float(costo) and float(costo) > 0):
+            messagebox.showerror("Error", "El costo debe ser un número.")
+            return
+
+        if id_admin == '':
+            ServicioAdministracion.crear(tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto)
+
+        elif id_admin != '':
+            ServicioAdministracion.actualizar(tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto, id_admin)
+
+        self.id_admin.set('')
+        self.tipo_gasto_adm.set('')
+        self.fecha_gasto.set('')
+        self.forma_pago_adm.set('')
+        self.proveedor_adm.set('')
+        self.costo_adm.set('')
+        GestorAdministracion.mostrar(self.tree_adm, id_proyecto)
+
+        total_proyecto = ServicioProyecto.calcular_presupuesto_total(self.id_proyecto.get())
+        self.presupuesto_total.set(f'Q {total_proyecto:.2f}')
+        total_admin = ServicioAdministracion.obtener_costo_total_administracion(self.id_proyecto.get())
+        self.total_costo_administracion.set(f'Total (Q): {total_admin:.2f}')
+
+        messagebox.showinfo("Éxito", "Detalles de administración guardados.")
 
     def eliminar_detalle_admin(self):
-        pass
+        id_admin = self.id_admin.get()
+
+        if not validar_campo_lleno(id_admin):
+            messagebox.showerror("Error", "Seleccione un campo primero.")
+            return
+
+        confirmar = messagebox.askyesno('Confirmar', '¿Está seguro de eliminar el elemento?')
+
+        if confirmar:
+            ServicioAdministracion.borrar(id_admin)
+            messagebox.showinfo("Éxito", f"Trabajador eliminado del proyecto.")
+
+            total_proyecto = ServicioProyecto.calcular_presupuesto_total(self.id_proyecto.get())
+            self.presupuesto_total.set(f'Q {total_proyecto:.2f}')
+            total_admin = ServicioAdministracion.obtener_costo_total_administracion(self.id_proyecto.get())
+            self.total_costo_administracion.set(f'Total (Q): {total_admin:.2f}')
+
+        GestorAdministracion.mostrar(self.tree_adm, id_proyecto)
+
+
 
     def guardar_detalle_material(self):
         proyecto = self.id_proyecto.get()
