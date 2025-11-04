@@ -6,26 +6,6 @@ from manejo_db import *
 import os
 from datetime import datetime
 
-def seleccionar_haciendo_click(tree, event, id_var, campos_vars, readonly_widget=None):
-    item_id = tree.identify('item', event.x, event.y)
-    if not item_id:
-        return None
-
-    datos_item = tree.item(item_id, "values")
-    id_texto = tree.item(item_id, "text")
-
-    if readonly_widget:
-        readonly_widget.config(state="normal")
-    id_var.set(id_texto)
-    if readonly_widget:
-        readonly_widget.config(state="readonly")
-
-    for i, variable in enumerate(campos_vars):
-        if i < len(datos_item):
-            variable.set(datos_item[i])
-
-    return id_texto
-
 class VistaLogin:
     def __init__(self):
         global ventana_login
@@ -295,7 +275,7 @@ class VistaAdmin:
         self.btn_modificar_sel.config(command=commands['seleccionar_usuario'])
         self.btn_regresar_modificar.config(command=lambda: self.frame_mostrar_usuarios.tkraise())
         self.btn_guardar_modificar.config(command=commands['modificar_usuario'])
-        self.tree.bind("<Button-1>", commands['seleccionar_click'])
+        self.tree.bind("<<TreeviewSelect>>", commands['seleccionar_click'])
 
     def get_datos_agregar(self):
         #Obtiene los datos del formulario de agregar
@@ -463,12 +443,18 @@ class ControladorAdmin:
                 messagebox.showerror('Error', f'Error al eliminar usuario: {e}')
 
     def seleccionarUsandoClick(self, event):
-        seleccionar_haciendo_click(
-            tree=self.view.tree,
-            event=event,
-            id_var=self.view.miID_usuario,
-            campos_vars=[self.view.miNombres, self.view.miApellidos, self.view.miUsuario]
-        )
+        seleccionado = self.view.tree.selection()
+        if not seleccionado:
+            return
+
+        ide = seleccionado[0]
+        self.view.miID_usuario.set(ide)
+
+        valores = self.view.tree.item(ide, "values")
+        if len(valores) >= 3:
+            self.view.miNombres.set(valores[0])
+            self.view.miApellidos.set(valores[1])
+            self.view.miUsuario.set(valores[2])
 
 class Admin:
     def __init__(self):
@@ -507,7 +493,7 @@ class Materiales:
         self.tree.heading("#2", text=self.cabecera[2], anchor=CENTER)
         self.tree.column("#3", width=120)
         self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
-        self.tree.bind("<Button-1>", self.seleccionarUsandoClick)
+        self.tree.bind("<<TreeviewSelect>>", self.seleccionarUsandoClick)
 
         self.menubar = Menu(ventana_materiales)
 
@@ -611,20 +597,27 @@ class Materiales:
         GestorMateriales.buscar(self.tree, self.miDescripcion.get())
 
     def seleccionarUsandoClick(self, event):
-        seleccionar_haciendo_click(
-            tree=self.tree,
-            event=event,
-            id_var=self.miID,
-            campos_vars=[self.miDescripcion, self.miUnidad, self.miPrec_unitario],
-            readonly_widget=self.e1
-        )
+        seleccionado = self.tree.selection()
+        if not seleccionado:
+            return
 
-class VentanaManoObra(Toplevel):
-    def __init__(self, master, *args, **kwargs):
-        super().__init__(master, *args, **kwargs)
-        self.title("Mano de obra")
-        self.geometry("700x540")
-        self.resizable(False, False)
+        ide = seleccionado[0]
+        self.e1.config(state="normal")
+        self.miID.set(ide)
+        self.e1.config(state="readonly")
+
+        valores = self.tree.item(ide, "values")
+        if len(valores) >= 3:
+            self.miDescripcion.set(valores[0])
+            self.miUnidad.set(valores[1])
+            self.miPrec_unitario.set(valores[2])
+
+class VentanaManoObra:
+    def __init__(self):
+        global ventana_mano_obra
+        ventana_mano_obra = Toplevel(ventana_login)
+        ventana_mano_obra.title("Mano de obra")
+        ventana_mano_obra.geometry("700x540")
 
         # variables
         self.var_id = StringVar()
@@ -634,7 +627,7 @@ class VentanaManoObra(Toplevel):
         self.var_buscar = StringVar()
 
         # ----- FORMULARIO -----
-        frm_form = LabelFrame(self, text="Datos del trabajador", padx=5, pady=5)
+        frm_form = LabelFrame(ventana_mano_obra, text="Datos del trabajador", padx=5, pady=5)
         frm_form.place(x=10, y=5, width=680, height=190)
 
         Label(frm_form, text="Nombre:*").grid(row=0, column=0, sticky="w")
@@ -656,7 +649,7 @@ class VentanaManoObra(Toplevel):
         Button(frm_btn, text="Eliminar", width=10, command=self.eliminar).grid(row=3, column=0, pady=2)
 
         # ----- BUSCADOR -----
-        frm_buscar = LabelFrame(self, text="Buscar", padx=5, pady=5)
+        frm_buscar = LabelFrame(ventana_mano_obra, text="Buscar", padx=5, pady=5)
         frm_buscar.place(x=10, y=205, width=680, height=55)
 
         Label(frm_buscar, text="Nombre / Ocupación:").pack(side="left")
@@ -665,7 +658,7 @@ class VentanaManoObra(Toplevel):
         Button(frm_buscar, text="Mostrar todo", command=self.cargar_tabla).pack(side="left", padx=5)
 
         # ----- TABLA -----
-        frm_tabla = Frame(self)
+        frm_tabla = Frame(ventana_mano_obra)
         frm_tabla.place(x=10, y=265, width=680, height=205)
 
         columnas = ("nombre", "telefono", "ocupacion")
@@ -833,6 +826,12 @@ class MenuPrincipal:
 
         #Variables para DetallesManoObra
         self.total_costo_mano_obra = StringVar()
+        self.id_trabajador = StringVar()
+        self.nombre_trabajador = StringVar()
+        self.telefono_trabajador = StringVar()
+        self.ocupacion_trabajador = StringVar()
+        self.tipo_trabajo = StringVar()
+        self.costo_trabajo = StringVar()
 
         # Variables para DetallesMateriales
         self.id_material = StringVar()
@@ -857,7 +856,7 @@ class MenuPrincipal:
         ruta_icono_home = os.path.join(os.path.dirname(__file__), 'imagenes', 'home.png')
         ruta_icono_salir = os.path.join(os.path.dirname(__file__), 'imagenes', 'salir.png')
         ruta_icono_x = os.path.join(os.path.dirname(__file__), 'imagenes', 'x.png')
-        ruta_icono_persona = os.path.join(os.path.dirname(__file__), 'imagenes', 'persona.png')
+        ruta_icono_persona = os.path.join(os.path.dirname(__file__), 'imagenes', 'block.png')
 
         self.toggle_icon = PhotoImage(file=ruta_icono_tresb)
         self.mas_icon = PhotoImage(file=ruta_icono_mas)
@@ -978,7 +977,7 @@ class MenuPrincipal:
             bg=self.menu_bar_colour,
             activebackground=self.menu_bar_colour,
             bd=0,
-            command= lambda: VentanaManoObra(self.ventana)
+            command= lambda: VentanaManoObra()
         )
         self.persona_menu_btn.place(x=9, y=430, width=30, height=40)
 
@@ -993,7 +992,7 @@ class MenuPrincipal:
         self.persona_page_lb.place(x=45, y=430, width=100, height=40)
         self.persona_page_lb.bind(
             "<Button-1>",
-            lambda e: (self.block_btn_indicator.config(bg='black'), VentanaManoObra(self.ventana)))
+            lambda e: (self.block_btn_indicator.config(bg='black'), VentanaManoObra()))
 
         # Botón Salir
         self.salir_menu_btn = Button(
@@ -1088,7 +1087,7 @@ class MenuPrincipal:
         self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
         self.tree.column("#5", width=150)
         self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
-        self.tree.bind("<Button-1>", self.seleccionarProyectosUsandoClick)
+        self.tree.bind("<<TreeviewSelect>>", self.seleccionarProyectosUsandoClick)
 
         # Cargar datos
         GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
@@ -1335,6 +1334,78 @@ class MenuPrincipal:
         self.total_costo_mano_obra.set(f'Total (Q): {total:.2f}')
         Label(self.frame_mano_obra, textvariable=self.total_costo_mano_obra, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
+        frame_contenedor = Frame(self.frame_mano_obra, bg='#1a1a1a')
+        frame_contenedor.pack(fill=BOTH, expand=True, padx=20, pady=10)
+
+        # Izquierda (Mano de obra)
+        frame_mano_obra_disponible = Frame(frame_contenedor, bg='#1a1a1a')
+        frame_mano_obra_disponible.pack(side=LEFT, fill=BOTH, expand=True, padx=(0, 10))
+
+        Label(frame_mano_obra_disponible, text='Trabajadores Disponibles', font=('Arial', 14, 'bold'), bg='#1a1a1a',
+              fg='white').pack(pady=10)
+
+        self.cabecera_trabajadores = ["ID", "Nombre", "Teléfono", "Ocupación"]
+
+        self.tree_trabajadores = ttk.Treeview(frame_mano_obra_disponible, height=10, columns=("#1", "#2", "#3"))
+        self.tree_trabajadores.pack(anchor='center', padx=10, pady=10)
+
+        self.tree_trabajadores.column("#0", width=50)
+        self.tree_trabajadores.heading("#0", text=self.cabecera_trabajadores[0], anchor=CENTER)
+        self.tree_trabajadores.column("#1", width=200)
+        self.tree_trabajadores.heading("#1", text=self.cabecera_trabajadores[1], anchor=CENTER)
+        self.tree_trabajadores.column("#2", width=150)
+        self.tree_trabajadores.heading("#2", text=self.cabecera_trabajadores[2], anchor=CENTER)
+        self.tree_trabajadores.column("#3", width=150)
+        self.tree_trabajadores.heading("#3", text=self.cabecera_trabajadores[3], anchor=CENTER)
+        GestorManoObra.mostrar(self.tree_trabajadores)
+
+        # Derecha (Detalle mano de obra)
+        frame_detalle_mano_obra = Frame(frame_contenedor, bg='#1a1a1a')
+        frame_detalle_mano_obra.pack(side=RIGHT, fill=BOTH, expand=True, padx=(10, 0))
+
+        Label(frame_detalle_mano_obra, text='Trabajadores del Proyecto', font=('Arial', 14, 'bold'), bg='#1a1a1a',
+              fg='white').pack(pady=10)
+
+        self.cabecera_detalle_trabajadores = ["ID", "Nombre", "Ocupación", "Tipo Trabajo", "Costo"]
+
+        self.tree_detalle_trabajadores = ttk.Treeview(frame_detalle_mano_obra, height=10, columns=("#1", "#2", "#3", "#4"))
+        self.tree_detalle_trabajadores.pack(anchor='center', padx=10, pady=10)
+
+        self.tree_detalle_trabajadores.column("#0", width=50)
+        self.tree_detalle_trabajadores.heading("#0", text=self.cabecera_detalle_trabajadores[0], anchor=CENTER)
+        self.tree_detalle_trabajadores.column("#1", width=200)
+        self.tree_detalle_trabajadores.heading("#1", text=self.cabecera_detalle_trabajadores[1], anchor=CENTER)
+        self.tree_detalle_trabajadores.column("#2", width=150)
+        self.tree_detalle_trabajadores.heading("#2", text=self.cabecera_detalle_trabajadores[2], anchor=CENTER)
+        self.tree_detalle_trabajadores.column("#3", width=150)
+        self.tree_detalle_trabajadores.heading("#3", text=self.cabecera_detalle_trabajadores[3], anchor=CENTER)
+        self.tree_detalle_trabajadores.column("#4", width=100)
+        self.tree_detalle_trabajadores.heading("#4", text=self.cabecera_detalle_trabajadores[4], anchor=CENTER)
+        GestorDetalleManoObra.mostrar(self.tree_detalle_trabajadores, self.id_proyecto.get())
+
+        frame_campos_trab1 = Frame(self.frame_mano_obra, bg='#1a1a1a')
+        frame_campos_trab1.pack(anchor='center', pady=5)
+        frame_campos_trab2 = Frame(self.frame_mano_obra, bg='#1a1a1a')
+        frame_campos_trab2.pack(anchor='center', pady=5)
+
+        Label(frame_campos_trab1, text=f'Nombre:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
+        Label(frame_campos_trab1, textvariable=self.nombre_trabajador, width=30, bg='white', fg='black').pack(side=LEFT,
+                                                                                                              padx=4)
+        Label(frame_campos_trab1, text=f'Ocupación:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT,
+                                                                                                         padx=4)
+        Label(frame_campos_trab1, textvariable=self.ocupacion_trabajador, width=20, bg='white', fg='black').pack(
+            side=LEFT, padx=4)
+
+        Label(frame_campos_trab2, text=f'Tipo de Trabajo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(
+            side=LEFT, padx=4)
+        Entry(frame_campos_trab2, textvariable=self.tipo_trabajo, width=30).pack(side=LEFT, padx=4)
+        Label(frame_campos_trab2, text=f'Costo (Q):', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT,
+                                                                                                         padx=4)
+        Entry(frame_campos_trab2, textvariable=self.costo_trabajo, width=10).pack(side=LEFT, padx=4)
+
+        Button(self.frame_mano_obra, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black',
+               command=self.guardar_detalle_trabajador).pack(anchor='center', padx=30, pady=10)
+
     def contenido_materiales(self):
         Label(self.frame_materiales, text='Materiales del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
@@ -1359,7 +1430,7 @@ class MenuPrincipal:
         self.tree_mat.heading("#4", text=self.cabecera_mat[4], anchor=CENTER)
         self.tree_mat.column("#5", width=150)
         self.tree_mat.heading("#5", text=self.cabecera_mat[5], anchor=CENTER)
-        self.tree_mat.bind("<Button-1>", self.seleccionarMaterialesUsandoClick)
+        self.tree_mat.bind("<<TreeviewSelect>>", self.seleccionarMaterialesUsandoClick)
         GestorDetalleMateriales.mostrar(self.tree_mat, self.id_proyecto.get())
 
         frame_campos_mat1 = Frame(self.frame_materiales, bg='#1a1a1a')
@@ -1534,19 +1605,41 @@ class MenuPrincipal:
 
         messagebox.showinfo("Éxito", f"Material registrado.")
 
-    def seleccionarProyectosUsandoClick(self, event):
-        id_seleccionado = seleccionar_haciendo_click(
-            tree=self.tree,
-            event=event,
-            id_var=self.id_proyecto,
-            campos_vars=[]
-        )
+    def guardar_detalle_trabajador(self):
+        proyecto = self.id_proyecto.get()
+        trabajador = self.id_trabajador.get()
+        tipo_trabajo_nuevo = self.tipo_trabajo.get()
+        costo_nuevo = self.costo_trabajo.get()
 
-        if not id_seleccionado:
+        if not validar_campo_lleno(trabajador):
+            messagebox.showerror("Error", "Seleccione un trabajador primero.")
             return
 
+        if not (validar_campo_lleno(tipo_trabajo_nuevo) and validar_campo_lleno(costo_nuevo)):
+            messagebox.showerror("Error", "El tipo de trabajo y el costo deben estar llenos.")
+            return
+
+        try:
+            costo_float = float(costo_nuevo)
+            if costo_float < 0:
+                messagebox.showerror("Error", "El costo debe ser mayor o igual a 0.")
+                return
+        except ValueError:
+            messagebox.showerror("Error", "El costo debe ser un número válido.")
+            return
+
+        messagebox.showinfo("Éxito", f"Trabajador asignado al proyecto.")
+
+    def seleccionarProyectosUsandoClick(self, event):
+        seleccionado = self.tree.selection()
+        if not seleccionado:
+            return
+
+        ide = seleccionado[0]
+        self.id_proyecto.set(ide)
+
         # Cargar datos del proyecto
-        datos = ServicioProyecto.buscar_por_id(id_seleccionado)
+        datos = ServicioProyecto.buscar_por_id(ide)
         if datos:
             self.nombre.set(datos[1])
             self.descripcion.set(datos[2])
@@ -1559,12 +1652,20 @@ class MenuPrincipal:
             self.id_cliente.set(datos[9])
 
     def seleccionarMaterialesUsandoClick(self, event):
-        id_seleccionado = seleccionar_haciendo_click(
-            tree=self.tree_mat,
-            event=event,
-            id_var=self.id_material,
-            campos_vars=[self.descripcion_material, self.unidad_material, self.costo_unitario, self.cantidad_material, self.costo_total]
-        )
+        seleccionado = self.tree_mat.selection()
+        if not seleccionado:
+            return
+
+        ide = seleccionado[0]
+        self.id_material.set(ide)
+
+        valores = self.tree_mat.item(ide, "values")
+        if len(valores) >= 5:
+            self.descripcion_material.set(valores[0])
+            self.unidad_material.set(valores[1])
+            self.costo_unitario.set(valores[2])
+            self.cantidad_material.set(valores[3])
+            self.costo_total.set(valores[4])
 
     def ir_a_mat(self):
         Materiales()

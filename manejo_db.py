@@ -107,6 +107,7 @@ class GestorClientes:
                     "",
                     "end",
                     text=row[0],
+                    iid=row[0],
                     values=(row[1], row[2], row[3], row[4], row[5], row[6])
                 )
         except:
@@ -207,6 +208,7 @@ class GestorUsuarios:
                 tree.insert(
                     "",
                     "end",
+                    iid=row[0],
                     text=row[0],
                     values=(row[1], row[2], row[3])
                 )
@@ -329,27 +331,20 @@ class ServicioProyecto:
 class GestorProyectos:
     @staticmethod
     def mostrar(tree, id_usuario=None):
-        """
-        Si se pasa id_usuario, mostramos SOLO los proyectos de ese usuario
-        (usando detalle_proyecto).
-        Si no se pasa, mostramos todos los proyectos.
-        """
         # limpiar tabla
         for elemento in tree.get_children():
             tree.delete(elemento)
 
         try:
             if id_usuario is not None:
-                # usa la tabla intermedia
                 proyectos = ServicioDetalleProyecto.consultar(id_usuario)
-                # cada row = proyecto completo
+
                 for row in proyectos:
-                    # row = (id_proyecto, nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente)
                     tree.insert(
                         "",
                         "end",
                         text=row[0],
-                        values=(row[1], row[2], row[7], row[4], row[6])  # nombre, desc, estado, f_inicio, f_fin
+                        values=(row[1], row[2], row[7], row[4], row[6])
                     )
             else:
                 proyectos = ServicioProyecto.consultar()
@@ -494,6 +489,7 @@ class GestorDetalleProyecto:
                     "",
                     "end",
                     text=row[0],
+                    iid=row[0],
                     values=(row[1], row[2], row[7], row[4], row[6])
                     # 1- nombre | 2- descripcion | 7- estado | 4- fecha_inicio | 6- fecha_fin
                 )
@@ -569,6 +565,25 @@ class ServicioManoObra:
         datos = cursor.fetchall()
         conexion.close()
         return datos
+
+class GestorManoObra:
+    @staticmethod
+    def mostrar(tree):
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            trabajadores = ServicioManoObra.consultar()
+            for row in trabajadores:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    values=(row[1], row[2], row[3])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
 class DetalleManoObra:
     def __init__(self, id_proyecto, id_trabajador, costo_trabajo, tipo_trabajo):
@@ -653,6 +668,25 @@ class ServicioDetalleManoObra:
         total = cursor.fetchone()[0]
         conexion.close()
         return total
+
+class GestorDetalleManoObra:
+    @staticmethod
+    def mostrar(tree, id_proyecto):
+        # limpiar tabla
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            trabajadores = ServicioDetalleManoObra.consultar(id_proyecto)
+            for row in trabajadores:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    values=(row[1], row[2], row[3], row[4])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
 class Material:
     def __init__(self, descripcion, unidad, prec_unitario):
@@ -754,6 +788,7 @@ class GestorMateriales:
                     "",
                     "end",
                     text=row[0],
+                    iid=row[0],
                     values=(row[1], row[2], row[3])
                 )
         except:
@@ -917,6 +952,7 @@ class GestorDetalleMateriales:
                     "",
                     "end",
                     text=row[0],
+                    iid=row[0],
                     values=(row[1], row[2], row[3],row[4], row[5])
                 )
         except:
