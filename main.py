@@ -822,6 +822,12 @@ class MenuPrincipal:
 
         # Variables para Administración
         self.total_costo_administracion = StringVar()
+        self.id_admin = StringVar()
+        self.tipo_gasto_adm = StringVar()
+        self.fecha_gasto = StringVar()
+        self.forma_pago_adm = StringVar()
+        self.proveedor_adm = StringVar()
+        self.costo_adm = StringVar()
 
         #Variables para DetallesManoObra
         self.total_costo_mano_obra = StringVar()
@@ -1327,6 +1333,64 @@ class MenuPrincipal:
         self.total_costo_administracion.set(f'Total (Q): {total:.2f}')
         Label(self.frame_administracion, textvariable=self.total_costo_administracion, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
+        self.cabecera_adm = ["ID", "Tipo de gasto", "Fecha", "Forma de pago", "Proveedor", "Costo"]
+
+        self.tree_adm = ttk.Treeview(self.frame_administracion, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
+        self.tree_adm.pack(anchor='center', padx=10, pady=10)
+
+        self.tree_adm.column("#0", width=50)
+        self.tree_adm.heading("#0", text=self.cabecera_adm[0], anchor=CENTER)
+        self.tree_adm.column("#1", width=350)
+        self.tree_adm.heading("#1", text=self.cabecera_adm[1], anchor=CENTER)
+        self.tree_adm.column("#2", width=150)
+        self.tree_adm.heading("#2", text=self.cabecera_adm[2], anchor=CENTER)
+        self.tree_adm.column("#3", width=150)
+        self.tree_adm.heading("#3", text=self.cabecera_adm[3], anchor=CENTER)
+        self.tree_adm.column("#4", width=150)
+        self.tree_adm.heading("#4", text=self.cabecera_adm[4], anchor=CENTER)
+        self.tree_adm.column("#5", width=150)
+        self.tree_adm.heading("#5", text=self.cabecera_adm[5], anchor=CENTER)
+        self.tree_adm.bind("<<TreeviewSelect>>", self.seleccionarAdminUsandoClick)
+
+        GestorAdministracion.mostrar(self.tree_adm, self.id_proyecto.get())
+
+        frame_contenedor = Frame(self.frame_administracion, bg='#1a1a1a')
+        frame_contenedor.pack(anchor='center', padx=20, pady=12)
+
+        frame_input = Frame(frame_contenedor, bg='#1a1a1a')
+        frame_input.pack(side='left', padx=10, pady=10)
+        frame_btns = Frame(frame_contenedor, bg='#1a1a1a')
+        frame_btns.pack(side='left', padx=10, pady=10)
+
+        Label(frame_input, text=f'Tipo de gasto:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(frame_input, textvariable=self.tipo_gasto_adm, width=40).pack(anchor='w', padx=30, pady=5)
+
+        Label(frame_input, text=f'Fecha:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        self.date_adm_widget = DateEntry(
+            frame_input,
+            width=27,
+            date_pattern='yyyy-mm-dd',
+            background='darkblue',
+            foreground='white',
+            borderwidth=2
+        )
+        self.date_adm_widget.pack(anchor='w', padx=30, pady=5)
+
+        Label(frame_input, text=f'Forma de pago:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        opciones = ['efectivo','tarjeta','transferencia','cheque','otro']
+        OptionMenu(frame_input, self.estado, *opciones).pack(anchor='w', padx=30, pady=5)
+
+        Label(frame_input, text=f'Proveedor:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(frame_input, textvariable=self.proveedor_adm, width=40).pack(anchor='w', padx=30, pady=5)
+
+        Label(frame_input, text=f'Costo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        Entry(frame_input, textvariable=self.costo_adm, width=40).pack(anchor='w', padx=30, pady=5)
+
+        Button(frame_btns, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black',
+               command=self.guardar_detalle_admin).pack(anchor='center', padx=30, pady=10)
+        Button(frame_btns, text='Eliminar', font=('Arial', 11, 'bold'), bg='white', fg='black',
+               command=self.eliminar_detalle_admin).pack(anchor='center', padx=30, pady=10)
+
     def contenido_mano_obra(self):
         Label(self.frame_mano_obra, text='Mano de Obra', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
@@ -1581,6 +1645,12 @@ class MenuPrincipal:
 
         messagebox.showinfo("Éxito", f"Proyecto '{nombre}' actualizado exitosamente.")
 
+    def guardar_detalle_admin(self):
+        pass
+
+    def eliminar_detalle_admin(self):
+        pass
+
     def guardar_detalle_material(self):
         proyecto = self.id_proyecto.get()
         material = self.id_material.get()
@@ -1730,6 +1800,25 @@ class MenuPrincipal:
             self.costo_trabajo.set(valores[3])
 
             self.id_trabajador.set('')
+
+    def seleccionarAdminUsandoClick(self, event):
+        seleccionado = self.tree_adm.selection()
+        if not seleccionado:
+            return
+
+        ide = seleccionado[0]
+        self.id_admin.set(ide)
+        valores = self.tree_detalle_trabajadores.item(ide, 'values')
+
+        if valores:
+            self.tipo_gasto_adm.set(valores[0])
+            self.fecha_gasto.set(valores[1])
+            self.forma_pago_adm.set(valores[2])
+            self.proveedor_adm.set(valores[3])
+            self.costo_adm.set(valores[4])
+
+            fecha_adm_obj = datetime.strptime(self.fecha_gasto.get(), '%Y-%m-%d')
+            self.date_adm_widget.set_date(fecha_adm_obj)
 
 
     def ir_a_mat(self):

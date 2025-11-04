@@ -1055,3 +1055,22 @@ class ServicioAdministracion:
         total = cursor.fetchone()[0]
         conexion.close()
         return total
+
+class GestorAdministracion:
+    @staticmethod
+    def mostrar(tree, id_proyecto):
+        for elemento in tree.get_children():
+            tree.delete(elemento)
+
+        try:
+            detalles = ServicioAdministracion.consultar(id_proyecto)
+            for row in detalles:
+                tree.insert(
+                    "",
+                    "end",
+                    text=row[0],
+                    iid=row[0],
+                    values=(row[1], row[2], row[3],row[4], row[5])
+                )
+        except:
+            messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
