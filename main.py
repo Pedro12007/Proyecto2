@@ -3,6 +3,7 @@ from tkinter import *
 from tkcalendar import DateEntry
 from PIL import ImageTk, Image
 from manejo_db import *
+from creacion_bd import create_db
 import os
 from datetime import datetime
 
@@ -1903,5 +1904,6 @@ class MenuPrincipal:
         ventana_login.state('zoomed')
 
 
+create_db()
 app = ControladorLogin.iniciar_app()
 app.iniciar_mainloop()

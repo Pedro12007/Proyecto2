@@ -1,5 +1,6 @@
 import sqlite3
 from tkinter import messagebox
+from abc import ABC, abstractmethod
 
 db_name = '21design.db'
 
@@ -33,7 +34,26 @@ def quick_sort(lista):
 
         return quick_sort(mayores) + iguales + quick_sort(menores)
 
-class Cliente:
+class Entidad(ABC):
+    @abstractmethod
+    def info(self):
+        pass
+
+class ServicioEntidad(ABC):
+    @abstractmethod
+    def consultar(self):
+        pass
+
+    @abstractmethod
+    def crear(self):
+        pass
+
+class GestorEntidad(ABC):
+    @abstractmethod
+    def mostrar(self):
+        pass
+
+class Cliente(Entidad):
     def __init__(self, nombre, apellido, telefono, mail, datos_referencia, direccion):
         self.nombre = nombre
         self.apellido = apellido
@@ -46,31 +66,13 @@ class Cliente:
         return self.nombre, self.apellido, self.telefono, self.mail, self.datos_referencia, self.direccion
 
 class ConsultaClientes:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS clientes (
-        id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL,
-        apellido TEXT NOT NULL,
-        telefono TEXT,
-        mail TEXT,
-        datos_referencia TEXT,
-        direccion TEXT
-    );
-    '''
     INSERT = "INSERT INTO clientes VALUES (NULL,?,?,?,?,?,?)"
     SELECT = "SELECT * FROM clientes"
     UPDATE = "UPDATE clientes SET nombre=?, apellido=?, telefono=?, mail=?, datos_referencia=?, direccion=? WHERE id_cliente=?"
     DELETE = "DELETE FROM clientes WHERE id_cliente=?"
     BUSCAR = "SELECT * FROM clientes WHERE nombre LIKE '%' || ? || '%' OR apellido LIKE '%' || ? || '%'"
 
-class ServicioClientes:
-    @staticmethod
-    def conexionBBDD():
-        conexion, cursor = conectar()
-        cursor.execute(ConsultaClientes.CREATE)
-        conexion.commit()
-        conexion.close()
-
+class ServicioClientes(ServicioEntidad):
     @staticmethod
     def consultar():
         conexion, cursor = conectar()
@@ -112,7 +114,7 @@ class ServicioClientes:
         conexion.close()
         return datos
 
-class GestorClientes:
+class GestorClientes(GestorEntidad):
     @staticmethod
     def mostrar(tree):
         # limpiar tabla
@@ -132,7 +134,7 @@ class GestorClientes:
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
-class Usuario:
+class Usuario(Entidad):
     def __init__(self, nombres, apellidos, usuario, contrasena):
         self.nombres = nombres
         self.apellidos = apellidos
@@ -143,15 +145,6 @@ class Usuario:
         return self.nombres, self.apellidos, self.usuario, self.contrasena
 
 class ConsultaUsuarios:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS usuarios (
-        id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombres TEXT NOT NULL,
-        apellidos TEXT NOT NULL,
-        usuario TEXT NOT NULL UNIQUE,
-        contrasena TEXT NOT NULL
-    );
-    '''
     INSERT = "INSERT INTO usuarios VALUES (NULL,?,?,?,?)"
     SELECT = "SELECT * FROM usuarios"
     UPDATE = "UPDATE usuarios SET nombres=?, apellidos=?, usuario=?, contrasena=? WHERE id_usuario=?"
@@ -160,14 +153,7 @@ class ConsultaUsuarios:
     BUSCAR_BY_ID = 'SELECT * FROM usuarios WHERE id_usuario=?'
     BUSCAR_USUARIO = 'SELECT * FROM usuarios WHERE usuario=? AND contrasena=?'
 
-class ServicioUsuarios:
-    @staticmethod
-    def conexionBBDD():
-        conexion, cursor = conectar()
-        cursor.execute(ConsultaUsuarios.CREATE)
-        conexion.commit()
-        conexion.close()
-
+class ServicioUsuarios(ServicioEntidad):
     @staticmethod
     def consultar():
         conexion, cursor = conectar()
@@ -214,7 +200,7 @@ class ServicioUsuarios:
         conexion.close()
         return datos
 
-class GestorUsuarios:
+class GestorUsuarios(GestorEntidad):
     @staticmethod
     def mostrar(tree):
         # limpiar tabla
@@ -234,7 +220,7 @@ class GestorUsuarios:
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
-class Proyecto:
+class Proyecto(Entidad):
     def __init__(self, nombre, descripcion, n_usuarios, fecha_inicio, duracion, fecha_fin, estado, presupuesto_total, id_cliente):
         self.nombre = nombre
         self.descripcion = descripcion
@@ -250,21 +236,6 @@ class Proyecto:
         return self.nombre, self.descripcion, self.n_usuarios, self.fecha_inicio, self.duracion, self.fecha_fin, self.estado, self.presupuesto_total, self.id_cliente
 
 class ConsultaProyecto:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS proyecto (
-        id_proyecto INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL,
-        descripcion TEXT,
-        n_usuarios INTEGER DEFAULT 0 CHECK(n_usuarios >= 0),
-        fecha_inicio TEXT,
-        duracion TEXT,
-        fecha_fin TEXT,
-        estado TEXT CHECK(estado IN ('planeado','en_progreso','finalizado')),
-        presupuesto_total REAL CHECK(presupuesto_total >= 0),
-        id_cliente INTEGER,
-        FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente) ON UPDATE CASCADE ON DELETE SET NULL
-    );
-    '''
     INSERT = "INSERT INTO proyecto VALUES (NULL,?,?,?,?,?,?,?,?,?)"
     SELECT = "SELECT * FROM proyecto "
     UPDATE = "UPDATE proyecto SET nombre=?, descripcion=?, n_usuarios=?, fecha_inicio=?, duracion=?, fecha_fin=?, estado=?, presupuesto_total=? WHERE id_proyecto=?"
@@ -273,14 +244,7 @@ class ConsultaProyecto:
     SELECT_BY_ESTADO = "SELECT * FROM proyecto WHERE estado=?"
     SELECT_BY_ID = "SELECT * FROM proyecto WHERE id_proyecto=?"
 
-class ServicioProyecto:
-    @staticmethod
-    def conexionBBDD():
-        conexion, cursor = conectar()
-        cursor.execute(ConsultaProyecto.CREATE)
-        conexion.commit()
-        conexion.close()
-
+class ServicioProyecto(ServicioEntidad):
     @staticmethod
     def consultar():
         conexion, cursor = conectar()
@@ -347,7 +311,7 @@ class ServicioProyecto:
         presupuesto_total = total_materiales + total_mano_obra + total_admin
         return presupuesto_total
 
-class GestorProyectos:
+class GestorProyectos(GestorEntidad):
     @staticmethod
     def mostrar(tree, id_usuario=None):
         # limpiar tabla
@@ -435,7 +399,7 @@ class GestorProyectos:
             messagebox.showerror("ERROR", f"Error al eliminar proyecto: {e}")
 
 
-class DetalleProyecto:
+class DetalleProyecto(Entidad):
     def __init__(self, id_usuario, id_proyecto):
         self.id_usuario = id_usuario
         self.id_proyecto = id_proyecto
@@ -444,16 +408,6 @@ class DetalleProyecto:
         return self.id_usuario, self.id_proyecto
 
 class ConsultaDetalleProyecto:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS detalle_proyecto (
-        id_detalle_proyecto INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_usuario INTEGER NOT NULL,
-        id_proyecto INTEGER NOT NULL,
-        UNIQUE(id_usuario, id_proyecto),
-        FOREIGN KEY (id_usuario)  REFERENCES usuarios(id_usuario)  ON UPDATE CASCADE ON DELETE CASCADE,
-        FOREIGN KEY (id_proyecto) REFERENCES proyecto(id_proyecto) ON UPDATE CASCADE ON DELETE CASCADE
-    );
-    '''
     INSERT = "INSERT INTO detalle_proyecto VALUES (NULL,?,?)"
     SELECT = '''
     SELECT p.*
@@ -463,14 +417,7 @@ class ConsultaDetalleProyecto:
     '''
     DELETE = 'DELETE FROM detalle_proyecto WHERE id_proyecto = ?;'
 
-class ServicioDetalleProyecto:
-    @staticmethod
-    def conexionBBDD():
-        conexion, cursor = conectar()
-        cursor.execute(ConsultaDetalleProyecto.CREATE)
-        conexion.commit()
-        conexion.close()
-
+class ServicioDetalleProyecto(ServicioEntidad):
     @staticmethod
     def consultar(id_usuario):
         conexion, cursor = conectar()
@@ -495,7 +442,7 @@ class ServicioDetalleProyecto:
         conexion.commit()
         conexion.close()
 
-class GestorDetalleProyecto:
+class GestorDetalleProyecto(GestorEntidad):
     @staticmethod
     def mostrar(tree, id_usuario):
         # limpiar tabla
@@ -516,7 +463,7 @@ class GestorDetalleProyecto:
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
-class ManoObra:
+class ManoObra(Entidad):
     def __init__(self, nombre, telefono, ocupacion):
         self.nombre = nombre
         self.telefono = telefono
@@ -526,28 +473,13 @@ class ManoObra:
         return self.nombre, self.telefono, self.ocupacion
 
 class ConsultaManoObra:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS mano_obra (
-        id_trabajador INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL,
-        telefono TEXT,
-        ocupacion TEXT
-    );
-    '''
     INSERT = "INSERT INTO mano_obra VALUES (NULL,?,?,?)"
     SELECT = "SELECT * FROM mano_obra"
     UPDATE = "UPDATE mano_obra SET nombre=?, telefono=?, ocupacion=? WHERE id_trabajador=?"
     DELETE = "DELETE FROM mano_obra WHERE id_trabajador=?"
     BUSCAR = "SELECT * FROM mano_obra WHERE nombre LIKE '%' || ? || '%' OR ocupacion LIKE '%' || ? || '%'"
 
-class ServicioManoObra:
-    @staticmethod
-    def conexionBBDD():
-        conexion, cursor = conectar()
-        cursor.execute(ConsultaManoObra.CREATE)
-        conexion.commit()
-        conexion.close()
-
+class ServicioManoObra(ServicioEntidad):
     @staticmethod
     def consultar():
         conexion, cursor = conectar()
@@ -586,7 +518,7 @@ class ServicioManoObra:
         conexion.close()
         return datos
 
-class GestorManoObra:
+class GestorManoObra(GestorEntidad):
     @staticmethod
     def mostrar(tree):
         # limpiar tabla
@@ -606,7 +538,7 @@ class GestorManoObra:
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
-class DetalleManoObra:
+class DetalleManoObra(Entidad):
     def __init__(self, id_proyecto, id_trabajador, costo_trabajo, tipo_trabajo):
         self.id_proyecto = id_proyecto
         self.id_trabajador = id_trabajador
@@ -617,18 +549,6 @@ class DetalleManoObra:
         return self.id_proyecto, self.id_trabajador, self.costo_trabajo, self.tipo_trabajo
 
 class ConsultaDetalleManoObra:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS detalle_mano_obra (
-        id_detalle_trabajo INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_proyecto INTEGER NOT NULL,
-        id_trabajador INTEGER NOT NULL,
-        costo_trabajo REAL NOT NULL CHECK(costo_trabajo >= 0),
-        tipo_trabajo TEXT,
-        FOREIGN KEY (id_proyecto)   REFERENCES proyecto(id_proyecto)    ON UPDATE CASCADE ON DELETE CASCADE,
-        FOREIGN KEY (id_trabajador) REFERENCES mano_obra(id_trabajador) ON UPDATE CASCADE ON DELETE RESTRICT,
-        UNIQUE(id_proyecto, id_trabajador, tipo_trabajo)
-    );
-    '''
     INSERT = "INSERT INTO detalle_mano_obra VALUES (NULL,?,?,?,?)"
     SELECT = '''
     SELECT d.id_detalle_trabajo, m.nombre, m.ocupacion, d.tipo_trabajo, d.costo_trabajo
@@ -644,14 +564,7 @@ class ConsultaDetalleManoObra:
     WHERE id_proyecto = ?
     '''
 
-class ServicioDetalleManoObra:
-    @staticmethod
-    def conexionBBDD():
-        conexion, cursor = conectar()
-        cursor.execute(ConsultaDetalleManoObra.CREATE)
-        conexion.commit()
-        conexion.close()
-
+class ServicioDetalleManoObra(ServicioEntidad):
     @staticmethod
     def crear(id_proyecto, id_trabajador, costo_trabajo, tipo_trabajo):
         conexion, cursor = conectar()
@@ -690,7 +603,7 @@ class ServicioDetalleManoObra:
         conexion.close()
         return total
 
-class GestorDetalleManoObra:
+class GestorDetalleManoObra(GestorEntidad):
     @staticmethod
     def mostrar(tree, id_proyecto):
         # limpiar tabla
@@ -710,7 +623,7 @@ class GestorDetalleManoObra:
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
-class Material:
+class Material(Entidad):
     def __init__(self, descripcion, unidad, prec_unitario):
         self.descripcion = descripcion
         self.unidad = unidad
@@ -724,14 +637,6 @@ print(material.info())
 '''
 
 class ConsultaMateriales:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS materiales (
-        id_material INTEGER PRIMARY KEY AUTOINCREMENT,
-        descripcion TEXT NOT NULL,
-        unidad TEXT,
-        costo_unitario REAL CHECK(costo_unitario >= 0)
-    );
-    '''
     INSERT = "INSERT INTO materiales VALUES (NULL,?,?,?)"
     SELECT = "SELECT * FROM materiales"
     UPDATE = "UPDATE materiales SET descripcion=?, unidad=?, costo_unitario=? WHERE id_material=?"
@@ -796,7 +701,7 @@ class ServicioMateriales:
         conexion.close()
         return datos
 
-class GestorMateriales:
+class GestorMateriales(GestorEntidad):
     @staticmethod
     def mostrar(tree):
         # limpiar tabla
@@ -862,7 +767,7 @@ class GestorMateriales:
                                            "Versión 1.0"
                                            "Tecnología Python Tkinter")
 
-class DetalleMateriales:
+class DetalleMateriales(Entidad):
     def __init__(self, id_proyecto, id_material, cantidad, costo_total):
         self.id_proyecto = id_proyecto
         self.id_material = id_material
@@ -873,18 +778,6 @@ class DetalleMateriales:
         return self.id_proyecto, self.id_material, self.cantidad, self.costo_total
 
 class ConsultaDetalleMateriales:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS detalle_materiales (
-        id_detalle_material INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_proyecto INTEGER NOT NULL,
-        id_material INTEGER NOT NULL,
-        cantidad REAL NOT NULL CHECK(cantidad >= 0),
-        costo_total REAL CHECK(costo_total >= 0),
-        FOREIGN KEY (id_proyecto) REFERENCES proyecto(id_proyecto) ON UPDATE CASCADE ON DELETE CASCADE,
-        FOREIGN KEY (id_material) REFERENCES materiales(id_material) ON UPDATE CASCADE ON DELETE RESTRICT,
-        UNIQUE(id_proyecto, id_material)
-    );
-    '''
     INSERT = "INSERT INTO detalle_materiales VALUES (NULL,?,?,?,?)"
     SELECT = '''
     SELECT m.id_material, m.descripcion, m.unidad, m.costo_unitario, IFNULL(d.cantidad, 0) AS cantidad_en_proyecto, IFNULL(d.costo_total, 0) AS costo_total
@@ -903,13 +796,6 @@ class ConsultaDetalleMateriales:
     """
 
 class ServicioDetalleMateriales:
-    @staticmethod
-    def conexionBBDD():
-        conexion, cursor = conectar()
-        cursor.execute(ConsultaDetalleMateriales.CREATE)
-        conexion.commit()
-        conexion.close()
-
     @staticmethod
     def crear(id_proyecto, id_material, cantidad, costo_total):
         conexion, cursor = conectar()
@@ -956,7 +842,7 @@ class ServicioDetalleMateriales:
         conexion.close()
         return total
 
-class GestorDetalleMateriales:
+class GestorDetalleMateriales(GestorEntidad):
     @staticmethod
     def mostrar(tree, id_proyecto):
         # limpiar tabla
@@ -977,7 +863,7 @@ class GestorDetalleMateriales:
         except:
             messagebox.showinfo("ADVERTENCIA", "Error al mostrar")
 
-class Administracion:
+class Administracion(Entidad):
     def __init__(self, tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto):
         self.tipo_gasto = tipo_gasto
         self.fecha = fecha
@@ -990,18 +876,6 @@ class Administracion:
         return self.tipo_gasto, self.fecha, self.forma_pago, self.proveedor, self.costo, self.id_proyecto
 
 class ConsultaAdministracion:
-    CREATE = '''
-    CREATE TABLE IF NOT EXISTS administracion (
-        id_administracion INTEGER PRIMARY KEY AUTOINCREMENT,
-        tipo_gasto TEXT NOT NULL,
-        fecha TEXT,
-        forma_pago TEXT CHECK(forma_pago IN ('efectivo','tarjeta','transferencia','cheque','otro')),
-        proveedor TEXT,
-        costo REAL NOT NULL CHECK(costo >= 0),
-        id_proyecto INTEGER NOT NULL,
-        FOREIGN KEY (id_proyecto) REFERENCES proyecto(id_proyecto) ON UPDATE CASCADE ON DELETE CASCADE
-    );
-    '''
     INSERT = "INSERT INTO administracion VALUES (NULL,?,?,?,?,?,?)"
     SELECT = "SELECT * FROM administracion WHERE id_proyecto=?"
     UPDATE = "UPDATE administracion SET tipo_gasto=?, fecha=?, forma_pago=?, proveedor=?, costo=?, id_proyecto=? WHERE id_administracion=?"
@@ -1014,13 +888,6 @@ class ConsultaAdministracion:
     '''
 
 class ServicioAdministracion:
-    @staticmethod
-    def conexionBBDD():
-        conexion, cursor = conectar()
-        cursor.execute(ConsultaAdministracion.CREATE)
-        conexion.commit()
-        conexion.close()
-
     @staticmethod
     def crear(tipo_gasto, fecha, forma_pago, proveedor, costo, id_proyecto):
         conexion, cursor = conectar()
@@ -1069,7 +936,7 @@ class ServicioAdministracion:
         conexion.close()
         return total
 
-class GestorAdministracion:
+class GestorAdministracion(GestorEntidad):
     @staticmethod
     def mostrar(tree, id_proyecto):
         for elemento in tree.get_children():
