@@ -862,7 +862,7 @@ class MenuPrincipal:
         ruta_icono_home = os.path.join(os.path.dirname(__file__), 'imagenes', 'home.png')
         ruta_icono_salir = os.path.join(os.path.dirname(__file__), 'imagenes', 'salir.png')
         ruta_icono_x = os.path.join(os.path.dirname(__file__), 'imagenes', 'x.png')
-        ruta_icono_persona = os.path.join(os.path.dirname(__file__), 'imagenes', 'block.png')
+        ruta_icono_persona = os.path.join(os.path.dirname(__file__), 'imagenes', 'persona.png')
 
         self.toggle_icon = PhotoImage(file=ruta_icono_tresb)
         self.mas_icon = PhotoImage(file=ruta_icono_mas)
