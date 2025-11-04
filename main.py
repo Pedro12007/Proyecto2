@@ -1108,6 +1108,7 @@ class MenuPrincipal:
             width=12,
             command=self.mostrar_detalle_proyecto
         ).place(x=50, y=360)
+        Button(home_page_fm, text='Eliminar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.eliminar_proyecto).place(x=250, y=360)
 
     def agregar_page(self):
         agregar_page_fm = Frame(self.page_frame, bg='black')
@@ -1647,6 +1648,21 @@ class MenuPrincipal:
 
         messagebox.showinfo("Éxito", f"Proyecto '{nombre}' actualizado exitosamente.")
 
+    def eliminar_proyecto(self):
+        id_proyecto = self.id_proyecto.get()
+
+        if not validar_campo_lleno(id_proyecto):
+            messagebox.showerror("Error", "Seleccione un proyecto primero.")
+            return
+
+        confirmar = messagebox.askyesno('Confirmar', '¿Está seguro de eliminar el proyecto?')
+
+        if confirmar:
+            ServicioProyecto.borrar(id_proyecto)
+            messagebox.showinfo("Éxito", f"Proyecto eliminado.")
+            GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
+
+
     def guardar_detalle_admin(self):
         id_proyecto = self.id_proyecto.get()
         id_admin = self.id_admin.get()
@@ -1697,7 +1713,7 @@ class MenuPrincipal:
 
         if confirmar:
             ServicioAdministracion.borrar(id_admin)
-            messagebox.showinfo("Éxito", f"Trabajador eliminado del proyecto.")
+            messagebox.showinfo("Éxito", f"Elemento eliminado del proyecto.")
 
             total_proyecto = ServicioProyecto.calcular_presupuesto_total(self.id_proyecto.get())
             self.presupuesto_total.set(f'Q {total_proyecto:.2f}')
