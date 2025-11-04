@@ -1687,6 +1687,7 @@ class MenuPrincipal:
 
     def eliminar_detalle_admin(self):
         id_admin = self.id_admin.get()
+        id_proyecto = self.id_proyecto.get()
 
         if not validar_campo_lleno(id_admin):
             messagebox.showerror("Error", "Seleccione un campo primero.")
@@ -1864,7 +1865,7 @@ class MenuPrincipal:
 
         ide = seleccionado[0]
         self.id_admin.set(ide)
-        valores = self.tree_detalle_trabajadores.item(ide, 'values')
+        valores = self.tree_adm.item(ide, 'values')
 
         if valores:
             self.tipo_gasto_adm.set(valores[0])
