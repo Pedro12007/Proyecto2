@@ -430,8 +430,7 @@ class ControladorAdmin:
             messagebox.showerror('Error', 'Seleccione un usuario primero.')
             return
 
-        confirmar = messagebox.askyesno('Confirmar',
-                                        f'¿Está seguro de eliminar el usuario con ID {self.view.miID_usuario.get()}?')
+        confirmar = messagebox.askyesno('Confirmar', f'¿Está seguro de eliminar el usuario con ID {self.view.miID_usuario.get()}?')
 
         if confirmar:
             try:
@@ -830,6 +829,7 @@ class MenuPrincipal:
         self.nombre_trabajador = StringVar()
         self.telefono_trabajador = StringVar()
         self.ocupacion_trabajador = StringVar()
+        self.id_detalle_trabajador = StringVar()
         self.tipo_trabajo = StringVar()
         self.costo_trabajo = StringVar()
 
@@ -1335,7 +1335,7 @@ class MenuPrincipal:
         Label(self.frame_mano_obra, textvariable=self.total_costo_mano_obra, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
 
         frame_contenedor = Frame(self.frame_mano_obra, bg='#1a1a1a')
-        frame_contenedor.pack(fill=BOTH, expand=True, padx=20, pady=10)
+        frame_contenedor.pack(fill='x', padx=20, pady=10)
 
         # Izquierda (Mano de obra)
         frame_mano_obra_disponible = Frame(frame_contenedor, bg='#1a1a1a')
@@ -1357,6 +1357,8 @@ class MenuPrincipal:
         self.tree_trabajadores.heading("#2", text=self.cabecera_trabajadores[2], anchor=CENTER)
         self.tree_trabajadores.column("#3", width=150)
         self.tree_trabajadores.heading("#3", text=self.cabecera_trabajadores[3], anchor=CENTER)
+        self.tree_trabajadores.bind("<<TreeviewSelect>>", self.seleccionarTrabajadorUsandoClick)
+
         GestorManoObra.mostrar(self.tree_trabajadores)
 
         # Derecha (Detalle mano de obra)
@@ -1381,30 +1383,31 @@ class MenuPrincipal:
         self.tree_detalle_trabajadores.heading("#3", text=self.cabecera_detalle_trabajadores[3], anchor=CENTER)
         self.tree_detalle_trabajadores.column("#4", width=100)
         self.tree_detalle_trabajadores.heading("#4", text=self.cabecera_detalle_trabajadores[4], anchor=CENTER)
+        self.tree_detalle_trabajadores.bind("<<TreeviewSelect>>", self.seleccionarDetalleTrabajadorUsandoClick)
+
         GestorDetalleManoObra.mostrar(self.tree_detalle_trabajadores, self.id_proyecto.get())
 
         frame_campos_trab1 = Frame(self.frame_mano_obra, bg='#1a1a1a')
         frame_campos_trab1.pack(anchor='center', pady=5)
         frame_campos_trab2 = Frame(self.frame_mano_obra, bg='#1a1a1a')
         frame_campos_trab2.pack(anchor='center', pady=5)
+        frame_campos_trab3 = Frame(self.frame_mano_obra, bg='#1a1a1a')
+        frame_campos_trab3.pack(anchor='center', pady=5)
+
 
         Label(frame_campos_trab1, text=f'Nombre:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Label(frame_campos_trab1, textvariable=self.nombre_trabajador, width=30, bg='white', fg='black').pack(side=LEFT,
-                                                                                                              padx=4)
-        Label(frame_campos_trab1, text=f'Ocupación:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT,
-                                                                                                         padx=4)
-        Label(frame_campos_trab1, textvariable=self.ocupacion_trabajador, width=20, bg='white', fg='black').pack(
-            side=LEFT, padx=4)
+        Label(frame_campos_trab1, textvariable=self.nombre_trabajador, width=30, bg='white', fg='black').pack(side=LEFT, padx=4)
+        Label(frame_campos_trab1, text=f'Ocupación:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
+        Label(frame_campos_trab1, textvariable=self.ocupacion_trabajador, width=20, bg='white', fg='black').pack(side=LEFT, padx=4)
 
-        Label(frame_campos_trab2, text=f'Tipo de Trabajo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(
-            side=LEFT, padx=4)
+        Label(frame_campos_trab2, text=f'Tipo de Trabajo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
         Entry(frame_campos_trab2, textvariable=self.tipo_trabajo, width=30).pack(side=LEFT, padx=4)
-        Label(frame_campos_trab2, text=f'Costo (Q):', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT,
-                                                                                                         padx=4)
+        Label(frame_campos_trab2, text=f'Costo (Q):', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
         Entry(frame_campos_trab2, textvariable=self.costo_trabajo, width=10).pack(side=LEFT, padx=4)
 
-        Button(self.frame_mano_obra, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black',
-               command=self.guardar_detalle_trabajador).pack(anchor='center', padx=30, pady=10)
+        Button(frame_campos_trab3, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.guardar_detalle_trabajador).pack(anchor='center', padx=30, pady=10)
+        Button(frame_campos_trab3, text='Eliminar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.eliminar_detalle_trabajador).pack(anchor='center', padx=30, pady=10)
+
 
     def contenido_materiales(self):
         Label(self.frame_materiales, text='Materiales del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
@@ -1607,11 +1610,13 @@ class MenuPrincipal:
 
     def guardar_detalle_trabajador(self):
         proyecto = self.id_proyecto.get()
+        detalle = self.id_detalle_trabajador.get()
         trabajador = self.id_trabajador.get()
         tipo_trabajo_nuevo = self.tipo_trabajo.get()
         costo_nuevo = self.costo_trabajo.get()
+        tipo_trabajo = self.tipo_trabajo.get()
 
-        if not validar_campo_lleno(trabajador):
+        if not (validar_campo_lleno(trabajador) or validar_campo_lleno(tipo_trabajo)):
             messagebox.showerror("Error", "Seleccione un trabajador primero.")
             return
 
@@ -1619,16 +1624,42 @@ class MenuPrincipal:
             messagebox.showerror("Error", "El tipo de trabajo y el costo deben estar llenos.")
             return
 
-        try:
-            costo_float = float(costo_nuevo)
-            if costo_float < 0:
-                messagebox.showerror("Error", "El costo debe ser mayor o igual a 0.")
-                return
-        except ValueError:
-            messagebox.showerror("Error", "El costo debe ser un número válido.")
+        if not validar_float(costo_nuevo):
+            messagebox.showerror("Error", "El costo debe ser un número.")
             return
 
-        messagebox.showinfo("Éxito", f"Trabajador asignado al proyecto.")
+        if trabajador != '':
+            ServicioDetalleManoObra.crear(proyecto, trabajador, costo_nuevo, tipo_trabajo)
+            messagebox.showinfo("Éxito", f"Trabajador asignado al proyecto.")
+        elif detalle != '':
+            ServicioDetalleManoObra.actualizar(costo_nuevo, tipo_trabajo, detalle)
+            messagebox.showinfo("Éxito", f"Trabajador actualizado en el proyecto.")
+
+        GestorDetalleManoObra.mostrar(self.tree_detalle_trabajadores, proyecto)
+        total_proyecto = ServicioProyecto.calcular_presupuesto_total(self.id_proyecto.get())
+        self.presupuesto_total.set(f'Q {total_proyecto:.2f}')
+        total_materiales = ServicioDetalleManoObra.obtener_costo_total_mano_obra(self.id_proyecto.get())
+        self.total_costo_mano_obra.set(f'Total (Q): {total_materiales:.2f}')
+
+    def eliminar_detalle_trabajador(self):
+        detalle = self.id_detalle_trabajador.get()
+
+        if not validar_campo_lleno(detalle):
+            messagebox.showerror("Error", "Seleccione un trabajador primero.")
+            return
+
+        confirmar = messagebox.askyesno('Confirmar', '¿Está seguro de eliminar el trabajador?')
+
+        if confirmar:
+            ServicioDetalleManoObra.borrar(detalle)
+            messagebox.showinfo("Éxito", f"Trabajador eliminado del proyecto.")
+            total_proyecto = ServicioProyecto.calcular_presupuesto_total(self.id_proyecto.get())
+            self.presupuesto_total.set(f'Q {total_proyecto:.2f}')
+            total_materiales = ServicioDetalleManoObra.obtener_costo_total_mano_obra(self.id_proyecto.get())
+            self.total_costo_mano_obra.set(f'Total (Q): {total_materiales:.2f}')
+
+        GestorDetalleMateriales.mostrar(self.tree_mat, self.id_proyecto.get())
+
 
     def seleccionarProyectosUsandoClick(self, event):
         seleccionado = self.tree.selection()
@@ -1666,6 +1697,40 @@ class MenuPrincipal:
             self.costo_unitario.set(valores[2])
             self.cantidad_material.set(valores[3])
             self.costo_total.set(valores[4])
+
+    def seleccionarTrabajadorUsandoClick(self, event):
+        seleccionado = self.tree_trabajadores.selection()
+        if not seleccionado:
+            return
+
+        ide = seleccionado[0]
+        self.id_trabajador.set(ide)
+        valores = self.tree_trabajadores.item(ide, 'values')
+
+        if valores:
+            self.nombre_trabajador.set(valores[0])
+            self.telefono_trabajador.set(valores[1])
+            self.ocupacion_trabajador.set(valores[2])
+
+            self.id_detalle_trabajador.set('')
+
+    def seleccionarDetalleTrabajadorUsandoClick(self, event):
+        seleccionado = self.tree_detalle_trabajadores.selection()
+        if not seleccionado:
+            return
+
+        ide = seleccionado[0]
+        self.id_detalle_trabajador.set(ide)
+        valores = self.tree_detalle_trabajadores.item(ide, 'values')
+
+        if valores:
+            self.nombre_trabajador.set(valores[0])
+            self.ocupacion_trabajador.set(valores[1])
+            self.tipo_trabajo.set(valores[2])
+            self.costo_trabajo.set(valores[3])
+
+            self.id_trabajador.set('')
+
 
     def ir_a_mat(self):
         Materiales()

@@ -14,6 +14,13 @@ def validar_campo_lleno(entrada):
 def validar_numero(entrada):
     return entrada.isdigit()
 
+def validar_float(entrada):
+    try:
+        entrada = float(entrada)
+        return True
+    except ValueError:
+        return False
+
 class Cliente:
     def __init__(self, nombre, apellido, telefono, mail, datos_referencia, direccion):
         self.nombre = nombre
@@ -343,6 +350,7 @@ class GestorProyectos:
                     tree.insert(
                         "",
                         "end",
+                        iid=[0],
                         text=row[0],
                         values=(row[1], row[2], row[7], row[4], row[6])
                     )
@@ -579,6 +587,7 @@ class GestorManoObra:
                 tree.insert(
                     "",
                     "end",
+                    iid=row[0],
                     text=row[0],
                     values=(row[1], row[2], row[3])
                 )
@@ -682,6 +691,7 @@ class GestorDetalleManoObra:
                 tree.insert(
                     "",
                     "end",
+                    iid=row[0],
                     text=row[0],
                     values=(row[1], row[2], row[3], row[4])
                 )
@@ -929,11 +939,7 @@ class ServicioDetalleMateriales:
     @staticmethod
     def obtener_costo_total_materiales(id_proyecto):
         conexion, cursor = conectar()
-        cursor.execute("""
-            SELECT IFNULL(SUM(costo_total), 0) 
-            FROM detalle_materiales 
-            WHERE id_proyecto = ?
-        """, (id_proyecto,))
+        cursor.execute(ConsultaDetalleMateriales.COSTO, (id_proyecto,))
         total = cursor.fetchone()[0]
         conexion.close()
         return total
