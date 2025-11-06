@@ -1145,85 +1145,116 @@ class MenuPrincipal:
                command=self.eliminar_proyecto).pack(side='left', padx=10)
 
     def agregar_page(self):
-        agregar_page_fm = Frame(self.page_frame, bg='black')
-        Label(agregar_page_fm, text='Agregar proyecto', font=('Arial', 20), bg='black', fg='white').place(x=150, y=20)
-        agregar_page_fm.pack(fill=BOTH, expand=True)
+        from PIL import Image, ImageTk
+        import os
 
-        entry_w = 35
-        x_label = 50
-        x_entry = 250
+        # Limpiar
+        for w in self.page_frame.winfo_children():
+            w.destroy()
 
-        Label(agregar_page_fm, text="Nombre:", bg='black', fg='white', font=('Arial', 12)).place(x=x_label, y=80)
-        Entry(agregar_page_fm, textvariable=self.nombre_var, width=entry_w).place(x=x_entry, y=80)
+        cont = Frame(self.page_frame, bg='black')
+        cont.pack(fill='both', expand=True)
 
-        Label(agregar_page_fm, text="Descripción:", bg='black', fg='white', font=('Arial', 12)).place(x=x_label, y=120)
-        Entry(agregar_page_fm, textvariable=self.descripcion_var, width=entry_w).place(x=x_entry, y=120)
+        # Fondo
+        try:
+            ruta_fondo = os.path.join(os.path.dirname(__file__), 'imagenes', 'foto3.png')
+            img = Image.open(ruta_fondo)
 
-        Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=x_label, y=160)
-        Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=entry_w).place(x=x_entry, y=160)
+            img = img.resize((1200, 700), Image.LANCZOS)
+            self.bg_add_img = ImageTk.PhotoImage(img)
+            Label(cont, image=self.bg_add_img, bg='black').place(relx=0.5, rely=0.5, anchor='center')
+        except Exception:
+            cont.config(bg='black')
 
-        Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=x_label, y=200)
+        card = Frame(cont, bg='white', bd=0, highlightthickness=0)
+        card.place(relx=0.5, rely=0.5, anchor='center')
+
+        Label(card, text='Agregar proyecto', font=('Arial', 20, 'bold'),
+              bg='white', fg='#222').grid(row=0, column=0, columnspan=2, pady=(15, 10))
+
+        pady_fila = 6
+
+        Label(card, text="Nombre:", bg='white', fg='#222', font=('Arial', 11)).grid(row=1, column=0, sticky='e',
+                                                                                    padx=(20, 10), pady=pady_fila)
+        Entry(card, textvariable=self.nombre_var, width=35).grid(row=1, column=1, sticky='w', padx=(0, 20),
+                                                                 pady=pady_fila)
+
+        Label(card, text="Descripción:", bg='white', fg='#222', font=('Arial', 11)).grid(row=2, column=0, sticky='e',
+                                                                                         padx=(20, 10), pady=pady_fila)
+        Entry(card, textvariable=self.descripcion_var, width=35).grid(row=2, column=1, sticky='w', padx=(0, 20),
+                                                                      pady=pady_fila)
+
+        Label(card, text="No. Personas:", bg='white', fg='#222', font=('Arial', 11)).grid(row=3, column=0, sticky='e',
+                                                                                          padx=(20, 10), pady=pady_fila)
+        Entry(card, textvariable=self.no_usuarios_var, width=35).grid(row=3, column=1, sticky='w', padx=(0, 20),
+                                                                      pady=pady_fila)
+
+        Label(card, text="Fecha de Inicio:", bg='white', fg='#222', font=('Arial', 11)).grid(row=4, column=0,
+                                                                                             sticky='e', padx=(20, 10),
+                                                                                             pady=pady_fila)
         DateEntry(
-            agregar_page_fm,
+            card,
             textvariable=self.fecha_inicio_var,
-            width=entry_w - 8,
+            width=31,
             date_pattern='yyyy-mm-dd',
             background='darkblue',
             foreground='white',
             borderwidth=2
-        ).place(x=x_entry, y=200)
+        ).grid(row=4, column=1, sticky='w', padx=(0, 20), pady=pady_fila)
 
-        Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(
-            x=x_label, y=240)
+        Label(card, text="Fecha de Fin (Estimado):", bg='white', fg='#222', font=('Arial', 11)).grid(row=5, column=0,
+                                                                                                     sticky='e',
+                                                                                                     padx=(20, 10),
+                                                                                                     pady=pady_fila)
         DateEntry(
-            agregar_page_fm,
+            card,
             textvariable=self.fecha_fin_var,
-            width=entry_w - 8,
+            width=31,
             date_pattern='yyyy-mm-dd',
             background='darkblue',
             foreground='white',
             borderwidth=2
-        ).place(x=x_entry, y=240)
+        ).grid(row=5, column=1, sticky='w', padx=(0, 20), pady=pady_fila)
 
         cliente_frame = LabelFrame(
-            agregar_page_fm,
+            card,
             text="Datos del cliente",
-            bg='black',
-            fg='white',
+            bg='white',
+            fg='#222',
             font=('Arial', 10, 'bold'),
-            labelanchor='n',
-            bd=2
+            labelanchor='n'
         )
-        cliente_frame.place(x=50, y=290, width=550, height=210)
+        cliente_frame.grid(row=6, column=0, columnspan=2, padx=20, pady=(15, 10), sticky='we')
 
-        cli_entry_w = 28
-        Label(cliente_frame, text="Nombre:", bg='black', fg='white').place(x=10, y=10)
-        Entry(cliente_frame, textvariable=self.cliente_nombre_var, width=cli_entry_w).place(x=100, y=10)
+        Label(cliente_frame, text="Nombre:", bg='white').grid(row=0, column=0, sticky='e', padx=5, pady=4)
+        Entry(cliente_frame, textvariable=self.cliente_nombre_var, width=20).grid(row=0, column=1, padx=5, pady=4)
 
-        Label(cliente_frame, text="Apellido:", bg='black', fg='white').place(x=280, y=10)
-        Entry(cliente_frame, textvariable=self.cliente_apellido_var, width=cli_entry_w).place(x=360, y=10)
+        Label(cliente_frame, text="Apellido:", bg='white').grid(row=0, column=2, sticky='e', padx=5, pady=4)
+        Entry(cliente_frame, textvariable=self.cliente_apellido_var, width=20).grid(row=0, column=3, padx=5, pady=4)
 
-        Label(cliente_frame, text="Teléfono:", bg='black', fg='white').place(x=10, y=45)
-        Entry(cliente_frame, textvariable=self.cliente_telefono_var, width=cli_entry_w).place(x=100, y=45)
+        Label(cliente_frame, text="Teléfono:", bg='white').grid(row=1, column=0, sticky='e', padx=5, pady=4)
+        Entry(cliente_frame, textvariable=self.cliente_telefono_var, width=20).grid(row=1, column=1, padx=5, pady=4)
 
-        Label(cliente_frame, text="Mail:", bg='black', fg='white').place(x=280, y=45)
-        Entry(cliente_frame, textvariable=self.cliente_mail_var, width=cli_entry_w).place(x=360, y=45)
+        Label(cliente_frame, text="Mail:", bg='white').grid(row=1, column=2, sticky='e', padx=5, pady=4)
+        Entry(cliente_frame, textvariable=self.cliente_mail_var, width=20).grid(row=1, column=3, padx=5, pady=4)
 
-        Label(cliente_frame, text="Referencia:", bg='black', fg='white').place(x=10, y=80)
-        Entry(cliente_frame, textvariable=self.cliente_datos_ref_var, width=cli_entry_w * 2).place(x=100, y=80)
+        Label(cliente_frame, text="Referencia:", bg='white').grid(row=2, column=0, sticky='e', padx=5, pady=4)
+        Entry(cliente_frame, textvariable=self.cliente_datos_ref_var, width=45).grid(row=2, column=1, columnspan=3,
+                                                                                     padx=5, pady=4, sticky='w')
 
-        Label(cliente_frame, text="Dirección:", bg='black', fg='white').place(x=10, y=115)
-        Entry(cliente_frame, textvariable=self.cliente_direccion_var, width=cli_entry_w * 2).place(x=100, y=115)
+        Label(cliente_frame, text="Dirección:", bg='white').grid(row=3, column=0, sticky='e', padx=5, pady=4)
+        Entry(cliente_frame, textvariable=self.cliente_direccion_var, width=45).grid(row=3, column=1, columnspan=3,
+                                                                                     padx=5, pady=4, sticky='w')
 
         Button(
-            agregar_page_fm,
+            card,
             text="Guardar",
-            font=('Arial', 12, 'bold'),
-            bg='white',
-            fg='black',
-            width=12,
+            font=('Arial', 11, 'bold'),
+            bg='#222',
+            fg='white',
+            width=14,
             command=self.guardar_proyecto
-        ).place(x=150, y=520)
+        ).grid(row=7, column=0, columnspan=2, pady=(15, 15))
 
     def mostrar_detalle_proyecto(self):
         if not self.id_proyecto.get():
