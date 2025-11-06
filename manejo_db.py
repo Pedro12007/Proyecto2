@@ -50,7 +50,7 @@ class ServicioEntidad(ABC):
 
 class GestorEntidad(ABC):
     @abstractmethod
-    def mostrar(self):
+    def mostrar(self):  
         pass
 
 class Cliente(Entidad):

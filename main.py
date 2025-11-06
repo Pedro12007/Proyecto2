@@ -128,7 +128,6 @@ class ControladorLogin:
 
         return vista_app
 
-
 class VistaAdmin:
     def __init__(self, ventana_login):
         global ventana_admin
@@ -330,7 +329,6 @@ class VistaAdmin:
     def mostrar_frame_mostrar(self):
         #Muestra el frame de mostrar usuarios
         self.frame_mostrar_usuarios.tkraise()
-
 
 class ControladorAdmin:
     def __init__(self, view):
@@ -1071,82 +1069,120 @@ class MenuPrincipal:
     # ---------- MÉTODOS DE PÁGINAS ----------
 
     def proyectos_page(self):
-        home_page_fm = Frame(self.page_frame, bg='black')
-        lb = Label(home_page_fm, text='Proyectos', font=('Arial', 20), bg='black', fg='white')
-        lb.place(x=100, y=20)
-        home_page_fm.pack(fill=BOTH, expand=True)
+        from PIL import Image, ImageTk
+        import os
 
-        # Configurar TreeView
+        for frame in self.page_frame.winfo_children():
+            frame.destroy()
+
+        cont = Frame(self.page_frame, bg='black')
+        cont.pack(fill='both', expand=True)
+
+        try:
+            ruta_fondo = os.path.join(os.path.dirname(__file__), 'imagenes', 'foto5.png')
+            img = Image.open(ruta_fondo)
+            # un tamaño grande para que siempre cubra
+            img = img.resize((1100, 650), Image.LANCZOS)
+            self.bg_proj_img = ImageTk.PhotoImage(img)
+            Label(cont, image=self.bg_proj_img, bg='black').place(relx=0.5, rely=0.5, anchor='center')
+        except Exception:
+            pass
+
+        card = Frame(cont, bg='#f4f4f4')
+        card.place(relx=0.5, rely=0.5, anchor='center')
+
+        Label(card, text='Proyectos', font=('Arial', 20, 'bold'),
+              bg='#f4f4f4', fg='#333').grid(row=0, column=0, pady=(15, 10), padx=15)
+
+        tabla_wrap = Frame(card, bg='#f4f4f4')
+        tabla_wrap.grid(row=1, column=0, padx=15)
+
+        tabla_frame = Frame(tabla_wrap, bg='white', bd=1, relief='solid')
+        tabla_frame.pack()
+
         self.cabecera = ["ID", "Nombre", "Descripción", "Estado", "Fecha Inicio", "Fecha Fin"]
 
-        self.tree = ttk.Treeview(home_page_fm, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
-        self.tree.place(x=50, y=100)
+        self.tree = ttk.Treeview(tabla_frame, height=8,
+                                 columns=("#1", "#2", "#3", "#4", "#5"))
+        self.tree.pack(fill='both', expand=True)
 
-        self.tree.column("#0", width=50)
-        self.tree.heading("#0", text=self.cabecera[0], anchor=CENTER)
-        self.tree.column("#1", width=150)
-        self.tree.heading("#1", text=self.cabecera[1], anchor=CENTER)
-        self.tree.column("#2", width=350)
-        self.tree.heading("#2", text=self.cabecera[2], anchor=CENTER)
-        self.tree.column("#3", width=150)
-        self.tree.heading("#3", text=self.cabecera[3], anchor=CENTER)
-        self.tree.column("#4", width=150)
-        self.tree.heading("#4", text=self.cabecera[4], anchor=CENTER)
-        self.tree.column("#5", width=150)
-        self.tree.heading("#5", text=self.cabecera[5], anchor=CENTER)
+        self.tree.column("#0", width=40, anchor='center')
+        self.tree.heading("#0", text=self.cabecera[0], anchor='center')
+
+        self.tree.column("#1", width=120)
+        self.tree.heading("#1", text=self.cabecera[1], anchor='center')
+
+        self.tree.column("#2", width=250)
+        self.tree.heading("#2", text=self.cabecera[2], anchor='center')
+
+        self.tree.column("#3", width=110, anchor='center')
+        self.tree.heading("#3", text=self.cabecera[3], anchor='center')
+
+        self.tree.column("#4", width=110, anchor='center')
+        self.tree.heading("#4", text=self.cabecera[4], anchor='center')
+
+        self.tree.column("#5", width=110, anchor='center')
+        self.tree.heading("#5", text=self.cabecera[5], anchor='center')
+
         self.tree.bind("<<TreeviewSelect>>", self.seleccionarProyectosUsandoClick)
 
-        # Cargar datos
         GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
 
-        # Botón de selección
-        Button(
-            home_page_fm,
-            text="Seleccionar",
-            font=('Arial', 11, 'bold'),
-            bg='white',
-            fg='black',
-            width=12,
-            command=self.mostrar_detalle_proyecto
-        ).place(x=50, y=360)
-        Button(home_page_fm, text='Eliminar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.eliminar_proyecto).place(x=250, y=360)
+        btns = Frame(card, bg='#f4f4f4')
+        btns.grid(row=2, column=0, pady=15)
+
+        Button(btns, text="Seleccionar",
+               font=('Arial', 11, 'bold'),
+               bg='#333', fg='white',
+               width=14,
+               command=self.mostrar_detalle_proyecto).pack(side='left', padx=10)
+
+        Button(btns, text="Eliminar",
+               font=('Arial', 11, 'bold'),
+               bg='#e74c3c', fg='white',
+               width=14,
+               command=self.eliminar_proyecto).pack(side='left', padx=10)
 
     def agregar_page(self):
         agregar_page_fm = Frame(self.page_frame, bg='black')
-        lb = Label(agregar_page_fm, text='Agregar proyecto', font=('Arial', 20), bg='black', fg='white')
-        lb.place(x=150, y=20)
+        Label(agregar_page_fm, text='Agregar proyecto', font=('Arial', 20), bg='black', fg='white').place(x=150, y=20)
         agregar_page_fm.pack(fill=BOTH, expand=True)
 
-        Label(agregar_page_fm, text="Nombre:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=80)
-        Entry(agregar_page_fm, textvariable=self.nombre_var, width=30).place(x=250, y=80)
+        entry_w = 35
+        x_label = 50
+        x_entry = 250
 
-        Label(agregar_page_fm, text="Descripción:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=120)
-        Entry(agregar_page_fm, textvariable=self.descripcion_var, width=50).place(x=250, y=120)
+        Label(agregar_page_fm, text="Nombre:", bg='black', fg='white', font=('Arial', 12)).place(x=x_label, y=80)
+        Entry(agregar_page_fm, textvariable=self.nombre_var, width=entry_w).place(x=x_entry, y=80)
 
-        Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=160)
-        Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=30).place(x=250, y=160)
+        Label(agregar_page_fm, text="Descripción:", bg='black', fg='white', font=('Arial', 12)).place(x=x_label, y=120)
+        Entry(agregar_page_fm, textvariable=self.descripcion_var, width=entry_w).place(x=x_entry, y=120)
 
-        Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=200)
+        Label(agregar_page_fm, text="No. Personas:", bg='black', fg='white', font=('Arial', 12)).place(x=x_label, y=160)
+        Entry(agregar_page_fm, textvariable=self.no_usuarios_var, width=entry_w).place(x=x_entry, y=160)
+
+        Label(agregar_page_fm, text="Fecha de Inicio:", bg='black', fg='white', font=('Arial', 12)).place(x=x_label, y=200)
         DateEntry(
             agregar_page_fm,
             textvariable=self.fecha_inicio_var,
-            width=27,
+            width=entry_w - 8,
             date_pattern='yyyy-mm-dd',
             background='darkblue',
             foreground='white',
             borderwidth=2
-        ).place(x=250, y=200)
+        ).place(x=x_entry, y=200)
 
-        Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(x=50, y=240)
+        Label(agregar_page_fm, text="Fecha de Fin (Estimado):", bg='black', fg='white', font=('Arial', 12)).place(
+            x=x_label, y=240)
         DateEntry(
             agregar_page_fm,
             textvariable=self.fecha_fin_var,
-            width=27,
+            width=entry_w - 8,
             date_pattern='yyyy-mm-dd',
             background='darkblue',
             foreground='white',
             borderwidth=2
-        ).place(x=250, y=240)
+        ).place(x=x_entry, y=240)
 
         cliente_frame = LabelFrame(
             agregar_page_fm,
@@ -1159,23 +1195,24 @@ class MenuPrincipal:
         )
         cliente_frame.place(x=50, y=290, width=550, height=210)
 
+        cli_entry_w = 28
         Label(cliente_frame, text="Nombre:", bg='black', fg='white').place(x=10, y=10)
-        Entry(cliente_frame, textvariable=self.cliente_nombre_var, width=20).place(x=100, y=10)
+        Entry(cliente_frame, textvariable=self.cliente_nombre_var, width=cli_entry_w).place(x=100, y=10)
 
         Label(cliente_frame, text="Apellido:", bg='black', fg='white').place(x=280, y=10)
-        Entry(cliente_frame, textvariable=self.cliente_apellido_var, width=20).place(x=360, y=10)
+        Entry(cliente_frame, textvariable=self.cliente_apellido_var, width=cli_entry_w).place(x=360, y=10)
 
         Label(cliente_frame, text="Teléfono:", bg='black', fg='white').place(x=10, y=45)
-        Entry(cliente_frame, textvariable=self.cliente_telefono_var, width=20).place(x=100, y=45)
+        Entry(cliente_frame, textvariable=self.cliente_telefono_var, width=cli_entry_w).place(x=100, y=45)
 
         Label(cliente_frame, text="Mail:", bg='black', fg='white').place(x=280, y=45)
-        Entry(cliente_frame, textvariable=self.cliente_mail_var, width=20).place(x=360, y=45)
+        Entry(cliente_frame, textvariable=self.cliente_mail_var, width=cli_entry_w).place(x=360, y=45)
 
         Label(cliente_frame, text="Referencia:", bg='black', fg='white').place(x=10, y=80)
-        Entry(cliente_frame, textvariable=self.cliente_datos_ref_var, width=42).place(x=100, y=80)
+        Entry(cliente_frame, textvariable=self.cliente_datos_ref_var, width=cli_entry_w * 2).place(x=100, y=80)
 
         Label(cliente_frame, text="Dirección:", bg='black', fg='white').place(x=10, y=115)
-        Entry(cliente_frame, textvariable=self.cliente_direccion_var, width=42).place(x=100, y=115)
+        Entry(cliente_frame, textvariable=self.cliente_direccion_var, width=cli_entry_w * 2).place(x=100, y=115)
 
         Button(
             agregar_page_fm,
@@ -1186,7 +1223,6 @@ class MenuPrincipal:
             width=12,
             command=self.guardar_proyecto
         ).place(x=150, y=520)
-
 
     def mostrar_detalle_proyecto(self):
         if not self.id_proyecto.get():
@@ -1277,249 +1313,390 @@ class MenuPrincipal:
         ).pack(side=LEFT, padx=10)
 
     def contenido_detalles(self):
-        Label(self.frame_detalles, text='Detalles del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+        from PIL import Image, ImageTk
+        import os
+        from datetime import datetime
 
-        Label(self.frame_detalles, text=f'Nombre:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(self.frame_detalles, textvariable=self.nombre, width=40).pack(anchor='w', padx=30, pady=5)
+        # Fondo
+        self.frame_detalles.configure(bg='#1a1a1a')
 
-        Label(self.frame_detalles, text=f'Descripción:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(self.frame_detalles, textvariable=self.descripcion, width=40).pack(anchor='w', padx=30, pady=5)
+        try:
+            ruta_fondo = os.path.join(os.path.dirname(__file__), 'imagenes', 'foto2.png')  # usa tu archivo aquí
+            fondo = Image.open(ruta_fondo)
+            fondo = fondo.resize((1100, 650), Image.LANCZOS)
+            self.bg_image = ImageTk.PhotoImage(fondo)
+            Label(self.frame_detalles, image=self.bg_image, bg='#1a1a1a').place(relx=0.5, rely=0.5, anchor='center')
+        except Exception:
+            pass
 
-        Label(self.frame_detalles, text=f'No. Usuarios:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(self.frame_detalles, textvariable=self.n_usuarios, width=40).pack(anchor='w', padx=30, pady=5)
+        card = Frame(self.frame_detalles, bg='#f0f0f0', bd=0, highlightthickness=0)
+        card.place(relx=0.5, rely=0.5, anchor='center')
 
-        Label(self.frame_detalles, text=f'Estado:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        opciones = ['planeado','en_progreso','finalizado']
-        OptionMenu(self.frame_detalles, self.estado, *opciones).pack(anchor='w', padx=30, pady=5)
-
-        Label(self.frame_detalles, text=f'Fecha Inicio:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        self.date_inicio_widget = DateEntry(
-            self.frame_detalles,
-            width=27,
-            date_pattern='yyyy-mm-dd',
-            background='darkblue',
-            foreground='white',
-            borderwidth=2
+        Label(card, text='Detalles del Proyecto', font=('Arial', 18, 'bold'), bg='#f0f0f0', fg='#333').grid(
+            row=0, column=0, columnspan=2, pady=(15, 20)
         )
-        self.date_inicio_widget.pack(anchor='w', padx=30, pady=5)
-        fecha_inicio_obj = datetime.strptime(self.fecha_inicio.get(), '%Y-%m-%d')
-        self.date_inicio_widget.set_date(fecha_inicio_obj)
 
-        Label(self.frame_detalles, text=f'Fecha Fin:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        self.date_fin_widget = DateEntry(
-            self.frame_detalles,
-            width=27,
-            date_pattern='yyyy-mm-dd',
-            background='darkblue',
-            foreground='white',
-            borderwidth=2
-        )
-        self.date_fin_widget.pack(anchor='w', padx=30, pady=5)
-        fecha_fin_obj = datetime.strptime(self.fecha_final.get(), '%Y-%m-%d')
-        self.date_fin_widget.set_date(fecha_fin_obj)
+        campos = [
+            ('Nombre:', self.nombre),
+            ('Descripción:', self.descripcion),
+            ('No. Usuarios:', self.n_usuarios),
+            ('Estado:', self.estado),
+        ]
 
-        Label(self.frame_detalles, text=f'Duración (días):', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(self.frame_detalles, textvariable=self.duracion, width=40, state='readonly').pack(anchor='w', padx=30, pady=5)
+        row = 1
+        for texto, var in campos:
+            Label(card, text=texto, font=('Arial', 12), bg='#f0f0f0', fg='#333').grid(row=row, column=0, sticky='e',
+                                                                                      padx=(20, 10), pady=5)
+            if texto == 'Estado:':
+                estados = ['planeado', 'en_progreso', 'finalizado']
+                om = OptionMenu(card, var, *estados)
+                om.config(width=25, bg='white')
+                om.grid(row=row, column=1, sticky='w', pady=5, padx=(0, 20))
+            else:
+                Entry(card, textvariable=var, width=30, bd=1, relief='solid').grid(row=row, column=1, sticky='w',
+                                                                                   pady=5, padx=(0, 20))
+            row += 1
 
-        Label(self.frame_detalles, text=f'Presupuesto total:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
+        # Fechas
+        Label(card, text='Fecha Inicio:', font=('Arial', 12), bg='#f0f0f0', fg='#333').grid(row=row, column=0,
+                                                                                            sticky='e', padx=(20, 10),
+                                                                                            pady=5)
+        self.date_inicio_widget = DateEntry(card, width=28, date_pattern='yyyy-mm-dd', background='darkblue',
+                                            foreground='white')
+        self.date_inicio_widget.grid(row=row, column=1, sticky='w', pady=5, padx=(0, 20))
+        if self.fecha_inicio.get():
+            self.date_inicio_widget.set_date(datetime.strptime(self.fecha_inicio.get(), '%Y-%m-%d'))
+        row += 1
+
+        Label(card, text='Fecha Fin:', font=('Arial', 12), bg='#f0f0f0', fg='#333').grid(row=row, column=0, sticky='e',
+                                                                                         padx=(20, 10), pady=5)
+        self.date_fin_widget = DateEntry(card, width=28, date_pattern='yyyy-mm-dd', background='darkblue',
+                                         foreground='white')
+        self.date_fin_widget.grid(row=row, column=1, sticky='w', pady=5, padx=(0, 20))
+        if self.fecha_final.get():
+            self.date_fin_widget.set_date(datetime.strptime(self.fecha_final.get(), '%Y-%m-%d'))
+        row += 1
+
+        # Duración
+        Label(card, text='Duración (días):', font=('Arial', 12), bg='#f0f0f0', fg='#333').grid(row=row, column=0,
+                                                                                               sticky='e',
+                                                                                               padx=(20, 10), pady=5)
+        Entry(card, textvariable=self.duracion, width=30, state='readonly', bd=1, relief='solid').grid(row=row,
+                                                                                                       column=1,
+                                                                                                       sticky='w',
+                                                                                                       pady=5,
+                                                                                                       padx=(0, 20))
+        row += 1
+
+        # Presupuesto
         total = ServicioProyecto.calcular_presupuesto_total(self.id_proyecto.get())
         self.presupuesto_total.set(f'Q {total:.2f}')
-        Label(self.frame_detalles, textvariable=self.presupuesto_total, font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
 
-        Button(self.frame_detalles, text='Guardar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.actualizar_proyecto).pack(anchor='w', padx=30, pady=10)
+        Label(card, text='Presupuesto total:', font=('Arial', 12), bg='#f0f0f0', fg='#333').grid(row=row, column=0,
+                                                                                                 sticky='e',
+                                                                                                 padx=(20, 10), pady=5)
+        lbl_presu = Label(
+            card,
+            textvariable=self.presupuesto_total,
+            font=('Arial', 16, 'bold'),
+            bg='#2ecc71', fg='white',
+            padx=15, pady=6
+        )
+        lbl_presu.grid(row=row, column=1, sticky='w', pady=5, padx=(0, 20))
+        row += 1
+
+        # Botón de guardad
+        Button(card, text='Guardar', font=('Arial', 12, 'bold'), bg='#333', fg='white', width=15,
+               command=self.actualizar_proyecto).grid(
+            row=row, column=0, columnspan=2, pady=(20, 20)
+        )
 
     def contenido_administracion(self):
-        Label(self.frame_administracion, text='Administración del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+        from PIL import Image, ImageTk
+        import os
 
+        self.frame_administracion.configure(bg='#1a1a1a')
+
+        # Fondo
+        try:
+            ruta_fondo = os.path.join(os.path.dirname(__file__), 'imagenes', 'foto3.png')  # pon tu imagen aquí
+            fondo = Image.open(ruta_fondo)
+            fondo = fondo.resize((1100, 650), Image.LANCZOS)
+            self.bg_adm_img = ImageTk.PhotoImage(fondo)
+            Label(self.frame_administracion, image=self.bg_adm_img, bg='#1a1a1a').place(relx=0.5, rely=0.5,
+                                                                                        anchor='center')
+        except Exception:
+            pass
+
+        card = Frame(self.frame_administracion, bg='#f4f4f4', bd=0, highlightthickness=0)
+        card.place(relx=0.5, rely=0.5, anchor='center')
+
+        Label(card, text='Administración del Proyecto',
+              font=('Arial', 18, 'bold'), bg='#f4f4f4', fg='#333').grid(row=0, column=0, columnspan=2, pady=(15, 5))
+
+        # Total
         total = ServicioAdministracion.obtener_costo_total_administracion(self.id_proyecto.get())
         self.total_costo_administracion.set(f'Total (Q): {total:.2f}')
-        Label(self.frame_administracion, textvariable=self.total_costo_administracion, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+        Label(card, textvariable=self.total_costo_administracion,
+              font=('Arial', 14, 'bold'), bg='#27ae60', fg='white',
+              padx=15, pady=6).grid(row=1, column=0, columnspan=2, pady=(0, 15))
 
+        #Marco de tabla
+        tabla_frame = Frame(card, bg='white', bd=1, relief='solid')
+        tabla_frame.grid(row=2, column=0, columnspan=2, padx=15, pady=(0, 15))
+
+        # Treeview
         self.cabecera_adm = ["ID", "Tipo de gasto", "Fecha", "Forma de pago", "Proveedor", "Costo"]
+        self.tree_adm = ttk.Treeview(tabla_frame, height=6, columns=("#1", "#2", "#3", "#4", "#5"), show='headings')
+        self.tree_adm.pack(fill='both', expand=True)
 
-        self.tree_adm = ttk.Treeview(self.frame_administracion, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
-        self.tree_adm.pack(anchor='center', padx=10, pady=10)
+        self.tree_adm.heading("#1", text=self.cabecera_adm[1])
+        self.tree_adm.heading("#2", text=self.cabecera_adm[2])
+        self.tree_adm.heading("#3", text=self.cabecera_adm[3])
+        self.tree_adm.heading("#4", text=self.cabecera_adm[4])
+        self.tree_adm.heading("#5", text=self.cabecera_adm[5])
 
-        self.tree_adm.column("#0", width=50)
-        self.tree_adm.heading("#0", text=self.cabecera_adm[0], anchor=CENTER)
-        self.tree_adm.column("#1", width=350)
-        self.tree_adm.heading("#1", text=self.cabecera_adm[1], anchor=CENTER)
-        self.tree_adm.column("#2", width=150)
-        self.tree_adm.heading("#2", text=self.cabecera_adm[2], anchor=CENTER)
-        self.tree_adm.column("#3", width=150)
-        self.tree_adm.heading("#3", text=self.cabecera_adm[3], anchor=CENTER)
-        self.tree_adm.column("#4", width=150)
-        self.tree_adm.heading("#4", text=self.cabecera_adm[4], anchor=CENTER)
-        self.tree_adm.column("#5", width=150)
-        self.tree_adm.heading("#5", text=self.cabecera_adm[5], anchor=CENTER)
-        self.tree_adm.bind("<<TreeviewSelect>>", self.seleccionarAdminUsandoClick)
+        self.tree_adm.column("#1", width=180, anchor='center')
+        self.tree_adm.column("#2", width=90, anchor='center')
+        self.tree_adm.column("#3", width=110, anchor='center')
+        self.tree_adm.column("#4", width=140, anchor='center')
+        self.tree_adm.column("#5", width=90, anchor='e')
 
         GestorAdministracion.mostrar(self.tree_adm, self.id_proyecto.get())
+        self.tree_adm.bind("<<TreeviewSelect>>", self.seleccionarAdminUsandoClick)
 
-        frame_contenedor = Frame(self.frame_administracion, bg='#1a1a1a')
-        frame_contenedor.pack(anchor='center', padx=20, pady=12)
+        form_left = Frame(card, bg='#f4f4f4')
+        form_left.grid(row=3, column=0, sticky='w', padx=(15, 5), pady=(0, 15))
 
-        frame_input_1 = Frame(frame_contenedor, bg='#1a1a1a')
-        frame_input_1.pack(side='left', padx=10, pady=10)
-        frame_input_2 = Frame(frame_contenedor, bg='#1a1a1a')
-        frame_input_2.pack(side='left', padx=10, pady=10)
-        frame_btns = Frame(frame_contenedor, bg='#1a1a1a')
-        frame_btns.pack(side='left', padx=10, pady=10)
+        form_right = Frame(card, bg='#f4f4f4')
+        form_right.grid(row=3, column=1, sticky='w', padx=(5, 15), pady=(0, 15))
 
-        Label(frame_input_1, text=f'Tipo de gasto:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(frame_input_1, textvariable=self.tipo_gasto_adm, width=40).pack(anchor='w', padx=30, pady=5)
+        Label(form_left, text='Tipo de gasto:', bg='#f4f4f4').grid(row=0, column=0, sticky='w', pady=3)
+        Entry(form_left, textvariable=self.tipo_gasto_adm, width=28).grid(row=1, column=0, sticky='w', pady=3)
 
-        Label(frame_input_1, text=f'Fecha:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        self.date_adm_widget = DateEntry(
-            frame_input_1,
-            width=27,
-            date_pattern='yyyy-mm-dd',
-            background='darkblue',
-            foreground='white',
-            borderwidth=2
-        )
-        self.date_adm_widget.pack(anchor='w', padx=30, pady=5)
+        Label(form_left, text='Fecha:', bg='#f4f4f4').grid(row=2, column=0, sticky='w', pady=3)
+        self.date_adm_widget = DateEntry(form_left, width=25, date_pattern='yyyy-mm-dd',
+                                         background='darkblue', foreground='white')
+        self.date_adm_widget.grid(row=3, column=0, sticky='w', pady=3)
 
-        Label(frame_input_1, text=f'Forma de pago:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        opciones = ['efectivo','tarjeta','transferencia','cheque','otro']
-        OptionMenu(frame_input_1, self.forma_pago_adm, *opciones).pack(anchor='w', padx=30, pady=5)
+        Label(form_left, text='Forma de pago:', bg='#f4f4f4').grid(row=4, column=0, sticky='w', pady=3)
+        opciones = ['efectivo', 'tarjeta', 'transferencia', 'cheque', 'otro']
+        if not self.forma_pago_adm.get():
+            self.forma_pago_adm.set(opciones[0])
+        OptionMenu(form_left, self.forma_pago_adm, *opciones).grid(row=5, column=0, sticky='w', pady=3)
 
-        Label(frame_input_2, text=f'Proveedor:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(frame_input_2, textvariable=self.proveedor_adm, width=40).pack(anchor='w', padx=30, pady=5)
+        Label(form_right, text='Proveedor:', bg='#f4f4f4').grid(row=0, column=0, sticky='w', pady=3)
+        Entry(form_right, textvariable=self.proveedor_adm, width=28).grid(row=1, column=0, sticky='w', pady=3)
 
-        Label(frame_input_2, text=f'Costo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(anchor='w', padx=30, pady=5)
-        Entry(frame_input_2, textvariable=self.costo_adm, width=40).pack(anchor='w', padx=30, pady=5)
+        Label(form_right, text='Costo:', bg='#f4f4f4').grid(row=2, column=0, sticky='w', pady=3)
+        Entry(form_right, textvariable=self.costo_adm, width=28).grid(row=3, column=0, sticky='w', pady=3)
 
-        Button(frame_btns, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black',
-               command=self.guardar_detalle_admin).pack(anchor='center', padx=30, pady=10)
-        Button(frame_btns, text='Eliminar', font=('Arial', 11, 'bold'), bg='white', fg='black',
-               command=self.eliminar_detalle_admin).pack(anchor='center', padx=30, pady=10)
+        Button(form_right, text='Guardar/Actualizar', bg='#333', fg='white',
+               font=('Arial', 10, 'bold'), command=self.guardar_detalle_admin).grid(row=4, column=0, sticky='w',
+                                                                                    pady=(10, 3))
+        Button(form_right, text='Eliminar', bg='#c0392b', fg='white',
+               font=('Arial', 10, 'bold'), command=self.eliminar_detalle_admin).grid(row=5, column=0, sticky='w',
+                                                                                     pady=3)
 
     def contenido_mano_obra(self):
-        Label(self.frame_mano_obra, text='Mano de Obra', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+        from PIL import Image, ImageTk
+        import os
 
+        self.frame_mano_obra.configure(bg='#1a1a1a')
+
+        # Fomdo
+        try:
+            ruta_fondo = os.path.join(os.path.dirname(__file__), 'imagenes', 'foto1.png')  # tu imagen aquí
+            fondo = Image.open(ruta_fondo)
+            fondo = fondo.resize((1100, 650), Image.LANCZOS)
+            self.bg_mo_img = ImageTk.PhotoImage(fondo)
+            # fondo centrado
+            Label(self.frame_mano_obra, image=self.bg_mo_img, bg='#1a1a1a').place(relx=0.5, rely=0.5, anchor='center')
+        except Exception:
+            pass
+
+        card = Frame(self.frame_mano_obra, bg='#f4f4f4')
+        card.place(relx=0.5, rely=0.5, anchor='center')
+
+        Label(card, text='Mano de Obra', font=('Arial', 18, 'bold'),
+              bg='#f4f4f4', fg='#333').grid(row=0, column=0, columnspan=2, pady=(15, 5))
+
+        # Total
         total = ServicioDetalleManoObra.obtener_costo_total_mano_obra(self.id_proyecto.get())
         self.total_costo_mano_obra.set(f'Total (Q): {total:.2f}')
-        Label(self.frame_mano_obra, textvariable=self.total_costo_mano_obra, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+        Label(card, textvariable=self.total_costo_mano_obra,
+              font=('Arial', 14, 'bold'), bg='#27ae60', fg='white',
+              padx=15, pady=6).grid(row=1, column=0, columnspan=2, pady=(0, 15))
 
-        frame_contenedor = Frame(self.frame_mano_obra, bg='#1a1a1a')
-        frame_contenedor.pack(fill='x', padx=20, pady=10)
+        tablas_frame = Frame(card, bg='#f4f4f4')
+        tablas_frame.grid(row=2, column=0, columnspan=2, padx=15, pady=(0, 15))
 
-        # Izquierda (Mano de obra)
-        frame_mano_obra_disponible = Frame(frame_contenedor, bg='#1a1a1a')
-        frame_mano_obra_disponible.pack(side=LEFT, fill=BOTH, expand=True, padx=(0, 10))
+        izq_frame = Frame(tablas_frame, bg='#f4f4f4')
+        izq_frame.pack(side='left', padx=(0, 10))
 
-        Label(frame_mano_obra_disponible, text='Trabajadores Disponibles', font=('Arial', 14, 'bold'), bg='#1a1a1a',
-              fg='white').pack(pady=10)
+        Label(izq_frame, text='Trabajadores Disponibles', font=('Arial', 13, 'bold'),
+              bg='#f4f4f4', fg='#333').pack(anchor='w', pady=(0, 5))
+
+        marco_izq = Frame(izq_frame, bg='white', bd=1, relief='solid')
+        marco_izq.pack()
 
         self.cabecera_trabajadores = ["ID", "Nombre", "Teléfono", "Ocupación"]
+        self.tree_trabajadores = ttk.Treeview(
+            marco_izq, height=7, columns=("#1", "#2", "#3"), show='headings'
+        )
+        self.tree_trabajadores.pack(fill='both', expand=True)
 
-        self.tree_trabajadores = ttk.Treeview(frame_mano_obra_disponible, height=10, columns=("#1", "#2", "#3"))
-        self.tree_trabajadores.pack(anchor='center', padx=10, pady=10)
+        self.tree_trabajadores.heading("#1", text="Nombre")
+        self.tree_trabajadores.heading("#2", text="Teléfono")
+        self.tree_trabajadores.heading("#3", text="Ocupación")
 
-        self.tree_trabajadores.column("#0", width=50)
-        self.tree_trabajadores.heading("#0", text=self.cabecera_trabajadores[0], anchor=CENTER)
-        self.tree_trabajadores.column("#1", width=200)
-        self.tree_trabajadores.heading("#1", text=self.cabecera_trabajadores[1], anchor=CENTER)
-        self.tree_trabajadores.column("#2", width=150)
-        self.tree_trabajadores.heading("#2", text=self.cabecera_trabajadores[2], anchor=CENTER)
-        self.tree_trabajadores.column("#3", width=150)
-        self.tree_trabajadores.heading("#3", text=self.cabecera_trabajadores[3], anchor=CENTER)
+        self.tree_trabajadores.column("#1", width=140)
+        self.tree_trabajadores.column("#2", width=90)
+        self.tree_trabajadores.column("#3", width=120)
+
         self.tree_trabajadores.bind("<<TreeviewSelect>>", self.seleccionarTrabajadorUsandoClick)
 
         GestorManoObra.mostrar(self.tree_trabajadores)
 
-        # Derecha (Detalle mano de obra)
-        frame_detalle_mano_obra = Frame(frame_contenedor, bg='#1a1a1a')
-        frame_detalle_mano_obra.pack(side=RIGHT, fill=BOTH, expand=True, padx=(10, 0))
+        der_frame = Frame(tablas_frame, bg='#f4f4f4')
+        der_frame.pack(side='left', padx=(10, 0))
 
-        Label(frame_detalle_mano_obra, text='Trabajadores del Proyecto', font=('Arial', 14, 'bold'), bg='#1a1a1a',
-              fg='white').pack(pady=10)
+        Label(der_frame, text='Trabajadores del Proyecto', font=('Arial', 13, 'bold'),
+              bg='#f4f4f4', fg='#333').pack(anchor='w', pady=(0, 5))
 
-        self.cabecera_detalle_trabajadores = ["ID", "Nombre", "Ocupación", "Tipo Trabajo", "Costo"]
+        marco_der = Frame(der_frame, bg='white', bd=1, relief='solid')
+        marco_der.pack()
 
-        self.tree_detalle_trabajadores = ttk.Treeview(frame_detalle_mano_obra, height=10, columns=("#1", "#2", "#3", "#4"))
-        self.tree_detalle_trabajadores.pack(anchor='center', padx=10, pady=10)
+        self.cabecera_detalle_trabajadores = ["Nombre", "Ocupación", "Tipo Trabajo", "Costo"]
+        self.tree_detalle_trabajadores = ttk.Treeview(
+            marco_der, height=7, columns=("#1", "#2", "#3", "#4"), show='headings'
+        )
+        self.tree_detalle_trabajadores.pack(fill='both', expand=True)
 
-        self.tree_detalle_trabajadores.column("#0", width=50)
-        self.tree_detalle_trabajadores.heading("#0", text=self.cabecera_detalle_trabajadores[0], anchor=CENTER)
-        self.tree_detalle_trabajadores.column("#1", width=200)
-        self.tree_detalle_trabajadores.heading("#1", text=self.cabecera_detalle_trabajadores[1], anchor=CENTER)
-        self.tree_detalle_trabajadores.column("#2", width=150)
-        self.tree_detalle_trabajadores.heading("#2", text=self.cabecera_detalle_trabajadores[2], anchor=CENTER)
-        self.tree_detalle_trabajadores.column("#3", width=150)
-        self.tree_detalle_trabajadores.heading("#3", text=self.cabecera_detalle_trabajadores[3], anchor=CENTER)
-        self.tree_detalle_trabajadores.column("#4", width=100)
-        self.tree_detalle_trabajadores.heading("#4", text=self.cabecera_detalle_trabajadores[4], anchor=CENTER)
+        self.tree_detalle_trabajadores.heading("#1", text="Nombre")
+        self.tree_detalle_trabajadores.heading("#2", text="Ocupación")
+        self.tree_detalle_trabajadores.heading("#3", text="Tipo Trabajo")
+        self.tree_detalle_trabajadores.heading("#4", text="Costo")
+
+        self.tree_detalle_trabajadores.column("#1", width=130)
+        self.tree_detalle_trabajadores.column("#2", width=110)
+        self.tree_detalle_trabajadores.column("#3", width=130)
+        self.tree_detalle_trabajadores.column("#4", width=70, anchor='e')
+
         self.tree_detalle_trabajadores.bind("<<TreeviewSelect>>", self.seleccionarDetalleTrabajadorUsandoClick)
-
         GestorDetalleManoObra.mostrar(self.tree_detalle_trabajadores, self.id_proyecto.get())
 
-        frame_campos_trab1 = Frame(self.frame_mano_obra, bg='#1a1a1a')
-        frame_campos_trab1.pack(anchor='center', pady=5)
-        frame_campos_trab2 = Frame(self.frame_mano_obra, bg='#1a1a1a')
-        frame_campos_trab2.pack(anchor='center', pady=5)
-        frame_campos_trab3 = Frame(self.frame_mano_obra, bg='#1a1a1a')
-        frame_campos_trab3.pack(anchor='center', pady=5)
+        form_frame = Frame(card, bg='#f4f4f4')
+        form_frame.grid(row=3, column=0, columnspan=2, pady=(0, 15))
 
+        fila1 = Frame(form_frame, bg='#f4f4f4')
+        fila1.pack(pady=3)
+        Label(fila1, text='Nombre:', bg='#f4f4f4').pack(side='left', padx=3)
+        Label(fila1, textvariable=self.nombre_trabajador, width=25, bg='white').pack(side='left', padx=3)
+        Label(fila1, text='Ocupación:', bg='#f4f4f4').pack(side='left', padx=3)
+        Label(fila1, textvariable=self.ocupacion_trabajador, width=20, bg='white').pack(side='left', padx=3)
 
-        Label(frame_campos_trab1, text=f'Nombre:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Label(frame_campos_trab1, textvariable=self.nombre_trabajador, width=30, bg='white', fg='black').pack(side=LEFT, padx=4)
-        Label(frame_campos_trab1, text=f'Ocupación:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Label(frame_campos_trab1, textvariable=self.ocupacion_trabajador, width=20, bg='white', fg='black').pack(side=LEFT, padx=4)
+        fila2 = Frame(form_frame, bg='#f4f4f4')
+        fila2.pack(pady=3)
+        Label(fila2, text='Tipo de Trabajo:', bg='#f4f4f4').pack(side='left', padx=3)
+        Entry(fila2, textvariable=self.tipo_trabajo, width=25).pack(side='left', padx=3)
+        Label(fila2, text='Costo (Q):', bg='#f4f4f4').pack(side='left', padx=3)
+        Entry(fila2, textvariable=self.costo_trabajo, width=8).pack(side='left', padx=3)
 
-        Label(frame_campos_trab2, text=f'Tipo de Trabajo:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Entry(frame_campos_trab2, textvariable=self.tipo_trabajo, width=30).pack(side=LEFT, padx=4)
-        Label(frame_campos_trab2, text=f'Costo (Q):', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Entry(frame_campos_trab2, textvariable=self.costo_trabajo, width=10).pack(side=LEFT, padx=4)
-
-        Button(frame_campos_trab3, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.guardar_detalle_trabajador).pack(anchor='center', padx=30, pady=10)
-        Button(frame_campos_trab3, text='Eliminar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.eliminar_detalle_trabajador).pack(anchor='center', padx=30, pady=10)
-
+        fila3 = Frame(form_frame, bg='#f4f4f4')
+        fila3.pack(pady=6)
+        Button(fila3, text='Guardar/Actualizar', bg='#333', fg='white',
+               font=('Arial', 10, 'bold'), command=self.guardar_detalle_trabajador).pack(side='left', padx=5)
+        Button(fila3, text='Eliminar', bg='#c0392b', fg='white',
+               font=('Arial', 10, 'bold'), command=self.eliminar_detalle_trabajador).pack(side='left', padx=5)
 
     def contenido_materiales(self):
-        Label(self.frame_materiales, text='Materiales del Proyecto', font=('Arial', 16, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+        from PIL import Image, ImageTk
+        import os
 
+        # Fondo
+        self.frame_materiales.configure(bg='#1a1a1a')
+
+        try:
+            ruta_fondo = os.path.join(os.path.dirname(__file__), 'imagenes', 'foto4.png')
+            fondo = Image.open(ruta_fondo)
+            fondo = fondo.resize((1100, 650), Image.LANCZOS)
+            self.bg_mat_img = ImageTk.PhotoImage(fondo)
+            Label(self.frame_materiales, image=self.bg_mat_img, bg='#1a1a1a').place(relx=0.5, rely=0.5, anchor='center')
+        except Exception:
+            # si no hay imagen no pasa nada
+            pass
+
+        card = Frame(self.frame_materiales, bg='#f4f4f4')
+        card.place(relx=0.5, rely=0.5, anchor='center')
+
+        Label(card, text='Materiales del Proyecto',
+              font=('Arial', 18, 'bold'), bg='#f4f4f4', fg='#333').grid(row=0, column=0, pady=(15, 5))
+
+        # Total
         total = ServicioDetalleMateriales.obtener_costo_total_materiales(self.id_proyecto.get())
         self.total_costo_materiales.set(f'Total (Q): {total:.2f}')
-        Label(self.frame_materiales, textvariable=self.total_costo_materiales, font=('Arial', 14, 'bold'), bg='#1a1a1a', fg='white').pack(pady=20)
+        Label(card, textvariable=self.total_costo_materiales,
+              font=('Arial', 14, 'bold'), bg='#27ae60', fg='white',
+              padx=15, pady=6).grid(row=1, column=0, pady=(0, 15))
+
+        tabla_wrap = Frame(card, bg='#f4f4f4')
+        tabla_wrap.grid(row=2, column=0, padx=15)
+
+        tabla_frame = Frame(tabla_wrap, bg='white', bd=1, relief='solid')
+        tabla_frame.pack()
 
         self.cabecera_mat = ["ID", "Descripción", "Unidad", "Costo Unitario", "Cantidad", "Costo total"]
 
-        self.tree_mat = ttk.Treeview(self.frame_materiales, height=10, columns=("#1", "#2", "#3", "#4", "#5"))
-        self.tree_mat.pack(anchor='center', padx=10, pady=10)
+        self.tree_mat = ttk.Treeview(tabla_frame, height=8,
+                                     columns=("#1", "#2", "#3", "#4", "#5"))
+        self.tree_mat.pack(fill='both', expand=True)
 
-        self.tree_mat.column("#0", width=50)
-        self.tree_mat.heading("#0", text=self.cabecera_mat[0], anchor=CENTER)
-        self.tree_mat.column("#1", width=350)
-        self.tree_mat.heading("#1", text=self.cabecera_mat[1], anchor=CENTER)
-        self.tree_mat.column("#2", width=150)
-        self.tree_mat.heading("#2", text=self.cabecera_mat[2], anchor=CENTER)
-        self.tree_mat.column("#3", width=150)
-        self.tree_mat.heading("#3", text=self.cabecera_mat[3], anchor=CENTER)
-        self.tree_mat.column("#4", width=150)
-        self.tree_mat.heading("#4", text=self.cabecera_mat[4], anchor=CENTER)
-        self.tree_mat.column("#5", width=150)
-        self.tree_mat.heading("#5", text=self.cabecera_mat[5], anchor=CENTER)
+        self.tree_mat.column("#0", width=40, anchor='center')
+        self.tree_mat.heading("#0", text=self.cabecera_mat[0], anchor='center')
+
+        self.tree_mat.column("#1", width=260)
+        self.tree_mat.heading("#1", text=self.cabecera_mat[1], anchor='center')
+
+        self.tree_mat.column("#2", width=90)
+        self.tree_mat.heading("#2", text=self.cabecera_mat[2], anchor='center')
+
+        self.tree_mat.column("#3", width=90, anchor='e')
+        self.tree_mat.heading("#3", text=self.cabecera_mat[3], anchor='center')
+
+        self.tree_mat.column("#4", width=80, anchor='center')
+        self.tree_mat.heading("#4", text=self.cabecera_mat[4], anchor='center')
+
+        self.tree_mat.column("#5", width=90, anchor='e')
+        self.tree_mat.heading("#5", text=self.cabecera_mat[5], anchor='center')
+
         self.tree_mat.bind("<<TreeviewSelect>>", self.seleccionarMaterialesUsandoClick)
+
         GestorDetalleMateriales.mostrar(self.tree_mat, self.id_proyecto.get())
 
-        frame_campos_mat1 = Frame(self.frame_materiales, bg='#1a1a1a')
-        frame_campos_mat1.pack(anchor='center', pady=5)
-        frame_campos_mat2 = Frame(self.frame_materiales, bg='#1a1a1a')
-        frame_campos_mat2.pack(anchor='center', pady=5)
+        form = Frame(card, bg='#f4f4f4')
+        form.grid(row=3, column=0, pady=(15, 15))
 
-        Label(frame_campos_mat1, text=f'Descripción:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Label(frame_campos_mat1, textvariable=self.descripcion_material, width=40, bg='white', fg='black').pack(side=LEFT, padx=4)
-        Label(frame_campos_mat1, text=f'Unidad:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Label(frame_campos_mat1, textvariable=self.unidad_material, width=20, bg='white', fg='black').pack(side=LEFT, padx=4)
-        Label(frame_campos_mat2, text=f'Costo unitario:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Label(frame_campos_mat2, textvariable=self.costo_unitario, width=10, bg='white', fg='black').pack(side=LEFT, padx=4)
-        Label(frame_campos_mat2, text=f'Cantidad:', font=('Arial', 12), bg='#1a1a1a', fg='white').pack(side=LEFT, padx=4)
-        Entry(frame_campos_mat2, textvariable=self.cantidad_material, width=10).pack(side=LEFT, padx=4)
+        fila1 = Frame(form, bg='#f4f4f4')
+        fila1.pack(pady=3)
+        Label(fila1, text='Descripción:', bg='#f4f4f4').pack(side='left', padx=3)
+        Label(fila1, textvariable=self.descripcion_material, width=35, bg='white').pack(side='left', padx=3)
+        Label(fila1, text='Unidad:', bg='#f4f4f4').pack(side='left', padx=3)
+        Label(fila1, textvariable=self.unidad_material, width=15, bg='white').pack(side='left', padx=3)
 
-        Button(self.frame_materiales, text='Guardar/Actualizar', font=('Arial', 11, 'bold'), bg='white', fg='black', command=self.guardar_detalle_material).pack(anchor='center', padx=30, pady=10)
+        fila2 = Frame(form, bg='#f4f4f4')
+        fila2.pack(pady=3)
+        Label(fila2, text='Costo unitario:', bg='#f4f4f4').pack(side='left', padx=3)
+        Label(fila2, textvariable=self.costo_unitario, width=10, bg='white').pack(side='left', padx=3)
+        Label(fila2, text='Cantidad:', bg='#f4f4f4').pack(side='left', padx=3)
+        Entry(fila2, textvariable=self.cantidad_material, width=10).pack(side='left', padx=3)
 
+        fila3 = Frame(form, bg='#f4f4f4')
+        fila3.pack(pady=6)
+        Button(fila3, text='Guardar/Actualizar',
+               bg='#333', fg='white',
+               font=('Arial', 10, 'bold'),
+               command=self.guardar_detalle_material).pack()
 
     # ---------- MÉTODOS DE ACCIONES ----------
 
@@ -1663,7 +1840,6 @@ class MenuPrincipal:
             messagebox.showinfo("Éxito", f"Proyecto eliminado.")
             GestorDetalleProyecto.mostrar(self.tree, self.id_usuario)
 
-
     def guardar_detalle_admin(self):
         id_proyecto = self.id_proyecto.get()
         id_admin = self.id_admin.get()
@@ -1722,8 +1898,6 @@ class MenuPrincipal:
             self.total_costo_administracion.set(f'Total (Q): {total_admin:.2f}')
 
         GestorAdministracion.mostrar(self.tree_adm, id_proyecto)
-
-
 
     def guardar_detalle_material(self):
         proyecto = self.id_proyecto.get()
@@ -1803,7 +1977,6 @@ class MenuPrincipal:
             self.total_costo_mano_obra.set(f'Total (Q): {total_materiales:.2f}')
 
         GestorDetalleMateriales.mostrar(self.tree_mat, self.id_proyecto.get())
-
 
     def seleccionarProyectosUsandoClick(self, event):
         seleccionado = self.tree.selection()
@@ -1894,7 +2067,6 @@ class MenuPrincipal:
             fecha_adm_obj = datetime.strptime(self.fecha_gasto.get(), '%Y-%m-%d')
             self.date_adm_widget.set_date(fecha_adm_obj)
 
-
     def ir_a_mat(self):
         Materiales()
 
@@ -1902,7 +2074,6 @@ class MenuPrincipal:
         ventana_menu_principal.destroy()
         ventana_login.deiconify()
         ventana_login.state('zoomed')
-
 
 create_db()
 app = ControladorLogin.iniciar_app()
