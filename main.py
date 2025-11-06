@@ -880,6 +880,7 @@ class MenuPrincipal:
         self.menu_bar_frame.pack_propagate(False)
         self.menu_bar_frame.configure(width=45)
 
+
     def configurar_menu_lateral(self):
         self.home_btn_indicator = Label(self.menu_bar_frame, bg='black')
         self.home_btn_indicator.place(x=3, y=250, height=40, width=3)
